@@ -1,0 +1,24 @@
+/* Estilo personalizado para el navbar */
+.layout-navbar.container-xxl {
+    /* Opción A: Ancho completo (elimina el margen) */
+    max-width: 100%;
+    
+    /* Opción B: Un ancho personalizado (elige el que prefieras) */
+    /* max-width: 1400px; */ /* Comentado por si prefieres esta opción */
+    
+    /* Para que se vea centrado si usas max-width personalizado */
+    margin-left: auto;
+    margin-right: auto;
+    
+    /* Ajuste fino de padding (Bootstrap ya tiene px-1, esto es un extra) */
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+}
+
+/* Si quieres modificarlo solo en pantallas grandes */
+@media (min-width: 1400px) {
+    .layout-navbar.container-xxl {
+        /* Puedes poner un ancho específico para pantallas extra grandes */
+        /* max-width: 1320px; */
+    }
+}

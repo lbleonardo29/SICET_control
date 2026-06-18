@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Carta Responsiva SICET</title>
+
+    @php
+        $logoIzqPath = public_path('img/logo_izq.png');
+        $logoDerPath = public_path('img/logo_der.png');
+
+        $logoIzq = file_exists($logoIzqPath) 
+            ? base64_encode(file_get_contents($logoIzqPath)) 
+            : null;
+
+        $logoDer = file_exists($logoDerPath) 
+            ? base64_encode(file_get_contents($logoDerPath)) 
+            : null;
+    @endphp
+
+    <style>
+        /* RESET y formato general */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12pt;
+            line-height: 1.5;
+            color: #000000;
+            margin: 2.5cm;
+        }
+
+        /* Encabezado con logos */
+        .encabezado {
+            width: 100%;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .logo-izq {
+            float: left;
+            width: 80px;
+        }
+
+        .logo-der {
+            float: right;
+            width: 80px;
+        }
+
+        .clearfix {
+            clear: both;
+        }
+
+        /* Título principal */
+        .titulo {
+            text-align: center;
+            font-weight: bold;
+            font-size: 14pt;
+            margin: 40px 0 20px 0;
+        }
+
+        /* Fecha */
+        .fecha {
+            text-align: right;
+            margin-bottom: 30px;
+        }
+
+        /* Texto justificado */
+        .texto {
+            text-align: justify;
+            margin-bottom: 15px;
+        }
+
+        /* Tabla de datos del equipo */
+        .tabla-equipo {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .tabla-equipo td {
+            border: 1px solid #000000;
+            padding: 8px;
+            vertical-align: top;
+        }
+
+        .tabla-equipo .etiqueta {
+            width: 25%;
+            font-weight: bold;
+            background-color: #f5f5f5;
+        }
+
+        /* Tabla de firmas (dos columnas) */
+        .tabla-firmas {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 40px;
+        }
+
+        .tabla-firmas td {
+            width: 50%;
+            vertical-align: top;
+            padding: 10px;
+        }
+
+        .firma-linea {
+            border-top: 1px solid #000000;
+            margin-top: 40px;
+            padding-top: 5px;
+            width: 80%;
+        }
+
+        .nombre-firma {
+            margin-top: 10px;
+            font-weight: normal;
+        }
+
+        .nota {
+            margin-top: 40px;
+            font-size: 10pt;
+            font-style: italic;
+            text-align: center;
+        }
+
+        /* Asegurar que ocupe toda la hoja */
+        html, body {
+            height: 100%;
+        }
+
+        .contenido {
+            min-height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="contenido">
+
+    {{-- ENCABEZADO CON LOGOS --}}
+    <div class="encabezado">
+        @if($logoIzq)
+            <img class="logo-izq" src="data:image/png;base64,{{ $logoIzq }}" alt="Logo izquierdo">
+        @endif
+
+        @if($logoDer)
+            <img class="logo-der" src="data:image/png;base64,{{ $logoDer }}" alt="Logo derecho">
+        @endif
+        <div class="clearfix"></div>
+    </div>
+
+    {{-- TÍTULO PRINCIPAL --}}
+    <div class="titulo">
+        CARTA RESPONSIVA EQUIPO DE CÓMPUTO PORTÁTIL
+    </div>
+
+    {{-- FECHA --}}
+    <div class="fecha">
+        Fecha: {{ now()->format('d/m/Y') }}
+    </div>
+
+    {{-- TEXTO DE RECEPCIÓN --}}
+    <div class="texto">
+        Recibí de <strong>Fruitex de México, S. A. P. I. de C. V.</strong> el equipo que a continuación se describe:
+    </div>
+
+    {{-- TABLA DE DATOS DEL EQUIPO --}}
+    <table class="tabla-equipo">
+        <tr>
+            <td class="etiqueta">Marca</td>
+            <td>{{ $equipo->marca ?? '_________________________' }}</td>
+        </tr>
+        <tr>
+            <td class="etiqueta">Modelo</td>
+            <td>{{ $equipo->modelo ?? '_________________________' }}</td>
+        </tr>
+        <tr>
+            <td class="etiqueta">No. de Serie</td>
+            <td>{{ $equipo->numero_serie ?? $equipo->serie ?? '_________________________' }}</td>
+        </tr>
+        <tr>
+            <td class="etiqueta">Características</td>
+            <td>
+                @if($equipo)
+                    @if($equipo->procesador) Procesador: {{ $equipo->procesador }}<br> @endif
+                    @if($equipo->ram) RAM: {{ $equipo->ram }}<br> @endif
+                    @if($equipo->ssd || $equipo->disco) Disco: {{ $equipo->ssd ?? $equipo->disco }}<br> @endif
+                    @if($equipo->color) Color: {{ $equipo->color }}<br> @endif
+                    @if(!$equipo->procesador && !$equipo->ram && !$equipo->ssd && !$equipo->color)
+                        _________________________
+                    @endif
+                @else
+                    _________________________
+                @endif
+            </td>
+        </tr>
+    </table>
+
+    {{-- TEXTO LEGAL --}}
+    <div class="texto">
+        El cual me comprometo a cuidar, mantener en buen estado y utilizar única y exclusivamente para asuntos relacionados con mi actividad laboral.
+    </div>
+
+    <div class="texto">
+        Adicionalmente, se le comunica que al firmar la presente responsiva acepta y reconoce que en caso de extravío, daño o uso inadecuado del equipo descrito o sus accesorios, se responsabiliza a pagar el costo de reparación o la reposición del mismo, a entera satisfacción de Fruitex de México, S. A. P. I. de C. V.
+    </div>
+
+    <div class="texto">
+        En adición se hace de su conocimiento que tiene estrictamente prohibido modificar la configuración del equipo o instalar software sin previa autorización de la Gerencia de Tecnologías de la Información.
+    </div>
+
+    {{-- TABLA DE FIRMAS (como lo solicitaste) --}}
+    <table class="tabla-firmas">
+        <tr>
+            <td>
+                <div class="firma-linea"></div>
+                <div class="nombre-firma">
+                    <strong>FIRMA DE ACEPTACIÓN:</strong>
+                </div>
+            </td>
+            <td>
+                <div class="firma-linea"></div>
+                <div class="nombre-firma">
+                    <strong>FIRMA DE QUIEN ENTREGA:</strong>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <strong>NOMBRE:</strong><br>
+                {{ $empleado->nombre_completo ?? $empleado->nombre ?? '_________________________' }}
+            </td>
+            <td>
+                <strong>NOMBRE:</strong><br>
+                {{ auth()->user()->name ?? '_________________________' }}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <strong>NUMERO DE EMPLEADO:</strong><br>
+                {{ $empleado->numero_empleado ?? $empleado->id ?? '_________________________' }}
+            </td>
+            <td>
+                &nbsp;
+            </td>
+        </tr>
+    </table>
+
+    {{-- NOTA OPCIONAL --}}
+    <div class="nota">
+        Este documento es de carácter oficial y forma parte del control de activos de la empresa.
+    </div>
+
+</div>
+
+</body>
+</html>
