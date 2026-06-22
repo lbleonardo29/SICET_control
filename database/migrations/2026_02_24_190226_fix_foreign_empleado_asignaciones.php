@@ -6,39 +6,16 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    // Esta migración era para corregir una FK a tbl_empleados (tabla renombrada).
+    // La tabla asignaciones ya referencia correctamente a empleados.id — no se requiere acción.
+
     public function up()
     {
-        Schema::table('asignaciones', function (Blueprint $table) {
-
-            // 1️⃣ Eliminar FK vieja
-            $table->dropForeign('fk_asignaciones_empleado');
-
-            // 2️⃣ Cambiar tipo de columna
-            $table->integer('empleado_id')->change();
-
-            // 3️⃣ Crear FK correcta
-            $table->foreign('empleado_id')
-                  ->references('id_emp')
-                  ->on('tbl_empleados')
-                  ->onDelete('cascade');
-        });
+        // no-op
     }
 
     public function down()
     {
-        Schema::table('asignaciones', function (Blueprint $table) {
-
-            // Eliminar FK correcta
-            $table->dropForeign(['empleado_id']);
-
-            // Restaurar tipo anterior (bigint unsigned)
-            $table->unsignedBigInteger('empleado_id')->change();
-
-            // Crear FK vieja (si existía)
-            $table->foreign('empleado_id')
-                  ->references('id')
-                  ->on('empleados')
-                  ->onDelete('cascade');
-        });
+        // no-op
     }
 };

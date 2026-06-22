@@ -6,17 +6,16 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    // La tabla 'empleados' ya incluye 'numero_empleado' desde su migración original.
+    // Esta migración referenciaba 'tbl_empleados' (tabla renombrada) — no se requiere acción.
+
     public function up()
     {
-        Schema::table('tbl_empleados', function (Blueprint $table) {
-            $table->string('numero_empleado', 50)->nullable()->after('id_emp');
-        });
+        // no-op
     }
 
     public function down()
     {
-        Schema::table('tbl_empleados', function (Blueprint $table) {
-            $table->dropColumn('numero_empleado');
-        });
+        // no-op
     }
 };

@@ -79,7 +79,7 @@
                     <select name="empleado_id" class="form-select">
                         <option value="">Todos los empleados</option>
                         @foreach($empleadosFiltro ?? [] as $emp)
-                            <option value="{{ $emp->id_emp }}" {{ request('empleado_id') == $emp->id_emp ? 'selected' : '' }}>
+                            <option value="{{ $emp->id }}" {{ request('empleado_id') == $emp->id ? 'selected' : '' }}>
                                 {{ $emp->nombre_completo }}
                             </option>
                         @endforeach

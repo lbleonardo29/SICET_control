@@ -28,7 +28,7 @@ class AsignacionController extends Controller
             ->orderBy('fecha_asignacion', 'desc')
             ->get();
 
-        $empleados = Empleado::where(function($q) { $q->where('activo', 'S')->orWhere('activo', 1); })->get();
+        $empleados = Empleado::where('activo', 1)->get();
         $equiposDisponibles = Equipo::where('estado', 'Disponible')->get();
 
         return view('asignaciones.index', compact('asignaciones', 'empleados', 'equiposDisponibles'));
@@ -47,7 +47,7 @@ class AsignacionController extends Controller
         if ($request->q) {
             $query->where(function ($subquery) use ($request) {
                 $subquery->whereHas('empleado', function ($q) use ($request) {
-                    $q->whereRaw("CONCAT(nombre, ' ', apellidos) LIKE ?", ['%' . $request->q . '%']);
+                    $q->where('nombre_completo', 'LIKE', '%' . $request->q . '%');
                 })->orWhereHas('equipo', function ($q) use ($request) {
                     $q->where('marca', 'like', '%' . $request->q . '%')
                       ->orWhere('modelo', 'like', '%' . $request->q . '%')
@@ -81,7 +81,7 @@ class AsignacionController extends Controller
             ->withQueryString();
 
         // ✅ Datos para los filtros de la vista
-        $empleadosFiltro = Empleado::where(function($q) { $q->where('activo', 'S')->orWhere('activo', 1); })->get();
+        $empleadosFiltro = Empleado::where('activo', 1)->get();
         $equiposFiltro = Equipo::all();
 
         return view('asignaciones.dashboard', compact('asignaciones', 'empleadosFiltro', 'equiposFiltro'));
@@ -100,10 +100,8 @@ class AsignacionController extends Controller
                 ->with('error', 'Esta computadora no está disponible para asignación.');
         }
 
-        // ✅ EMPLEADOS ACTIVOS (acepta 'S' o 1) QUE TENGAN USUARIO
-        $empleados = Empleado::where(function($q) {
-                $q->where('activo', 'S')->orWhere('activo', 1);
-            })
+        // ✅ EMPLEADOS ACTIVOS QUE TENGAN USUARIO
+        $empleados = Empleado::where('activo', 1)
             ->whereHas('user', function($q) {
                 $q->whereIn('role', ['admin', 'user', 'seguridad']);
             })
@@ -121,7 +119,7 @@ class AsignacionController extends Controller
     {
         $request->validate([
             'equipo_id' => 'required|exists:equipos,id',
-            'empleado_id' => 'required|exists:tbl_empleados,id_emp',
+            'empleado_id' => 'required|exists:empleados,id',
             'fecha_asignacion' => 'required|date|before_or_equal:today',
         ]);
 
@@ -176,7 +174,7 @@ class AsignacionController extends Controller
         $equipo->update(['estado' => 'Pendiente']);
 
         // Buscar empleado
-        $empleado = Empleado::where('id_emp', $request->empleado_id)->first();
+        $empleado = Empleado::where('id', $request->empleado_id)->first();
 
         // =====================================================
         // GENERAR PDF
@@ -205,7 +203,7 @@ class AsignacionController extends Controller
         // =====================================================
         // ENVIAR CORREO DE NOTIFICACIÓN (sin enlaces)
         // =====================================================
-        if ($empleado && $empleado->email) {
+        if ($empleado && $empleado->correo) {
             try {
                 Mail::to('rogatwin09@gmail.com')->send(new AsignacionPendiente($asignacion, 'equipo'));
             } catch (\Exception $e) {
@@ -382,7 +380,7 @@ class AsignacionController extends Controller
     {
         $term = $request->get('term');
         
-        $empleados = Empleado::where(function($q) { $q->where('activo', 'S')->orWhere('activo', 1); })
+        $empleados = Empleado::where('activo', 1)
             ->whereHas('user', function($q) {
                 $q->whereIn('role', ['admin', 'user', 'seguridad']);
             })
@@ -391,7 +389,7 @@ class AsignacionController extends Controller
                   ->orWhere('numero_empleado', 'LIKE', "%{$term}%");
             })
             ->limit(10)
-            ->get(['id_emp', 'nombre_completo', 'numero_empleado']);
+            ->get(['id', 'nombre_completo', 'numero_empleado']);
 
         return response()->json($empleados);
     }

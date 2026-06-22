@@ -24,7 +24,7 @@ class Reporte extends Model
     }
 
     public function empleado()
-{
-    return $this->belongsTo(Empleado::class, 'numero_empleado', 'id_emp');
-}
+    {
+        return $this->belongsTo(Empleado::class, 'numero_empleado', 'numero_empleado');
+    }
 }

@@ -11,7 +11,7 @@
         </h2>
         <span class="badge bg-primary px-3 py-2">
             <i class="bi bi-person-badge me-1"></i>
-            ID: {{ $empleado->id_emp }}
+            ID: {{ $empleado->numero_empleado }}
         </span>
     </div>
 
@@ -45,8 +45,8 @@
                 </div>
 
                 <div class="card-body p-4">
-                    <form action="{{ route('empleados.update', $empleado->id_emp) }}" 
-                          method="POST" 
+                    <form action="{{ route('empleados.update', $empleado->id) }}"
+                          method="POST"
                           id="empleadoForm">
                         @csrf
                         @method('PUT')
@@ -59,9 +59,9 @@
                                     <i class="bi bi-badge-id me-1 text-warning"></i>
                                     Número de Empleado
                                 </label>
-                                <input type="text" 
+                                <input type="text"
                                        class="form-control form-control-lg bg-light"
-                                       value="{{ $empleado->id_emp }}"
+                                       value="{{ $empleado->numero_empleado }}"
                                        disabled>
                                 <div class="form-text">
                                     <i class="bi bi-info-circle me-1"></i>
@@ -89,36 +89,19 @@
                                 </div>
                             </div>
 
-                            {{-- Nombre --}}
-                            <div class="col-md-6">
+                            {{-- Nombre completo --}}
+                            <div class="col-md-12">
                                 <label class="form-label fw-semibold">
                                     <i class="bi bi-person me-1 text-warning"></i>
-                                    Nombre <span class="text-danger">*</span>
+                                    Nombre Completo <span class="text-danger">*</span>
                                 </label>
-                                <input type="text" 
-                                       name="nombre" 
+                                <input type="text"
+                                       name="nombre"
                                        class="form-control form-control-lg @error('nombre') is-invalid @enderror"
-                                       value="{{ old('nombre', $empleado->nombre) }}" 
-                                       placeholder="Ej: Juan"
+                                       value="{{ old('nombre', $empleado->nombre_completo) }}"
+                                       placeholder="Ej: Juan Pérez García"
                                        required>
                                 @error('nombre')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            {{-- Apellidos --}}
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold">
-                                    <i class="bi bi-person me-1 text-warning"></i>
-                                    Apellidos <span class="text-danger">*</span>
-                                </label>
-                                <input type="text" 
-                                       name="apellidos" 
-                                       class="form-control form-control-lg @error('apellidos') is-invalid @enderror"
-                                       value="{{ old('apellidos', $empleado->apellidos) }}" 
-                                       placeholder="Ej: Pérez García"
-                                       required>
-                                @error('apellidos')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -133,7 +116,7 @@
                                        name="email" 
                                        id="email"
                                        class="form-control form-control-lg @error('email') is-invalid @enderror"
-                                       value="{{ old('email', $empleado->email) }}" 
+                                       value="{{ old('email', $empleado->correo) }}"
                                        placeholder="Ej: juan.perez@ejemplo.com"
                                        required>
                                 <div class="form-text" id="emailHelp"></div>
@@ -148,11 +131,11 @@
                                     <i class="bi bi-building me-1 text-warning"></i>
                                     Planta
                                 </label>
-                                <select name="id_planta" class="form-select form-select-lg">
-                                    <option value="">Sin asignar</option>
+                                <select name="planta_id" class="form-select form-select-lg" required>
+                                    <option value="">Seleccione una planta</option>
                                     @foreach($plantas ?? [] as $planta)
-                                        <option value="{{ $planta->id }}" 
-                                            {{ old('id_planta', $empleado->id_planta) == $planta->id ? 'selected' : '' }}>
+                                        <option value="{{ $planta->id }}"
+                                            {{ old('planta_id', $empleado->planta_id) == $planta->id ? 'selected' : '' }}>
                                             {{ $planta->nombre }}
                                         </option>
                                     @endforeach
@@ -242,7 +225,7 @@
                                         <div class="alert alert-info mt-3 mb-0">
                                             <i class="bi bi-info-circle me-2"></i>
                                             <small>
-                                                <strong>Usuario:</strong> {{ $empleado->nombre }} {{ $empleado->apellidos }} ({{ $empleado->email }})
+                                                <strong>Usuario:</strong> {{ $empleado->nombre_completo }} ({{ $empleado->correo }})
                                             </small>
                                         </div>
                                     </div>

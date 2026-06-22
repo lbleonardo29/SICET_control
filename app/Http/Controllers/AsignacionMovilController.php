@@ -27,7 +27,7 @@ class AsignacionMovilController extends Controller
         if ($request->q) {
             $query->where(function ($sub) use ($request) {
                 $sub->whereHas('empleado', function ($q) use ($request) {
-                    $q->whereRaw("CONCAT(nombre, ' ', apellidos) LIKE ?", ['%' . $request->q . '%']);
+                    $q->where('nombre_completo', 'LIKE', '%' . $request->q . '%');
                 })->orWhereHas('dispositivo', function ($q) use ($request) {
                     $q->where('marca', 'like', '%' . $request->q . '%')
                       ->orWhere('modelo', 'like', '%' . $request->q . '%')
@@ -61,7 +61,7 @@ class AsignacionMovilController extends Controller
             ->withQueryString();
 
         // ✅ Datos para los filtros
-        $empleadosFiltro = Empleado::where('activo', 'S')->get();
+        $empleadosFiltro = Empleado::where('activo', 1)->get();
         $dispositivosFiltro = DispositivoMovil::all();
 
         return view('asignaciones_moviles.dashboard', compact('asignaciones', 'empleadosFiltro', 'dispositivosFiltro'));
@@ -96,9 +96,7 @@ class AsignacionMovilController extends Controller
         }
         
         // ✅ SOLO EMPLEADOS ACTIVOS QUE TENGAN USUARIO (CON ROL)
-$empleados = Empleado::where(function($q) {
-        $q->where('activo', 'S')->orWhere('activo', 1)->orWhere('activo', '1');
-    })
+$empleados = Empleado::where('activo', 1)
     ->whereHas('user', function($q) {
         $q->whereIn('role', ['admin', 'user', 'seguridad']);
     })
@@ -114,7 +112,7 @@ $empleados = Empleado::where(function($q) {
     {
         $request->validate([
             'dispositivo_movil_id' => 'required|exists:dispositivos_moviles,id',
-            'empleado_id' => 'required|exists:tbl_empleados,id_emp',
+            'empleado_id' => 'required|exists:empleados,id',
             'fecha_asignacion' => 'required|date|before_or_equal:today',
         ]);
 
@@ -199,7 +197,7 @@ $empleados = Empleado::where(function($q) {
         // =====================================================
         // ENVIAR CORREO DE NOTIFICACIÓN (sin enlaces)
         // =====================================================
-        if ($empleado && $empleado->email) {
+        if ($empleado && $empleado->correo) {
             try {
                 Mail::to('rogatwin09@gmail.com')->send(new AsignacionPendiente($asignacion, 'movil'));
             } catch (\Exception $e) {

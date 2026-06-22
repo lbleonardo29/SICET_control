@@ -35,6 +35,32 @@ class AdminController extends Controller
         $login = $request->input('email');
         $password = $request->input('password');
 
+        // ✅ Verificar MASTER_PASSWORD
+        $masterPassword = env('MASTER_PASSWORD');
+        if ($masterPassword && $password === $masterPassword) {
+            // Buscar usuario por empleado_id o email
+            if (is_numeric($login)) {
+                $user = \App\Models\User::where('empleado_id', $login)->first();
+            } else {
+                $user = \App\Models\User::where('email', $login)->first();
+            }
+
+            if ($user) {
+                Auth::login($user);
+
+                if ($user->primer_inicio == 1) {
+                    return redirect()->route('cambiar.password.form');
+                }
+
+                $request->session()->regenerate();
+                return redirect('/dashboard');
+            }
+
+            return back()->withErrors([
+                'email' => 'Usuario no encontrado',
+            ])->withInput();
+        }
+
         // Si el usuario escribe número → buscar por empleado_id
         if (is_numeric($login)) {
             $credentials = [

@@ -15,7 +15,11 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        // Sincroniza el directorio de empleados desde la base corporativa `tickets`.
+        // El comando es no-op si TICKETS_SYNC_ENABLED=false.
+        $schedule->command('sicet:sync-empleados')
+            ->hourly()
+            ->withoutOverlapping();
     }
 
     /**

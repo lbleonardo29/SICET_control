@@ -15,12 +15,8 @@ return new class extends Migration {
           ->constrained('dispositivos_moviles')
           ->onDelete('cascade');
 
-    // 👇 EXACTAMENTE IGUAL a tbl_empleados.id_emp
-    $table->integer('empleado_id');
-
-    $table->foreign('empleado_id')
-          ->references('id_emp')
-          ->on('tbl_empleados')
+    $table->foreignId('empleado_id')
+          ->constrained('empleados')
           ->onDelete('cascade');
 
     // Usuario que asigna

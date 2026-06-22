@@ -12,19 +12,15 @@ class Empleado extends Model
 {
     use HasFactory;
 
-    protected $table = 'tbl_empleados';
-    protected $primaryKey = 'id_emp';
-    public $timestamps = false;
+    protected $table = 'empleados';
+    protected $primaryKey = 'id';
 
     protected $fillable = [
-        'nombre',
-        'apellidos',
-        'email',
+        'numero_empleado',
+        'nombre_completo',
+        'correo',
         'activo',
-        'id_rol',
-        'area',
-        'id_planta',
-        'numero_empleado', 
+        'planta_id',
     ];
 
     // 🔥 FORZAR ACTIVO A BOOLEAN
@@ -38,25 +34,16 @@ class Empleado extends Model
 
     public function user()
     {
-        return $this->hasOne(User::class, 'empleado_id', 'id_emp');
+        return $this->hasOne(User::class, 'empleado_id', 'id');
     }
 
     public function asignaciones()
     {
-        return $this->hasMany(Asignacion::class, 'empleado_id', 'id_emp');
+        return $this->hasMany(Asignacion::class, 'empleado_id', 'id');
     }
 
     public function asignacionesMoviles()
     {
-        return $this->hasMany(AsignacionMovil::class, 'empleado_id', 'id_emp');
+        return $this->hasMany(AsignacionMovil::class, 'empleado_id', 'id');
     }
-
-    /* =========================
-       ACCESOR
-    ========================== */
-
-    public function getNombreCompletoAttribute()
-    {
-        return $this->nombre . ' ' . $this->apellidos;
-    }
-}
+}

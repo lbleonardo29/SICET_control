@@ -171,7 +171,7 @@
                                 </td>
                                 <td>
                                     @if($r->empleado)
-                                        <div class="fw-bold">{{ $r->empleado->nombre }} {{ $r->empleado->apellidos }}</div>
+                                        <div class="fw-bold">{{ $r->empleado->nombre_completo }}</div>
                                         <small class="text-muted">ID: {{ $r->numero_empleado }}</small>
                                     @else
                                         <span class="text-muted">{{ $r->numero_empleado ?? '—' }}</span>

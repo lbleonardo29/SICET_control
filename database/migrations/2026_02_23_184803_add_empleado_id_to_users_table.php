@@ -14,8 +14,8 @@ return new class extends Migration
                   ->after('id');
 
             $table->foreign('empleado_id')
-                  ->references('id_emp')
-                  ->on('tbl_empleados')
+                  ->references('id')
+                  ->on('empleados')
                   ->nullOnDelete();
         });
     }

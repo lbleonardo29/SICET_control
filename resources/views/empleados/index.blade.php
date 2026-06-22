@@ -117,7 +117,7 @@
                     <tbody>
                         @forelse($empleados as $empleado)
                             <tr>
-                                <td class="px-3 fw-bold">#{{ $empleado->id_emp }}</td>
+                                <td class="px-3 fw-bold">#{{ $empleado->id }}</td>
                                 
                                 {{-- Información del empleado --}}
                                 <td>
@@ -132,7 +132,7 @@
                                 <td>
                                     <div>
                                         <i class="bi bi-envelope me-1 text-muted"></i>
-                                        {{ $empleado->email }}
+                                        {{ $empleado->correo }}
                                     </div>
                                     @if($empleado->planta)
                                         <small class="text-muted">
@@ -170,7 +170,7 @@
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center gap-2">
                                             {{-- Botón editar --}}
-                                            <a href="{{ route('empleados.edit', $empleado->id_emp) }}"
+                                            <a href="{{ route('empleados.edit', $empleado->id) }}"
                                                class="btn btn-sm btn-outline-primary"
                                                title="Editar empleado"
                                                data-bs-toggle="tooltip">
@@ -178,7 +178,7 @@
                                             </a>
 
                                             {{-- Botón activar/desactivar --}}
-                                            <form action="{{ route('empleados.toggle', $empleado->id_emp) }}"
+                                            <form action="{{ route('empleados.toggle', $empleado->id) }}"
                                                   method="POST"
                                                   class="d-inline toggle-form">
                                                 @csrf

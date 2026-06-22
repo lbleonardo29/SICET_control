@@ -115,13 +115,12 @@
                                     Contraseña <span class="text-danger">*</span>
                                 </label>
                                 <div class="input-group">
-                                    <input type="password" 
+                                    <input type="password"
                                            name="password"
                                            id="password"
                                            class="form-control form-control-lg @error('password') is-invalid @enderror"
-                                           placeholder="Mínimo 8 caracteres"
-                                           minlength="8"
-                                           required>
+                                           placeholder="Mínimo 8 caracteres (opcional)"
+                                           minlength="8">
                                     <button class="btn btn-outline-secondary" type="button" id="togglePassword">
                                         <i class="bi bi-eye"></i>
                                     </button>
@@ -144,9 +143,10 @@
                                     <i class="bi bi-shield me-1 text-primary"></i>
                                     Rol <span class="text-danger">*</span>
                                 </label>
-                                <select name="role" class="form-select form-select-lg @error('role') is-invalid @enderror" required>
-                                    <option value="">Seleccione un rol</option>
-                                    <option value="usuario" {{ old('role') == 'usuario' ? 'selected' : '' }}>Usuario</option>
+                                <select name="role" class="form-select form-select-lg @error('role') is-invalid @enderror">
+                                    <option value="">-- Sin acceso al sistema --</option>
+                                    <option value="user" {{ old('role') == 'user' ? 'selected' : '' }}>Usuario</option>
+                                    <option value="seguridad" {{ old('role') == 'seguridad' ? 'selected' : '' }}>Seguridad</option>
                                     <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Administrador</option>
                                 </select>
                                 @error('role')
@@ -158,18 +158,17 @@
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">
                                     <i class="bi bi-building me-1 text-primary"></i>
-                                    Planta
+                                    Planta <span class="text-danger">*</span>
                                 </label>
-                                <select name="id_planta" class="form-select form-select-lg">
+                                <select name="planta_id" class="form-select form-select-lg @error('planta_id') is-invalid @enderror" required>
                                     <option value="">Seleccione una planta</option>
                                     @foreach($plantas ?? [] as $planta)
-                                        <option value="{{ $planta->id }}">{{ $planta->nombre }}</option>
+                                        <option value="{{ $planta->id }}" {{ old('planta_id') == $planta->id ? 'selected' : '' }}>{{ $planta->nombre }}</option>
                                     @endforeach
                                 </select>
-                                <div class="form-text">
-                                    <i class="bi bi-info-circle me-1"></i>
-                                    Opcional
-                                </div>
+                                @error('planta_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             {{-- Activo (checkbox) --}}

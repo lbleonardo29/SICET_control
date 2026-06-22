@@ -100,10 +100,10 @@
                                     required>
                                 <option value="">-- Seleccione un empleado --</option>
                                 @foreach($empleados as $emp)
-                                    <option value="{{ $emp->id_emp }}"  
-                                            data-email="{{ $emp->email }}"
-                                            data-numero="{{ $emp->id_emp }}">
-                                        {{ $emp->nombre_completo }} - {{ $emp->id_emp }}
+                                    <option value="{{ $emp->id }}"
+                                            data-email="{{ $emp->correo }}"
+                                            data-numero="{{ $emp->numero_empleado }}">
+                                        {{ $emp->nombre_completo }} - {{ $emp->numero_empleado }}
                                     </option>
                                 @endforeach
                             </select>

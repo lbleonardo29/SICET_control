@@ -23,8 +23,8 @@
                     <option value="">-- Selecciona un empleado --</option>
 
                     @foreach($empleados as $empleado)
-                        <option value="{{ $empleado->id_emp }}">
-                            {{ $empleado->nombre }} {{ $empleado->apellidos }}
+                        <option value="{{ $empleado->id }}">
+                            {{ $empleado->nombre_completo }}
                         </option>
                     @endforeach
 

@@ -44,7 +44,7 @@ class AsignacionMovil extends Model
         return $this->belongsTo(
             Empleado::class,
             'empleado_id',
-            'id_emp'
+            'id'
         );
     }
 

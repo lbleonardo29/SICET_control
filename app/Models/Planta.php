@@ -10,6 +10,7 @@ class Planta extends Model
     use HasFactory;
 
     protected $fillable = [
-        'nombre'
+        'nombre',
+        'id_planta_corp', // enlace con planta.id_planta de la base corporativa `tickets`
     ];
 }

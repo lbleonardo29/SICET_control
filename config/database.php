@@ -63,6 +63,26 @@ return [
             ]) : [],
         ],
 
+        // Conexión a la base corporativa "tickets" (directorio maestro de empleados).
+        // Solo se usa por el espejo/sincronización y el write-through; SICET sigue en 'mysql'.
+        'tickets' => [
+            'driver' => 'mysql',
+            'host' => env('TICKETS_DB_HOST', '127.0.0.1'),
+            'port' => env('TICKETS_DB_PORT', '3306'),
+            'database' => env('TICKETS_DB_DATABASE', 'tickets'),
+            'username' => env('TICKETS_DB_USERNAME', 'root'),
+            'password' => env('TICKETS_DB_PASSWORD', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => false,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                PDO::ATTR_TIMEOUT => (int) env('TICKETS_DB_TIMEOUT', 5),
+            ]) : [],
+        ],
+
         'pgsql' => [
             'driver' => 'pgsql',
             'url' => env('DATABASE_URL'),

@@ -290,7 +290,7 @@
     <tr>
         <td class="text-center">
             <strong>NÚMERO DE EMPLEADO:</strong><br>
-            {{ $empleado->numero_empleado ?? $empleado->id_emp ?? '_________________________' }}
+            {{ $empleado->numero_empleado ?? '_________________________' }}
         </td>
         <td></td>
         <td class="text-center">

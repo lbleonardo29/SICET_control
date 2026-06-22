@@ -167,23 +167,19 @@ Route::get('/api/empleados/search', function(Request $request) {
             return response()->json([]);
         }
         
-        $empleados = DB::table('tbl_empleados')
-            ->where('activo', 'S')
+        $empleados = DB::table('empleados')
+            ->where('activo', 1)
             ->where(function($query) use ($q) {
-                $query->where('nombre', 'like', "%{$q}%")
-                      ->orWhere('apellidos', 'like', "%{$q}%")
-                      ->orWhere(DB::raw("CONCAT(nombre, ' ', apellidos)"), 'like', "%{$q}%")
-                      ->orWhere('email', 'like', "%{$q}%")
-                      ->orWhere('area', 'like', "%{$q}%")
+                $query->where('nombre_completo', 'like', "%{$q}%")
+                      ->orWhere('correo', 'like', "%{$q}%")
                       ->orWhere('numero_empleado', 'like', "%{$q}%");
             })
             ->limit(20)
             ->get([
-                'id_emp as id', 
-                DB::raw("CONCAT(nombre, ' ', apellidos) as nombre_completo"),
+                'id',
+                'nombre_completo',
                 'numero_empleado',
-                'email as correo',
-                'area'
+                'correo',
             ]);
         
         return response()->json($empleados);

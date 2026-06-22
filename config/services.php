@@ -31,4 +31,12 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    // Integración con la base corporativa "tickets".
+    // write_through: escribir de vuelta empleados al crear/editar en SICET.
+    // sync_enabled: permitir que corra el comando sicet:sync-empleados.
+    'tickets' => [
+        'write_through' => (bool) env('TICKETS_WRITE_THROUGH', false),
+        'sync_enabled' => (bool) env('TICKETS_SYNC_ENABLED', false),
+    ],
+
 ];

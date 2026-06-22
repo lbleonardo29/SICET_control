@@ -19,10 +19,9 @@ class ReporteController extends Controller
             ->get();
 
         // Cargar empleados concatenando nombre y apellidos
-        $empleados = Empleado::select('id_emp', 
-            DB::raw("CONCAT(nombre, ' ', apellidos) as nombre_completo"))
-            ->where('activo', 'S')
-            ->orderBy('id_emp')
+        $empleados = Empleado::select('numero_empleado', 'nombre_completo')
+            ->where('activo', 1)
+            ->orderBy('nombre_completo')
             ->get();
 
         return view('reportes.create', compact('equipos', 'empleados'));
@@ -32,7 +31,7 @@ class ReporteController extends Controller
     {
         $request->validate([
             'matricula' => 'required|string|exists:equipos,codigo_interno',
-            'numero_empleado' => 'required|exists:tbl_empleados,id_emp',
+            'numero_empleado' => 'required|exists:empleados,numero_empleado',
             'inconsistencias' => 'nullable|string|max:500',
             'tipo' => 'required|in:entrada,salida',
         ]);
@@ -79,7 +78,7 @@ class ReporteController extends Controller
         
         $csv = "ID,Fecha,Usuario,Empleado,N° Empleado,Matrícula,Área,Tipo,Inconsistencias\n";
         foreach ($reportes as $r) {
-            $nombreEmpleado = $r->empleado ? $r->empleado->nombre . ' ' . $r->empleado->apellidos : 'N/A';
+            $nombreEmpleado = $r->empleado ? $r->empleado->nombre_completo : 'N/A';
             $csv .= "{$r->id},{$r->created_at},{$r->user->name},{$nombreEmpleado},{$r->numero_empleado},{$r->matricula},{$r->area},{$r->tipo},{$r->inconsistencias}\n";
         }
 

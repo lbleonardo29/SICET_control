@@ -55,7 +55,7 @@
                             <select name="empleado_id" id="empleado_id" class="form-select" required>
                                 <option value="">Seleccione un empleado</option>
                                 @foreach($empleados as $empleado)
-                                    <option value="{{ $empleado->id_emp }}">
+                                    <option value="{{ $empleado->id }}">
                                         {{ $empleado->nombre_completo }} ({{ $empleado->numero_empleado }})
                                     </option>
                                 @endforeach
@@ -140,7 +140,7 @@
                                 </td>
                                 <td>
                                     <div class="fw-bold">{{ $asignacion->empleado->nombre_completo }}</div>
-                                    <small class="text-muted">{{ $asignacion->empleado->email }}</small>
+                                    <small class="text-muted">{{ $asignacion->empleado->correo }}</small>
                                 </td>
                                 <td>{{ $asignacion->empleado->numero_empleado }}</td>
                                 <td>{{ $asignacion->empleado->planta->nombre ?? 'N/A' }}</td>

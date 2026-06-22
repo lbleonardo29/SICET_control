@@ -66,8 +66,8 @@
                                        required>
                                 <datalist id="empleadosList">
                                     @foreach($empleados ?? [] as $empleado)
-                                        <option value="{{ $empleado->id_emp }}">
-                                            {{ $empleado->id_emp }} - {{ $empleado->nombre_completo }}
+                                        <option value="{{ $empleado->numero_empleado }}">
+                                            {{ $empleado->numero_empleado }} - {{ $empleado->nombre_completo }}
                                         </option>
                                     @endforeach
                                 </datalist>

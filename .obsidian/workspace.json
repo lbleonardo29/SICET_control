@@ -4,17 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "d6019ea4be12da49",
+        "id": "5a25636fc3f9e81e",
         "type": "tabs",
         "children": [
           {
-            "id": "8edc52639deac8a6",
+            "id": "16ca9463285625fa",
             "type": "leaf",
             "state": {
               "type": "graph",
               "state": {},
               "icon": "lucide-git-fork",
-              "title": "Vista gráfica"
+              "title": "Graph view"
             }
           }
         ]
@@ -40,7 +40,7 @@
                 "autoReveal": false
               },
               "icon": "lucide-folder-closed",
-              "title": "Explorador de archivos"
+              "title": "Files"
             }
           },
           {
@@ -167,17 +167,62 @@
   },
   "left-ribbon": {
     "hiddenItems": {
-      "switcher:Abrir selector rápido": false,
-      "graph:Abrir vista gráfica": false,
-      "canvas:Crear nuevo lienzo": false,
-      "daily-notes:Abrir la nota de hoy": false,
-      "templates:Insertar plantilla": false,
-      "command-palette:Abrir paleta de comandos": false,
-      "bases:Crear nueva base": false
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
     }
   },
-  "active": "8edc52639deac8a6",
+  "active": "16ca9463285625fa",
   "lastOpenFiles": [
-    "vendor/filp/whoops/LICENSE.md"
+    "app/Models/User.php.tmp.23968.a3052c4216e0",
+    "storage/framework/sessions/dRQ8O0PKBO1KJqeAx6pR8YhIoV3ObGbZlAJzRF4Q",
+    "storage/framework/views/5d70ef0bc6c6c7f187b39cea6c79ff6649a9b6a6.php",
+    "storage/framework/sessions/YlfCNXEkjtQC5wSNt9p5aEvU1rpZowDEOmp2bWbQ",
+    "storage/framework/sessions/cKJJffVQRjvjslEidhWNekDbpaLVCnZQkT7haJZx",
+    "storage/framework/sessions/JkpeRqqv27uw10SdNxNgpjQAvNmphTwzYho4n2uW",
+    "storage/framework/sessions/MmO7A22AigYEHzpjjSkvwCC5GwMaDvsEdNyBv3xh",
+    "vendor/symfony/string/UnicodeString.php",
+    "public/hot",
+    "vendor/symfony/routing/CompiledRoute.php",
+    "vendor/symfony/routing/RouteCompilerInterface.php",
+    "informe_sicet.md",
+    "vendor/bjnstnkvc/mail-components/docs/images/Table 4.png",
+    "vendor/bjnstnkvc/mail-components/docs/images/Table 3.png",
+    "vendor/bjnstnkvc/mail-components/docs/images/Table 2.png",
+    "vendor/bjnstnkvc/mail-components/docs/images/Table 1.png",
+    "vendor/bjnstnkvc/mail-components/docs/images/Image.gif",
+    "vendor/bjnstnkvc/mail-components/docs/images/Hero 2.png",
+    "vendor/bjnstnkvc/mail-components/docs/images/Hero 1.png",
+    "vendor/bjnstnkvc/mail-components/docs/images/Grid 2.png",
+    "vendor/bjnstnkvc/mail-components/docs/images/Grid 1.png",
+    "vendor/bjnstnkvc/mail-components/docs/images/Example 3.png",
+    "vendor/mockery/mockery/docs/README.md",
+    "vendor/psr/http-message/docs/PSR7-Usage.md",
+    "vendor/psr/http-message/docs/PSR7-Interfaces.md",
+    "node_modules/lodash/README.md",
+    "node_modules/vite/README.md",
+    "node_modules/postcss/README.md",
+    "node_modules/axios/lib/helpers/README.md",
+    "node_modules/axios/lib/env/README.md",
+    "node_modules/axios/lib/core/README.md",
+    "node_modules/axios/lib/adapters/README.md",
+    "node_modules/math-intrinsics/CHANGELOG.md",
+    "node_modules/source-map-js/README.md",
+    "node_modules/call-bind-apply-helpers/README.md",
+    "node_modules/has-tostringtag/README.md",
+    "node_modules/es-errors/README.md",
+    "node_modules/has-tostringtag/CHANGELOG.md",
+    "node_modules/has-symbols/README.md",
+    "node_modules/call-bind-apply-helpers/CHANGELOG.md",
+    "node_modules/es-set-tostringtag/README.md",
+    "node_modules/function-bind/README.md",
+    "node_modules/es-object-atoms/CHANGELOG.md",
+    "node_modules/form-data/README.md",
+    "node_modules/https-proxy-agent/README.md",
+    "node_modules/gopd/README.md"
   ]
 }

@@ -25,18 +25,18 @@ class PasswordResetController extends Controller
             'numero_empleado' => 'required'
         ]);
 
-        // Buscar en tbl_empleados por número de empleado
-        $empleado = DB::table('tbl_empleados')
+        // Buscar en empleados por número de empleado
+        $empleado = DB::table('empleados')
             ->where('numero_empleado', $request->numero_empleado)
-            ->where('activo', 'S')
+            ->where('activo', 1)
             ->first();
 
         if (!$empleado) {
             return back()->withErrors(['numero_empleado' => 'Número de empleado no encontrado']);
         }
 
-        // Buscar usuario por email
-        $user = User::where('email', $empleado->email)->first();
+        // Buscar usuario por correo
+        $user = User::where('email', $empleado->correo)->first();
 
         if (!$user) {
             return back()->withErrors(['numero_empleado' => 'No hay un usuario asociado a este número de empleado']);
@@ -59,7 +59,7 @@ class PasswordResetController extends Controller
         // Cambia 'tu_correo_personal@gmail.com' por tu correo
         $correoPrueba = 'rogatwin09@gmail.com'; // 👈 Tu correo personal
         
-        $nombreEmpleado = $empleado->nombre . ' ' . $empleado->apellidos;
+        $nombreEmpleado = $empleado->nombre_completo;
         $resetUrl = route('password.reset', $token);
 
         try {

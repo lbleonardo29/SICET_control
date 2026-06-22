@@ -35,7 +35,7 @@ class User extends Authenticatable
     // 🔗 Relación con empleado
     public function empleado()
     {
-        return $this->belongsTo(Empleado::class, 'empleado_id', 'id_emp');
+        return $this->belongsTo(Empleado::class, 'empleado_id', 'id');
     }
 
     // Relación con asignaciones de equipos
