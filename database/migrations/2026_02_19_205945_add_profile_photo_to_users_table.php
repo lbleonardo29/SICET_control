@@ -8,8 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
+     * * @return void
      */
  public function up()
 {
@@ -21,13 +20,12 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
+     * * @return void
      */
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            //
+            $table->dropColumn('profile_photo');
         });
     }
 };

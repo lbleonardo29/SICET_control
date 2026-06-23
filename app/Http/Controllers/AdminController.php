@@ -4,13 +4,16 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 // MODELOS
+use App\Models\User;
 use App\Models\Equipo;
 use App\Models\Empleado;
 use App\Models\Asignacion;
 use App\Models\AsignacionMovil;
 use App\Models\DispositivoMovil;
+use App\Models\Corp\EmpleadoTicket;
 
 class AdminController extends Controller
 {
@@ -26,44 +29,65 @@ class AdminController extends Controller
 
     public function login(Request $request)
     {
-        // Validación
         $request->validate([
-            'email' => 'required',
+            'email'    => 'required',
             'password' => 'required',
         ]);
 
-        $login = $request->input('email');
+        $input    = trim($request->input('email'));
         $password = $request->input('password');
 
-        // Si el usuario escribe número → buscar por empleado_id
-        if (is_numeric($login)) {
-            $credentials = [
-                'empleado_id' => $login,
-                'password' => $password
-            ];
-        } else {
-            // Si escribe texto → buscar por email
-            $credentials = [
-                'email' => $login,
-                'password' => $password
-            ];
+        // Solo se acepta número de empleado (id_emp numérico)
+        if (!is_numeric($input)) {
+            return back()->withErrors([
+                'email' => 'Ingresa tu número de empleado (solo números)',
+            ])->withInput();
         }
 
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-            
-            // ✅ Verificar si es primer inicio
-            if ($user->primer_inicio == 1) {
-                return redirect()->route('cambiar.password.form');
-            }
-            
-            $request->session()->regenerate();
-            return redirect('/dashboard');
+        // Buscar en tickets.tbl_empleados (solo lectura)
+        $empleado = EmpleadoTicket::find((int) $input);
+
+        if (!$empleado || !Hash::check($password, $empleado->contrasenia)) {
+            return back()->withErrors([
+                'email' => 'Número de empleado o contraseña incorrectos',
+            ])->withInput();
         }
 
-        return back()->withErrors([
-            'email' => 'Las credenciales no son correctas',
-        ])->withInput();
+        // Verificar que esté activo (puede ser 1, '1', 'S', 's')
+        if (!in_array($empleado->activo, [1, '1', 'S', 's', true], true)) {
+            return back()->withErrors([
+                'email' => 'Tu cuenta está desactivada. Contacta a IT.',
+            ])->withInput();
+        }
+
+        $nombreCompleto = trim("{$empleado->nombre} {$empleado->apellidos}");
+        $emailLocal     = $empleado->email ?? "{$empleado->id_emp}@sicet.fruitex.mx";
+
+        // Buscar o crear User local en sicet.users vinculado por numero_empleado
+        $user = User::firstOrCreate(
+            ['numero_empleado' => (string) $empleado->id_emp],
+            [
+                'name'          => $nombreCompleto,
+                'email'         => $emailLocal,
+                'password'      => $empleado->contrasenia,
+                'role'          => 'user',
+                'primer_inicio' => 0,
+            ]
+        );
+
+        // Sincronizar nombre y hash en cada login (por si cambiaron en tickets)
+        $user->name     = $nombreCompleto;
+        $user->password = $empleado->contrasenia;
+        $user->save();
+
+        Auth::login($user, $request->boolean('remember'));
+
+        if ($user->primer_inicio == 1) {
+            return redirect()->route('cambiar.password.form');
+        }
+
+        $request->session()->regenerate();
+        return redirect('/dashboard');
     }
 
     // =========================
@@ -148,7 +172,7 @@ class AdminController extends Controller
 
             $totalEmpleados = Empleado::count();
 
-            // ✅ CORREGIDO: usa 'admin.dashboard' con 'maquinas' (plural)
+            // CORREGIDO: usa 'admin.dashboard' con 'maquinas' (plural)
             return view('admin.dashboard', compact(
                 'user',
                 'maquinas',
@@ -168,7 +192,7 @@ class AdminController extends Controller
         // =========================
         // DASHBOARD USUARIO NORMAL Y SEGURIDAD
         // =========================
-        // ✅ CORREGIDO: usa 'admin.dashboard' con 'maquinas' (plural)
+        // CORREGIDO: usa 'admin.dashboard' con 'maquinas' (plural)
         return view('admin.dashboard', compact(
             'user',
             'maquinas',
