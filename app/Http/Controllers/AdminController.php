@@ -91,6 +91,35 @@ class AdminController extends Controller
     }
 
     // =========================
+    // GESTIÓN DE USUARIOS
+    // =========================
+
+    public function usuarios()
+    {
+        $usuarios = User::orderBy('role')->orderBy('name')->paginate(25);
+        return view('admin.usuarios', compact('usuarios'));
+    }
+
+    public function actualizarRol(Request $request, $id)
+    {
+        $request->validate([
+            'role' => 'required|in:admin,seguridad,user',
+        ]);
+
+        $user = User::findOrFail($id);
+
+        // No permitir quitarse el rol admin a uno mismo
+        if ($user->id === Auth::id() && $request->role !== 'admin') {
+            return back()->with('error', 'No puedes cambiar tu propio rol de administrador.');
+        }
+
+        $user->role = $request->role;
+        $user->save();
+
+        return back()->with('success', "Rol de {$user->name} actualizado a {$request->role}.");
+    }
+
+    // =========================
     // LOGOUT
     // =========================
 

@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\DB;  // 👈 Agrega esta línea (para DB en las rutas API)
+use Illuminate\Support\Facades\DB;  // Agrega esta línea (para DB en las rutas API)
 use Illuminate\Http\Request;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\EquipoController;
@@ -11,10 +11,9 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DispositivoMovilController;
 use App\Http\Controllers\AsignacionMovilController;
 use App\Http\Controllers\ReporteController;
-use App\Http\Controllers\PasswordResetController; // 👈 MOVER AQUÍ (al inicio con los demás controllers)
+use App\Http\Controllers\PasswordResetController; // MOVER AQUÍ (al inicio con los demás controllers)
 
-/*
-|--------------------------------------------------------------------------
+/* |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
 */
@@ -122,6 +121,10 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/asignaciones-moviles/{id}/responsiva', [AsignacionMovilController::class, 'responsiva'])->name('asignaciones.moviles.responsiva');
     Route::get('/asignaciones-moviles/{id}/descargar', [AsignacionMovilController::class, 'descargar'])->name('asignaciones.moviles.descargar');
     Route::delete('/asignaciones-moviles/{id}', [AsignacionMovilController::class, 'destroy'])->name('asignaciones.moviles.destroy');
+
+    // ================= GESTIÓN DE USUARIOS =================
+    Route::get('/usuarios', [AdminController::class, 'usuarios'])->name('usuarios.index');
+    Route::put('/usuarios/{id}/rol', [AdminController::class, 'actualizarRol'])->name('usuarios.rol');
 
     // ================= RUTAS PARA ADMIN (VER REPORTES) =================
     Route::get('/reportes', [ReporteController::class, 'index'])->name('reportes.index');
