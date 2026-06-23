@@ -32,7 +32,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    // 🔗 Relación con empleado
+    // Relación con empleado
     public function empleado()
     {
         return $this->belongsTo(Empleado::class, 'empleado_id', 'id');
