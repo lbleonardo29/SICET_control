@@ -10,10 +10,9 @@ use App\Models\Corp\PlantaTicket;
 use App\Support\EmpleadoMapper;
 
 /**
- * Sincroniza el directorio maestro (plantas + empleados) desde la base corporativa
+     * Sincroniza el directorio maestro (plantas + empleados) desde la base corporativa
  * `tickets` hacia el espejo local de SICET.
- *
- * Idempotente: usa updateOrCreate por `numero_empleado` (= id_emp), lo que PRESERVA
+ * * Idempotente: usa updateOrCreate por `numero_empleado` (= id_emp), lo que PRESERVA
  * el `id` autoincrement local y por tanto no rompe las FK ni el historial de asignaciones.
  * Las bajas se marcan activo=0 (nunca se borran empleados con historial).
  */
@@ -112,12 +111,7 @@ class SyncEmpleados extends Command
                 $num = (string) $corp->id_emp;
                 $vistos[] = $num;
 
-                $plantaIdLocal = $mapaPlantas[$corp->id_planta] ?? null;
-                if ($plantaIdLocal === null) {
-                    $this->warn("Empleado {$num}: planta corp {$corp->id_planta} sin mapear -> omitido");
-                    $omitidos++;
-                    continue;
-                }
+                $plantaIdLocal = isset($corp->id_planta) ? ($mapaPlantas[$corp->id_planta] ?? null) : null;
 
                 $existe = Empleado::where('numero_empleado', $num)->exists();
 
