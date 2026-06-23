@@ -9,8 +9,7 @@ class AppServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
-     *
-     * @return void
+     * * @return void
      */
     public function register()
     {
@@ -19,11 +18,10 @@ class AppServiceProvider extends ServiceProvider
 
     /**
      * Bootstrap any application services.
-     *
-     * @return void
+     * * @return void
      */
-public function boot()
-{
-    Paginator::useBootstrapFive();
-}
+    public function boot()
+    {
+        Paginator::useBootstrapFive();
+    }
 }
