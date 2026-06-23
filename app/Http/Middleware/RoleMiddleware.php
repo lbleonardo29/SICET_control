@@ -7,16 +7,14 @@ use Illuminate\Http\Request;
 
 class RoleMiddleware
 {
-    public function handle(Request $request, Closure $next, $role)
+    public function handle(Request $request, Closure $next, string ...$roles)
     {
-        // Verificar si el usuario está autenticado
         if (!auth()->check()) {
-            abort(403, 'No autorizado');
+            return redirect()->route('login');
         }
 
-        // Verificar si el rol del usuario coincide
-        if (auth()->user()->role !== $role) {
-            abort(403, 'No autorizado');
+        if (!in_array(auth()->user()->role, $roles)) {
+            abort(403, 'No tienes permiso para acceder a esta sección.');
         }
 
         return $next($request);

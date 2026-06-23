@@ -48,9 +48,11 @@
             <span class="s-nav-text">Dashboard</span>
         </a>
 
+        {{-- ===== ADMIN: computadoras, dispositivos, empleados ===== --}}
+        @role('admin')
+
         <div class="s-nav-label">Computadoras</div>
 
-        {{-- Computadoras --}}
         @php $compActive = Route::is('asignaciones.dashboard') || Route::is('asignaciones.*') || Route::is('equipos.*'); @endphp
         <div class="s-nav-row expandable {{ $compActive ? 'expanded' : '' }}" onclick="sToggle('nav-comp', this)">
             <svg class="s-nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -68,12 +70,10 @@
                class="s-sub-link {{ Route::is('asignaciones.dashboard') ? 'active' : '' }}">
                 <span class="s-sub-dot"></span> Asignaciones
             </a>
-            @if(Auth::user()->role === 'admin')
             <a href="{{ route('equipos.create') }}"
                class="s-sub-link {{ Route::is('equipos.create') ? 'active' : '' }}">
                 <span class="s-sub-dot"></span> Registrar equipo
             </a>
-            @endif
             <a href="{{ route('equipos.index') }}"
                class="s-sub-link {{ Route::is('equipos.index') ? 'active' : '' }}">
                 <span class="s-sub-dot"></span> Todos los equipos
@@ -86,7 +86,6 @@
 
         <div class="s-nav-label">Dispositivos</div>
 
-        {{-- Dispositivos --}}
         @php $dispActive = Route::is('moviles.*') || Route::is('asignaciones.moviles.*'); @endphp
         <div class="s-nav-row expandable {{ $dispActive ? 'expanded' : '' }}" onclick="sToggle('nav-disp', this)">
             <svg class="s-nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -103,12 +102,10 @@
                class="s-sub-link {{ Route::is('asignaciones.moviles.dashboard') ? 'active' : '' }}">
                 <span class="s-sub-dot"></span> Asignaciones
             </a>
-            @if(Auth::user()->role === 'admin')
             <a href="{{ route('moviles.create') }}"
                class="s-sub-link {{ Route::is('moviles.create') ? 'active' : '' }}">
                 <span class="s-sub-dot"></span> Registrar dispositivo
             </a>
-            @endif
             <a href="{{ route('moviles.index') }}"
                class="s-sub-link {{ Route::is('moviles.index') ? 'active' : '' }}">
                 <span class="s-sub-dot"></span> Todos
@@ -121,7 +118,6 @@
 
         <div class="s-nav-label">Personal</div>
 
-        {{-- Empleados --}}
         @php $empActive = Route::is('empleados.*'); @endphp
         <div class="s-nav-row expandable {{ $empActive ? 'expanded' : '' }}" onclick="sToggle('nav-emp', this)">
             <svg class="s-nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -140,16 +136,12 @@
                class="s-sub-link {{ Route::is('empleados.index') ? 'active' : '' }}">
                 <span class="s-sub-dot"></span> Todos los empleados
             </a>
-            @if(Auth::user()->role === 'admin')
             <a href="{{ route('empleados.create') }}"
                class="s-sub-link {{ Route::is('empleados.create') ? 'active' : '' }}">
                 <span class="s-sub-dot"></span> Registrar empleado
             </a>
-            @endif
         </div>
 
-        {{-- Usuarios (solo admin) --}}
-        @if(Auth::user()->role === 'admin')
         <div class="s-nav-label">Sistema</div>
         <a href="{{ route('usuarios.index') }}"
            class="s-nav-row {{ Route::is('usuarios.*') ? 'active' : '' }}">
@@ -161,18 +153,14 @@
             </svg>
             <span class="s-nav-text">Usuarios</span>
         </a>
-        @endif
 
-        {{-- Reportes --}}
-        @if(in_array(Auth::user()->role, ['admin', 'seguridad']))
+        @endrole
+
+        {{-- ===== ADMIN + SEGURIDAD: reportes ===== --}}
+        @role('admin', 'seguridad')
         <div class="s-nav-label">Reportes</div>
-        @php
-            $reportesRoute = Auth::user()->role === 'admin'
-                ? route('reportes.index')
-                : route('reportes.create');
-        @endphp
-        <a href="{{ $reportesRoute }}"
-           class="s-nav-row {{ Route::is('reportes.*') ? 'active' : '' }}">
+        <a href="{{ route('reportes.index') }}"
+           class="s-nav-row {{ Route::is('reportes.index') ? 'active' : '' }}">
             <svg class="s-nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                 <polyline points="14 2 14 8 20 8"/>
@@ -181,7 +169,16 @@
             </svg>
             <span class="s-nav-text">Reportes</span>
         </a>
-        @endif
+        @role('seguridad')
+        <a href="{{ route('reportes.create') }}"
+           class="s-nav-row {{ Route::is('reportes.create') ? 'active' : '' }}" style="padding-left:2rem">
+            <svg class="s-nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            <span class="s-nav-text">Nuevo reporte</span>
+        </a>
+        @endrole
+        @endrole
 
     </nav>
 

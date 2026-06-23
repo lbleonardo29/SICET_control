@@ -36,7 +36,7 @@ class ReporteController extends Controller
             'tipo' => 'required|in:entrada,salida',
         ]);
 
-        // ✅ El área se toma automáticamente del usuario autenticado
+        // El área se toma automáticamente del usuario autenticado
         $area = auth()->user()->area;
 
         if (!$area) {
@@ -53,12 +53,19 @@ class ReporteController extends Controller
         ]);
 
         return redirect()->route('reportes.create')
-            ->with('success', '✅ Reporte registrado correctamente');
+            ->with('success', ' Reporte registrado correctamente');
     }
 
     public function index(Request $request)
     {
-        $reportes = Reporte::with(['user', 'empleado'])
+        $query = Reporte::with(['user', 'empleado']);
+
+        // Seguridad solo ve sus propios reportes
+        if (Auth::user()->role === 'seguridad') {
+            $query->where('user_id', Auth::id());
+        }
+
+        $reportes = $query
             ->when($request->buscar, function($q, $buscar) {
                 $q->where('matricula', 'like', "%{$buscar}%")
                   ->orWhere('numero_empleado', 'like', "%{$buscar}%");

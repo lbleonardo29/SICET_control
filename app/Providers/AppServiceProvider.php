@@ -28,8 +28,13 @@ class AppServiceProvider extends ServiceProvider
 
         // @role('admin', 'seguridad') ... @endrole
         // Muestra el bloque solo si el usuario autenticado tiene alguno de los roles indicados.
-        Blade::directive('role', function ($roles) {
-            return "<?php if(Auth::check() && in_array(Auth::user()->role, array_map('trim', explode(',', str_replace([\"'\", '\"'], '', $roles))))): ?>";
+        Blade::directive('role', function ($expression) {
+            $roles = array_map(
+                fn($r) => trim(trim($r), "\"'"),
+                explode(',', $expression)
+            );
+            $json = json_encode($roles);
+            return "<?php if(Auth::check() && in_array(Auth::user()->role, {$json})): ?>";
         });
 
         Blade::directive('endrole', function () {

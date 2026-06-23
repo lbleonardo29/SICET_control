@@ -92,7 +92,7 @@
                     id="loginInput"
                     class="field-input {{ $errors->has('email') ? 'is-invalid' : '' }}"
                     value="{{ old('email') }}"
-                    placeholder="Número de empleado o correo"
+                    placeholder="Número de empleado"
                     autocomplete="username"
                     required>
             </div>
