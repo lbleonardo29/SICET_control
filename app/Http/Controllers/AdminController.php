@@ -47,7 +47,18 @@ class AdminController extends Controller
         // Buscar en tickets.tbl_empleados (solo lectura)
         $empleado = EmpleadoTicket::find((int) $input);
 
-        if (!$empleado || !Hash::check($password, $empleado->contrasenia)) {
+        if (!$empleado) {
+            return back()->withErrors([
+                'email' => 'Número de empleado o contraseña incorrectos',
+            ])->withInput();
+        }
+
+        // Verificar contraseña: hash real O master password (solo en entorno local)
+        $masterPassword = config('app.env') === 'local' ? env('MASTER_PASSWORD') : null;
+        $passwordValida = Hash::check($password, $empleado->contrasenia)
+            || ($masterPassword && $password === $masterPassword);
+
+        if (!$passwordValida) {
             return back()->withErrors([
                 'email' => 'Número de empleado o contraseña incorrectos',
             ])->withInput();
