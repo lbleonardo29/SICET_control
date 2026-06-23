@@ -1,338 +1,163 @@
-{{-- resources/views/admin/login.blade.php --}}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - SICET</title>
-    
-    {{-- Bootstrap 5 --}}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    {{-- Bootstrap Icons --}}
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    
-    {{-- Google Fonts --}}
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
-        
-        .login-container {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-        }
-        
-        .login-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: none;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-            width: 100%;
-            max-width: 420px;
-            overflow: hidden;
-            animation: slideUp 0.5s ease-out;
-        }
-        
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .login-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 2rem;
-            text-align: center;
-        }
-        
-        .login-header i {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 1rem;
-            border-radius: 50%;
-            display: inline-block;
-        }
-        
-        .login-header h3 {
-            margin: 0;
-            font-weight: 700;
-            font-size: 1.75rem;
-        }
-        
-        .login-header p {
-            margin: 0.5rem 0 0;
-            opacity: 0.9;
-            font-size: 0.9rem;
-        }
-        
-        .login-body {
-            padding: 2rem;
-        }
-        
-        .form-floating {
-            margin-bottom: 1rem;
-        }
-        
-        .form-floating > .form-control {
-            border-radius: 12px;
-            border: 2px solid #e9ecef;
-            padding: 1rem 0.75rem;
-            height: auto;
-            transition: all 0.3s;
-        }
-        
-        .form-floating > .form-control:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.1);
-        }
-        
-        .form-floating > label {
-            padding: 1rem 0.75rem;
-            color: #6c757d;
-        }
-        
-        .input-icon {
-            position: relative;
-        }
-        
-        .input-icon i {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #667eea;
-            z-index: 10;
-        }
-        
-        .input-icon .form-control {
-            padding-left: 2.8rem;
-        }
-        
-        .password-toggle {
-            position: absolute;
-            right: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #667eea;
-            z-index: 10;
-        }
-        
-        .btn-login {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            border-radius: 12px;
-            padding: 0.8rem;
-            font-weight: 600;
-            font-size: 1rem;
-            color: white;
-            width: 100%;
-            transition: all 0.3s;
-            margin-top: 1rem;
-        }
-        
-        .btn-login:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-        
-        .btn-login:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        
-        .alert-custom {
-            border-radius: 12px;
-            border-left: 4px solid #dc3545;
-            background: #fff5f5;
-            color: #dc3545;
-            padding: 0.8rem 1rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-        }
-        
-        .alert-custom i {
-            font-size: 1.2rem;
-        }
-        
-        .footer-links {
-            text-align: center;
-            margin-top: 1.5rem;
-            font-size: 0.85rem;
-            color: #6c757d;
-        }
-        
-        .footer-links a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        
-        .footer-links a:hover {
-            text-decoration: underline;
-        }
-        
-        .spinner {
-            display: inline-block;
-            width: 1.2rem;
-            height: 1.2rem;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 0.5rem;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .forgot-link {
-            text-align: center;
-            margin-top: 1rem;
-        }
-
-        .forgot-link a {
-            color: #667eea;
-            text-decoration: none;
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
-
-        .forgot-link a:hover {
-            text-decoration: underline;
-        }
-    </style>
+    <title>Iniciar sesión — SICET</title>
+    <link rel="icon" type="image/x-icon" href="{{ asset('sicet.ico') }}">
+    <link rel="stylesheet" href="{{ asset('css/sicet-login.css') }}">
 </head>
 <body>
-    <div class="login-container">
-        <div class="login-card">
-            
-            {{-- Header --}}
-            <div class="login-header">
-                <i class="bi bi-shield-lock"></i>
-                <h3>SICET</h3>
-                <p>Sistema de Control de Equipos</p>
-            </div>
 
-            {{-- Body --}}
-            <div class="login-body">
-                
-                {{-- Alertas de error --}}
-                @if ($errors->any())
-                    <div class="alert-custom">
-                        <i class="bi bi-exclamation-triangle-fill"></i>
-                        <span>{{ $errors->first() }}</span>
-                    </div>
-                @endif
+{{-- ===== LEFT PANEL ===== --}}
+<aside class="login-left">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
 
-                {{-- Alerta de éxito (para cuando cambian contraseña) --}}
-                @if(session('success'))
-                    <div class="alert alert-success alert-custom" style="border-left-color: #28a745; background: #d4edda; color: #155724;">
-                        <i class="bi bi-check-circle-fill"></i>
-                        <span>{{ session('success') }}</span>
-                    </div>
-                @endif
+    <div class="login-logo-box">
+        @if(file_exists(public_path('images/fruitex-logo.png')))
+            <img src="{{ asset('images/fruitex-logo.png') }}" alt="Fruitex de México">
+        @else
+            <span class="login-logo-placeholder">FX</span>
+        @endif
+    </div>
 
-                {{-- Formulario --}}
-                <form method="POST" action="{{ route('login.post') }}" id="loginForm">
-                    @csrf
+    <div class="login-brand">
+        <h1>SICET</h1>
+        <p class="tagline">
+            Sistema de Control de Equipos<br>
+            <span class="company">Fruitex de México</span>
+        </p>
+    </div>
 
-                    {{-- Número de Empleado (SOLO NÚMEROS) --}}
-                    <div class="input-icon mb-3">
-                        <i class="bi bi-person-badge"></i>
-                        <input type="text"
-                               name="email"  {{-- El controlador espera 'email' --}}
-                               id="email"
-                               class="form-control @error('email') is-invalid @enderror"
-                               value="{{ old('email') }}"
-                               placeholder="Número de Empleado"
-                               autocomplete="off"
-                               oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                               required>
-                    </div>
-
-                    {{-- Contraseña --}}
-                    <div class="input-icon mb-3">
-                        <i class="bi bi-key"></i>
-                        <input type="password"
-                               name="password"
-                               id="password"
-                               class="form-control @error('password') is-invalid @enderror"
-                               placeholder="Contraseña"
-                               required>
-                        <i class="bi bi-eye password-toggle" id="togglePassword"></i>
-                    </div>
-
-                    {{-- Botón de envío --}}
-                    <button type="submit" class="btn-login" id="submitBtn">
-                        <span class="button-text">Ingresar</span>
-                        <span class="spinner" style="display: none;"></span>
-                    </button>
-
-                    {{-- Enlace "Olvidé mi contraseña" --}}
-                    <div class="forgot-link">
-                        <a href="{{ route('password.request') }}">
-                            <i class="bi bi-question-circle me-1"></i>
-                            ¿Olvidaste tu contraseña?
-                        </a>
-                    </div>
-
-                    {{-- Enlaces --}}
-                    <div class="footer-links">
-                        <p class="mb-0">
-                            <i class="bi bi-info-circle"></i>
-                            Usa tu número de empleado y contraseña
-                        </p>
-                    </div>
-                </form>
-            </div>
+    <div class="login-features">
+        <div class="login-feature">
+            <span class="feature-check">✓</span>
+            Gestión de equipos de cómputo
+        </div>
+        <div class="login-feature">
+            <span class="feature-check">✓</span>
+            Control de dispositivos móviles
+        </div>
+        <div class="login-feature">
+            <span class="feature-check">✓</span>
+            Historial completo de asignaciones
         </div>
     </div>
 
-    {{-- Bootstrap JS --}}
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    {{-- Scripts personalizados --}}
-    <script>
-        // Toggle contraseña
-        document.getElementById('togglePassword').addEventListener('click', function () {
-            const password = document.getElementById('password');
-            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-            password.setAttribute('type', type);
-            this.classList.toggle('bi-eye');
-            this.classList.toggle('bi-eye-slash');
-        });
+    <p class="login-copyright">
+         {{ date('Y') }} Fruitex de México · Acceso restringido a personal autorizado
+    </p>
+</aside>
 
-        // Spinner al enviar formulario
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            const submitBtn = document.getElementById('submitBtn');
-            const buttonText = submitBtn.querySelector('.button-text');
-            const spinner = submitBtn.querySelector('.spinner');
-            
-            submitBtn.disabled = true;
-            buttonText.textContent = 'Ingresando...';
-            spinner.style.display = 'inline-block';
-        });
-    </script>
+{{-- ===== RIGHT PANEL ===== --}}
+<main class="login-right">
+    <div class="login-form-wrap">
+
+        <h2 class="form-title">Bienvenido</h2>
+        <p class="form-subtitle">Ingresa tus credenciales para acceder al sistema</p>
+
+        @if($errors->any())
+            <div class="alert-sicet alert-sicet-error">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                {{ $errors->first() }}
+            </div>
+        @endif
+
+        @if(session('success'))
+            <div class="alert-sicet alert-sicet-success">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                {{ session('success') }}
+            </div>
+        @endif
+
+        <form method="POST" action="{{ route('login.post') }}" id="loginForm">
+            @csrf
+
+            {{-- Número de empleado o correo --}}
+            <div class="field-group">
+                <svg class="field-icon-left" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                </svg>
+                <input
+                    type="text"
+                    name="email"
+                    id="loginInput"
+                    class="field-input {{ $errors->has('email') ? 'is-invalid' : '' }}"
+                    value="{{ old('email') }}"
+                    placeholder="Número de empleado o correo"
+                    autocomplete="username"
+                    required>
+            </div>
+
+            {{-- Contraseña --}}
+            <div class="field-group">
+                <svg class="field-icon-left" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                <input
+                    type="password"
+                    name="password"
+                    id="passwordInput"
+                    class="field-input {{ $errors->has('password') ? 'is-invalid' : '' }}"
+                    placeholder="Contraseña"
+                    autocomplete="current-password"
+                    required>
+                <button type="button" class="eye-btn" id="eyeBtn" aria-label="Mostrar contraseña">
+                    <svg id="eyeIconShow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                    <svg id="eyeIconHide" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                        <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                        <line x1="1" y1="1" x2="23" y2="23"/>
+                    </svg>
+                </button>
+            </div>
+
+            {{-- Recordarme + Olvidé contraseña --}}
+            <div class="remember-row">
+                <label class="remember-label">
+                    <input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }}>
+                    Recordarme
+                </label>
+                <a href="{{ route('password.request') }}" class="forgot-link-right">
+                    ¿Olvidaste tu contraseña?
+                </a>
+            </div>
+
+            <button type="submit" class="btn-sicet-primary" id="submitBtn">
+                <span id="btnText">Ingresar al sistema</span>
+            </button>
+
+        </form>
+    </div>
+</main>
+
+<script>
+    document.getElementById('eyeBtn').addEventListener('click', function () {
+        var inp = document.getElementById('passwordInput');
+        var isPass = inp.type === 'password';
+        inp.type = isPass ? 'text' : 'password';
+        document.getElementById('eyeIconShow').style.display = isPass ? 'none' : '';
+        document.getElementById('eyeIconHide').style.display = isPass ? '' : 'none';
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', function () {
+        var btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        document.getElementById('btnText').textContent = 'Ingresando...';
+    });
+</script>
+
 </body>
 </html>

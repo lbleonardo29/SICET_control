@@ -1,388 +1,354 @@
-@extends('layouts.app')
+@extends('layouts.sicet')
+
+@section('page-title', 'Dashboard')
+@section('page-subtitle', 'Resumen general del sistema')
 
 @section('content')
-<div class="container-fluid">
 
-    {{-- TARJETA USUARIO MEJORADA --}}
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow-sm border-0 bg-gradient-primary">
-                <div class="card-body d-flex flex-wrap align-items-center gap-4">
-                    
-                    {{-- Foto de perfil --}}
-                    <div class="position-relative">
-                        <img src="{{ $user->profile_photo
-                                ? asset('storage/' . $user->profile_photo)
-                                : asset('img/default-user.png') }}"
-                             class="rounded-circle border border-3 border-white shadow-sm"
-                             width="100"
-                             height="100"
-                             style="object-fit: cover;">
-                        <span class="position-absolute bottom-0 end-0 bg-success rounded-circle p-2 border border-2 border-white"></span>
-                    </div>
+{{-- ======================== ADMIN VIEW ======================== --}}
+@if($user->role === 'admin')
 
-                    {{-- Información usuario --}}
-                    <div class="flex-grow-1">
-                        <div class="d-flex align-items-center gap-2 mb-2">
-                            <h4 class="mb-0 fw-bold">{{ $user->name }}</h4>
-                            <span class="badge 
-                                {{ $user->role === 'admin' ? 'bg-danger' : 'bg-primary' }} 
-                                px-3 py-2">
-                                <i class="bi bi-shield-{{ $user->role === 'admin' ? 'lock' : 'person' }} me-1"></i>
-                                {{ strtoupper($user->role) }}
-                            </span>
-                        </div>
-                        
-                        <div class="d-flex flex-wrap gap-3">
-                            <div class="text-muted">
-                                <i class="bi bi-envelope me-1"></i> {{ $user->email }}
-                            </div>
-                            <div class="text-success">
-                                <i class="bi bi-check-circle-fill me-1"></i> Sesión activa
-                            </div>
-                        </div>
-                    </div>
+@php
+    $totalAsignaciones = $equiposAsignados + $movilesAsignados;
 
-                    {{-- Fecha actual --}}
-                    <div class="text-end d-none d-lg-block">
-                        <div class="small text-muted">Hoy</div>
-                        <div class="fw-bold">{{ now()->format('d/m/Y') }}</div>
-                        <div class="small">{{ now()->format('H:i') }} hrs</div>
-                    </div>
+    // Donut percentages (based on equipos)
+    $donutTotal = max($totalEquipos, 1);
+    $pctAsig    = round($equiposAsignados / $donutTotal * 100);
+    $pctDisp    = round($equiposDisponibles / $donutTotal * 100);
+    $pctOtros   = max(0, 100 - $pctAsig - $pctDisp);
+
+    $deg1 = round($pctAsig * 3.6);
+    $deg2 = round(($pctAsig + $pctDisp) * 3.6);
+    $donutGradient = "conic-gradient(rgb(21,64,31) 0deg {$deg1}deg, rgb(152,192,61) {$deg1}deg {$deg2}deg, rgb(210,214,205) {$deg2}deg 360deg)";
+
+    // Monthly chart (last 6 months)
+    $chartMeses = collect(range(5, 0))->map(function ($i) {
+        $mes  = now()->subMonths($i);
+        $comp = \App\Models\Asignacion::whereYear('created_at', $mes->year)
+                    ->whereMonth('created_at', $mes->month)->count();
+        $mov  = \App\Models\AsignacionMovil::whereYear('created_at', $mes->year)
+                    ->whereMonth('created_at', $mes->month)->count();
+        return ['label' => $mes->locale('es')->translatedFormat('M'), 'total' => $comp + $mov];
+    });
+    $chartMax = max(1, $chartMeses->max('total'));
+
+    // Recent activity
+    $actividadReciente = \App\Models\Asignacion::with(['empleado', 'equipo'])
+        ->latest()->take(6)->get();
+@endphp
+
+{{-- KPI CARDS --}}
+<div class="s-kpi-grid s-mb-24">
+    <div class="s-kpi-card">
+        <div class="s-kpi-label">Total de equipos</div>
+        <div class="s-kpi-value">{{ $totalEquipos }}</div>
+        <span class="s-kpi-tag s-kpi-tag-green">{{ $equiposDisponibles }} disponibles</span>
+    </div>
+    <div class="s-kpi-card">
+        <div class="s-kpi-label">Dispositivos móviles</div>
+        <div class="s-kpi-value">{{ $totalMoviles }}</div>
+        <span class="s-kpi-tag s-kpi-tag-blue">{{ $movilesDisponibles }} disponibles</span>
+    </div>
+    <div class="s-kpi-card">
+        <div class="s-kpi-label">Empleados</div>
+        <div class="s-kpi-value">{{ $totalEmpleados }}</div>
+        <span class="s-kpi-tag s-kpi-tag-gray">registrados</span>
+    </div>
+    <div class="s-kpi-card">
+        <div class="s-kpi-label">Asignaciones activas</div>
+        <div class="s-kpi-value">{{ $totalAsignaciones }}</div>
+        <span class="s-kpi-tag s-kpi-tag-orange">{{ $equiposAsignados }} comp · {{ $movilesAsignados }} móv</span>
+    </div>
+</div>
+
+{{-- CHARTS ROW --}}
+<div class="s-charts-row">
+
+    {{-- Bar chart --}}
+    <div class="s-card">
+        <div class="s-card-header">
+            <div class="s-card-header-left">
+                <span class="s-card-title">Asignaciones por mes</span>
+                <span class="s-card-subtitle">Últimos 6 meses (equipos + dispositivos)</span>
+            </div>
+        </div>
+        <div class="s-card-body">
+            <div class="s-bar-chart">
+                @foreach($chartMeses as $mes)
+                @php $barH = max(4, round(($mes['total'] / $chartMax) * 110)); @endphp
+                <div class="s-bar-col">
+                    <span class="s-bar-val">{{ $mes['total'] }}</span>
+                    <div class="s-bar" style="height:{{ $barH }}px" title="{{ $mes['total'] }} asignaciones en {{ $mes['label'] }}"></div>
+                    <span class="s-bar-label">{{ $mes['label'] }}</span>
                 </div>
+                @endforeach
             </div>
         </div>
     </div>
 
-    {{-- ================= ASIGNACIONES PENDIENTES (SOLO PARA USUARIOS NORMALES) ================= --}}
-    @if(in_array($user->role, ['user', 'usuario', 'seguridad']))
-        @php
-            $asignacionesPendientes = \App\Models\Asignacion::where('empleado_id', $user->empleado_id)
-                ->where('estado_asignacion', 'pendiente')
-                ->with('equipo')
-                ->get();
-                
-            $movilesPendientes = \App\Models\AsignacionMovil::where('empleado_id', $user->empleado_id)
-                ->where('estado_asignacion', 'pendiente')
-                ->with('dispositivo')
-                ->get();
-        @endphp
-
-        @if($asignacionesPendientes->count() > 0 || $movilesPendientes->count() > 0)
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div class="card shadow-sm border-0 border-warning">
-                        <div class="card-header bg-warning text-dark py-3">
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-clock-history me-2 fs-5"></i>
-                                <h5 class="mb-0">Asignaciones Pendientes de Aprobación</h5>
-                                <span class="badge bg-dark ms-3">{{ $asignacionesPendientes->count() + $movilesPendientes->count() }} pendientes</span>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="alert alert-info mb-3">
-                                <i class="bi bi-info-circle me-2"></i>
-                                Tienes asignaciones pendientes. Debes aceptarlas o rechazarlas para continuar.
-                            </div>
-
-                            {{-- Computadoras pendientes --}}
-                            @foreach($asignacionesPendientes as $pendiente)
-                                <div class="card mb-3 border-warning">
-                                    <div class="card-body">
-                                        <div class="row align-items-center">
-                                            <div class="col-md-6">
-                                                <div class="d-flex align-items-center gap-3">
-                                                    <i class="bi bi-pc-display text-primary fs-1"></i>
-                                                    <div>
-                                                        <h5 class="mb-1">{{ $pendiente->equipo->marca }} {{ $pendiente->equipo->modelo }}</h5>
-                                                        <p class="text-muted mb-0">
-                                                            <i class="bi bi-upc-scan me-1"></i>
-                                                            Código: {{ $pendiente->equipo->codigo_interno }}
-                                                        </p>
-                                                        <p class="text-muted mb-0">
-                                                            <i class="bi bi-calendar me-1"></i>
-                                                            Asignación: {{ \Carbon\Carbon::parse($pendiente->fecha_asignacion)->format('d/m/Y') }}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6 text-md-end mt-3 mt-md-0">
-                                                <div class="d-flex justify-content-end gap-3">
-                                                    <form action="{{ route('asignaciones.aceptar', $pendiente->id) }}" method="POST">
-                                                        @csrf
-                                                        @method('PUT')
-                                                        <button type="submit" class="btn btn-success btn-lg px-4" onclick="return confirm('¿Aceptar esta computadora?')">
-                                                            <i class="bi bi-check-circle me-2"></i>
-                                                            Aceptar
-                                                        </button>
-                                                    </form>
-                                                    <form action="{{ route('asignaciones.rechazar', $pendiente->id) }}" method="POST">
-                                                        @csrf
-                                                        @method('PUT')
-                                                        <button type="submit" class="btn btn-danger btn-lg px-4" onclick="return confirm('¿Rechazar esta computadora?')">
-                                                            <i class="bi bi-x-circle me-2"></i>
-                                                            Rechazar
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-
-                            {{-- Móviles pendientes --}}
-                            @foreach($movilesPendientes as $pendiente)
-                                <div class="card mb-3 border-warning">
-                                    <div class="card-body">
-                                        <div class="row align-items-center">
-                                            <div class="col-md-6">
-                                                <div class="d-flex align-items-center gap-3">
-                                                    <i class="bi bi-phone text-success fs-1"></i>
-                                                    <div>
-                                                        <h5 class="mb-1">{{ $pendiente->dispositivo->marca }} {{ $pendiente->dispositivo->modelo }}</h5>
-                                                        <p class="text-muted mb-0">
-                                                            <i class="bi bi-upc-scan me-1"></i>
-                                                            Código: {{ $pendiente->dispositivo->codigo_interno }}
-                                                        </p>
-                                                        <p class="text-muted mb-0">
-                                                            <i class="bi bi-calendar me-1"></i>
-                                                            Asignación: {{ \Carbon\Carbon::parse($pendiente->fecha_asignacion)->format('d/m/Y') }}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6 text-md-end mt-3 mt-md-0">
-                                                <div class="d-flex justify-content-end gap-3">
-                                                    <form action="{{ route('asignaciones.moviles.aceptar', $pendiente->id) }}" method="POST">
-                                                        @csrf
-                                                        @method('PUT')
-                                                        <button type="submit" class="btn btn-success btn-lg px-4" onclick="return confirm('¿Aceptar este dispositivo móvil?')">
-                                                            <i class="bi bi-check-circle me-2"></i>
-                                                            Aceptar
-                                                        </button>
-                                                    </form>
-                                                    <form action="{{ route('asignaciones.moviles.rechazar', $pendiente->id) }}" method="POST">
-                                                        @csrf
-                                                        @method('PUT')
-                                                        <button type="submit" class="btn btn-danger btn-lg px-4" onclick="return confirm('¿Rechazar este dispositivo móvil?')">
-                                                            <i class="bi bi-x-circle me-2"></i>
-                                                            Rechazar
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
+    {{-- Donut chart --}}
+    <div class="s-card">
+        <div class="s-card-header">
+            <div class="s-card-header-left">
+                <span class="s-card-title">Estado de equipos</span>
+                <span class="s-card-subtitle">Distribución actual (computadoras)</span>
+            </div>
+        </div>
+        <div class="s-card-body">
+            <div class="s-donut-wrap">
+                <div class="s-donut" style="background:{{ $donutGradient }}">
+                    <div style="width:100%;height:100%;border-radius:50%;-webkit-mask:radial-gradient(circle,transparent 44%,black 45%);mask:radial-gradient(circle,transparent 44%,black 45%);background:#fff"></div>
+                </div>
+                <div class="s-legend">
+                    <div class="s-legend-item">
+                        <span class="s-legend-dot" style="background:rgb(21,64,31)"></span>
+                        Asignados <span class="s-legend-pct">{{ $pctAsig }}%</span>
+                    </div>
+                    <div class="s-legend-item">
+                        <span class="s-legend-dot" style="background:rgb(152,192,61)"></span>
+                        Disponibles <span class="s-legend-pct">{{ $pctDisp }}%</span>
+                    </div>
+                    <div class="s-legend-item">
+                        <span class="s-legend-dot" style="background:rgb(210,214,205)"></span>
+                        Otros <span class="s-legend-pct">{{ $pctOtros }}%</span>
                     </div>
                 </div>
             </div>
-        @endif
-    @endif
-
-    {{-- ================= ADMIN ESTADISTICAS MEJORADAS ================= --}}
-    @if($user->role === 'admin')
-    
-    {{-- Estadísticas Computadoras --}}
-    <div class="row g-3 mb-4">
-        <div class="col-md-3 col-6">
-            <div class="card shadow-sm border-0 bg-light">
-                <div class="card-body text-center">
-                    <div class="text-primary mb-2">
-                        <i class="bi bi-pc-display" style="font-size: 2rem;"></i>
-                    </div>
-                    <h6 class="text-muted mb-1">Total Computadoras</h6>
-                    <h3 class="fw-bold mb-0">{{ $totalEquipos }}</h3>
-                </div>
-            </div>
         </div>
-
-        <div class="col-md-3 col-6">
-            <div class="card shadow-sm border-0 bg-success bg-opacity-10">
-                <div class="card-body text-center">
-                    <div class="text-success mb-2">
-                        <i class="bi bi-check-circle" style="font-size: 2rem;"></i>
-                    </div>
-                    <h6 class="text-muted mb-1">Computadoras Disponibles</h6>
-                    <h3 class="fw-bold text-success mb-0">{{ $equiposDisponibles }}</h3>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3 col-6">
-            <div class="card shadow-sm border-0 bg-primary bg-opacity-10">
-                <div class="card-body text-center">
-                    <div class="text-primary mb-2">
-                        <i class="bi bi-person-check" style="font-size: 2rem;"></i>
-                    </div>
-                    <h6 class="text-muted mb-1">Computadoras Asignadas</h6>
-                    <h3 class="fw-bold text-primary mb-0">{{ $equiposAsignados }}</h3>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3 col-6">
-            <div class="card shadow-sm border-0 bg-info bg-opacity-10">
-                <div class="card-body text-center">
-                    <div class="text-info mb-2">
-                        <i class="bi bi-people" style="font-size: 2rem;"></i>
-                    </div>
-                    <h6 class="text-muted mb-1">Total Empleados</h6>
-                    <h3 class="fw-bold text-info mb-0">{{ $totalEmpleados }}</h3>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- Estadísticas Móviles --}}
-    <div class="row g-3 mb-4">
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0 bg-light">
-                <div class="card-body text-center">
-                    <div class="text-warning mb-2">
-                        <i class="bi bi-phone" style="font-size: 2rem;"></i>
-                    </div>
-                    <h6 class="text-muted mb-1">Total Móviles</h6>
-                    <h3 class="fw-bold mb-0">{{ $totalMoviles }}</h3>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0 bg-success bg-opacity-10">
-                <div class="card-body text-center">
-                    <div class="text-success mb-2">
-                        <i class="bi bi-check-circle" style="font-size: 2rem;"></i>
-                    </div>
-                    <h6 class="text-muted mb-1">Móviles Disponibles</h6>
-                    <h3 class="fw-bold text-success mb-0">{{ $movilesDisponibles }}</h3>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0 bg-primary bg-opacity-10">
-                <div class="card-body text-center">
-                    <div class="text-primary mb-2">
-                        <i class="bi bi-person-check" style="font-size: 2rem;"></i>
-                    </div>
-                    <h6 class="text-muted mb-1">Móviles Asignados</h6>
-                    <h3 class="fw-bold text-primary mb-0">{{ $movilesAsignados }}</h3>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    @endif
-
-    {{-- ================= EQUIPOS ASIGNADOS (ADMIN Y USER) MEJORADOS ================= --}}
-    <div class="row g-4 mb-4">
-
-        {{-- COMPUTADORAS --}}
-        <div class="col-md-6">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-white fw-bold d-flex align-items-center gap-2">
-                    <i class="bi bi-pc-display text-primary fs-5"></i>
-                    Mis Computadoras
-                </div>
-                <div class="card-body">
-                    @if($maquinas && $maquinas->count() > 0)
-                        @foreach($maquinas as $index => $maquina)
-                            <div class="mb-3 {{ !$loop->last ? 'border-bottom pb-3' : '' }}">
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span class="text-muted">Computadora {{ $loop->iteration }}:</span>
-                                    <span class="fw-bold">{{ $maquina->equipo->marca ?? 'N/A' }} {{ $maquina->equipo->modelo ?? '' }}</span>
-                                </div>
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span class="text-muted">Código:</span>
-                                    <span class="fw-bold">{{ $maquina->equipo->codigo_interno ?? 'N/A' }}</span>
-                                </div>
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span class="text-muted">Serie:</span>
-                                    <span class="fw-bold">{{ $maquina->equipo->numero_serie ?? 'N/A' }}</span>
-                                </div>
-                                <div class="d-flex justify-content-between">
-                                    <span class="text-muted">Asignación:</span>
-                                    <span class="fw-bold">{{ \Carbon\Carbon::parse($maquina->fecha_asignacion)->format('d/m/Y H:i') }}</span>
-                                </div>
-                                @if(!$maquina->fecha_devolucion)
-                                    <span class="badge bg-success mt-2">Activo</span>
-                                @else
-                                    <span class="badge bg-secondary mt-2">Devuelto</span>
-                                @endif
-                            </div>
-                        @endforeach
-                    @else
-                        <div class="text-center py-4">
-                            <i class="bi bi-pc-display text-muted" style="font-size: 3rem;"></i>
-                            <p class="text-muted mt-3 mb-0">No tienes computadoras asignadas.</p>
-                        </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-
-        {{-- MOVIL --}}
-        <div class="col-md-6">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-white fw-bold d-flex align-items-center gap-2">
-                    <i class="bi bi-phone text-success fs-5"></i>
-                    Mi Dispositivo Móvil
-                </div>
-                <div class="card-body">
-                    @if($movil)
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-muted">Código:</span>
-                                <span class="fw-bold">{{ $movil->dispositivo->codigo_interno ?? 'N/A' }}</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-muted">Marca/Modelo:</span>
-                                <span class="fw-bold">{{ $movil->dispositivo->marca ?? 'N/A' }} {{ $movil->dispositivo->modelo ?? '' }}</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-muted">IMEI:</span>
-                                <span class="fw-bold">{{ $movil->dispositivo->imei ?? 'N/A' }}</span>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <span class="text-muted">Asignación:</span>
-                                <span class="fw-bold">{{ \Carbon\Carbon::parse($movil->fecha_asignacion)->format('d/m/Y H:i') }}</span>
-                            </div>
-                        </div>
-                        @if(!$movil->fecha_devolucion)
-                            <span class="badge bg-success">Activo</span>
-                        @else
-                            <span class="badge bg-secondary">Devuelto</span>
-                        @endif
-                    @else
-                        <div class="text-center py-4">
-                            <i class="bi bi-phone text-muted" style="font-size: 3rem;"></i>
-                            <p class="text-muted mt-3 mb-0">No tienes dispositivo móvil asignado.</p>
-                        </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-
     </div>
 
 </div>
+
+{{-- RECENT ACTIVITY --}}
+<div class="s-card">
+    <div class="s-card-header">
+        <div class="s-card-header-left">
+            <span class="s-card-title">Actividad reciente</span>
+            <span class="s-card-subtitle">Últimas asignaciones de equipos</span>
+        </div>
+        <a href="{{ route('asignaciones.dashboard') }}" class="s-link-action">Ver todas →</a>
+    </div>
+
+    @if($actividadReciente->isEmpty())
+        <div class="s-empty">
+            <div class="s-empty-icon"></div>
+            <div class="s-empty-title">Sin actividad reciente</div>
+            <div class="s-empty-text">Las asignaciones realizadas aparecerán aquí.</div>
+        </div>
+    @else
+        <table class="s-table">
+            <thead>
+                <tr>
+                    <th>Empleado</th>
+                    <th>Equipo</th>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($actividadReciente as $asig)
+                <tr>
+                    <td>
+                        <div class="s-row-flex">
+                            <div class="s-initials">
+                                {{ $asig->empleado ? mb_strtoupper(mb_substr($asig->empleado->nombre_completo, 0, 2)) : '?' }}
+                            </div>
+                            {{ $asig->empleado->nombre_completo ?? '—' }}
+                        </div>
+                    </td>
+                    <td>
+                        {{ $asig->equipo ? $asig->equipo->marca . ' ' . $asig->equipo->modelo : '—' }}
+                        @if($asig->equipo)
+                            <br><small style="color:rgb(130,136,124);font-size:11px">{{ $asig->equipo->codigo_interno }}</small>
+                        @endif
+                    </td>
+                    <td style="white-space:nowrap">
+                        {{ $asig->fecha_asignacion ? \Carbon\Carbon::parse($asig->fecha_asignacion)->format('d/m/Y') : '—' }}
+                    </td>
+                    <td>
+                        @switch($asig->estado_asignacion)
+                            @case('aceptada')  <span class="s-badge s-badge-green">Asignado</span>  @break
+                            @case('pendiente') <span class="s-badge s-badge-yellow">Pendiente</span> @break
+                            @case('rechazada') <span class="s-badge s-badge-red">Rechazado</span>   @break
+                            @default           <span class="s-badge s-badge-gray">{{ $asig->estado_asignacion }}</span>
+                        @endswitch
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @endif
+</div>
+
+{{-- ======================== USER / SEGURIDAD VIEW ======================== --}}
+@else
+
+@if($asignacionesPendientes->isNotEmpty() || $movilesPendientes->isNotEmpty())
+<div class="s-alert s-alert-warning" style="margin-bottom:24px">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+    </svg>
+    Tienes {{ $asignacionesPendientes->count() + $movilesPendientes->count() }} asignación(es) pendiente(s) de confirmar.
+</div>
+@endif
+
+<div class="s-grid-2 s-mb-24">
+
+    {{-- Computadoras asignadas --}}
+    <div class="s-card">
+        <div class="s-card-header">
+            <div class="s-card-header-left">
+                <span class="s-card-title">Mis equipos</span>
+                <span class="s-card-subtitle">Equipos de cómputo activos</span>
+            </div>
+        </div>
+        @if($maquinas->isEmpty())
+            <div class="s-empty">
+                <div class="s-empty-icon"></div>
+                <div class="s-empty-title">Sin equipos asignados</div>
+                <div class="s-empty-text">No tienes computadoras asignadas actualmente.</div>
+            </div>
+        @else
+            <div class="s-card-body" style="display:flex;flex-direction:column;gap:12px">
+                @foreach($maquinas as $asig)
+                <div class="s-device-card">
+                    <div class="s-device-card-header">
+                        <div class="s-device-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="3" width="20" height="14" rx="2"/>
+                                <line x1="8" y1="21" x2="16" y2="21"/>
+                                <line x1="12" y1="17" x2="12" y2="21"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="s-device-model">{{ $asig->equipo->marca }} {{ $asig->equipo->modelo }}</div>
+                            <div class="s-device-code">{{ $asig->equipo->codigo_interno }}</div>
+                        </div>
+                    </div>
+                    <div class="s-device-detail">Serie: <span>{{ $asig->equipo->numero_serie }}</span></div>
+                    <div class="s-device-detail">Asignado el: <span>{{ \Carbon\Carbon::parse($asig->fecha_asignacion)->format('d/m/Y') }}</span></div>
+                </div>
+                @endforeach
+            </div>
+        @endif
+    </div>
+
+    {{-- Móvil asignado --}}
+    <div class="s-card">
+        <div class="s-card-header">
+            <div class="s-card-header-left">
+                <span class="s-card-title">Mi dispositivo móvil</span>
+                <span class="s-card-subtitle">Dispositivo activo asignado</span>
+            </div>
+        </div>
+        @if(!$movil)
+            <div class="s-empty">
+                <div class="s-empty-icon"></div>
+                <div class="s-empty-title">Sin dispositivo asignado</div>
+                <div class="s-empty-text">No tienes un dispositivo móvil actualmente.</div>
+            </div>
+        @else
+            <div class="s-card-body">
+                <div class="s-device-card">
+                    <div class="s-device-card-header">
+                        <div class="s-device-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+                                <line x1="12" y1="18" x2="12.01" y2="18"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="s-device-model">{{ $movil->dispositivo->marca }} {{ $movil->dispositivo->modelo }}</div>
+                            <div class="s-device-code">{{ $movil->dispositivo->codigo_interno ?? 'S/C' }}</div>
+                        </div>
+                    </div>
+                    <div class="s-device-detail">IMEI: <span>{{ $movil->dispositivo->imei }}</span></div>
+                    <div class="s-device-detail">Asignado el: <span>{{ \Carbon\Carbon::parse($movil->fecha_asignacion)->format('d/m/Y') }}</span></div>
+                </div>
+            </div>
+        @endif
+    </div>
+
+</div>
+
+{{-- Pending computers --}}
+@if($asignacionesPendientes->isNotEmpty())
+<div class="s-card s-mb-24">
+    <div class="s-card-header">
+        <div class="s-card-header-left">
+            <span class="s-card-title">Equipos pendientes de confirmación</span>
+        </div>
+        <span class="s-badge s-badge-yellow">{{ $asignacionesPendientes->count() }}</span>
+    </div>
+    <div class="s-card-body" style="display:flex;flex-direction:column;gap:10px">
+        @foreach($asignacionesPendientes as $asig)
+        <div class="s-pending-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+                <div>
+                    <div style="font-weight:600;font-size:14px;color:rgb(27,32,24)">
+                        {{ $asig->equipo->marca ?? '' }} {{ $asig->equipo->modelo ?? '' }}
+                        <span style="color:rgb(130,136,124);font-weight:400;font-size:12px">— {{ $asig->equipo->codigo_interno ?? '' }}</span>
+                    </div>
+                    <div style="font-size:12px;color:rgb(130,136,124);margin-top:2px">
+                        Fecha asignación: {{ \Carbon\Carbon::parse($asig->fecha_asignacion)->format('d/m/Y') }}
+                    </div>
+                </div>
+                <div style="display:flex;gap:8px">
+                    <form method="POST" action="{{ route('asignaciones.aceptar', $asig->id) }}">
+                        @csrf @method('PUT')
+                        <button type="submit" style="padding:7px 16px;background:rgb(21,64,31);color:#BFE06A;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Aceptar</button>
+                    </form>
+                    <form method="POST" action="{{ route('asignaciones.rechazar', $asig->id) }}">
+                        @csrf @method('PUT')
+                        <button type="submit" style="padding:7px 16px;background:transparent;color:rgb(194,65,12);border:1.5px solid rgba(234,88,12,0.4);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Rechazar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        @endforeach
+    </div>
+</div>
+@endif
+
+@if($movilesPendientes->isNotEmpty())
+<div class="s-card">
+    <div class="s-card-header">
+        <div class="s-card-header-left">
+            <span class="s-card-title">Dispositivos pendientes de confirmación</span>
+        </div>
+        <span class="s-badge s-badge-yellow">{{ $movilesPendientes->count() }}</span>
+    </div>
+    <div class="s-card-body" style="display:flex;flex-direction:column;gap:10px">
+        @foreach($movilesPendientes as $asig)
+        <div class="s-pending-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+                <div>
+                    <div style="font-weight:600;font-size:14px;color:rgb(27,32,24)">
+                        {{ $asig->dispositivo->marca ?? '' }} {{ $asig->dispositivo->modelo ?? '' }}
+                    </div>
+                    <div style="font-size:12px;color:rgb(130,136,124);margin-top:2px">
+                        Fecha asignación: {{ \Carbon\Carbon::parse($asig->fecha_asignacion)->format('d/m/Y') }}
+                    </div>
+                </div>
+                <div style="display:flex;gap:8px">
+                    <form method="POST" action="{{ route('asignaciones.moviles.aceptar', $asig->id) }}">
+                        @csrf @method('PUT')
+                        <button type="submit" style="padding:7px 16px;background:rgb(21,64,31);color:#BFE06A;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Aceptar</button>
+                    </form>
+                    <form method="POST" action="{{ route('asignaciones.moviles.rechazar', $asig->id) }}">
+                        @csrf @method('PUT')
+                        <button type="submit" style="padding:7px 16px;background:transparent;color:rgb(194,65,12);border:1.5px solid rgba(234,88,12,0.4);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Rechazar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        @endforeach
+    </div>
+</div>
+@endif
+
+@endif {{-- end admin check --}}
+
 @endsection
-
-@push('styles')
-{{-- Bootstrap Icons --}}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
-<style>
-.bg-gradient-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-}
-.bg-gradient-primary .text-muted {
-    color: rgba(255,255,255,0.8) !important;
-}
-</style>
-@endpush
