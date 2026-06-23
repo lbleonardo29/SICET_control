@@ -22,30 +22,18 @@ class PasswordResetController extends Controller
     public function sendResetLink(Request $request)
     {
         $request->validate([
-            'numero_empleado' => 'required'
+            'correo' => 'required|email'
         ]);
 
-        // Buscar en empleados por número de empleado
-        $empleado = DB::table('empleados')
-            ->where('numero_empleado', $request->numero_empleado)
-            ->where('activo', 1)
-            ->first();
+        $user = User::where('email', $request->correo)->first();
 
-        if (!$empleado) {
-            return back()->withErrors(['numero_empleado' => 'Número de empleado no encontrado']);
-        }
-
-        // Buscar usuario por correo
-        $user = User::where('email', $empleado->correo)->first();
-
+        // Siempre devolver mensaje genérico para no revelar si el correo existe
         if (!$user) {
-            return back()->withErrors(['numero_empleado' => 'No hay un usuario asociado a este número de empleado']);
+            return back()->with('success', 'Si tu correo está registrado, recibirás un enlace en breve.');
         }
 
-        // Generar token único
         $token = Str::random(60);
-        
-        // Guardar token en la tabla
+
         DB::table('password_reset_tokens')->updateOrInsert(
             ['email' => $user->email],
             [
@@ -55,28 +43,22 @@ class PasswordResetController extends Controller
             ]
         );
 
-        // ENVIAR CORREO A TU CORREO PERSONAL (PARA PRUEBAS)
-        // Cambia 'tu_correo_personal@gmail.com' por tu correo
-        $correoPrueba = 'rogatwin09@gmail.com'; // 👈 Tu correo personal
-        
-        $nombreEmpleado = $empleado->nombre_completo;
         $resetUrl = route('password.reset', $token);
 
         try {
             Mail::send('emails.password-reset', [
-                'nombre' => $nombreEmpleado,
+                'nombre' => $user->name,
                 'resetUrl' => $resetUrl,
                 'email' => $user->email,
-                'empleado' => $empleado
-            ], function($message) use ($correoPrueba) {
-                $message->to($correoPrueba)
-                        ->subject('PRUEBA - Recuperación de contraseña - SICET');
+            ], function ($message) use ($user) {
+                $message->to($user->email)
+                        ->subject('Recuperación de contraseña - SICET');
             });
-            
-            return back()->with('success', 'Enlace de recuperación enviado a tu correo personal (rogatwin09@gmail.com) para pruebas.');
         } catch (\Exception $e) {
-            return back()->withErrors(['email' => 'Error al enviar correo: ' . $e->getMessage()]);
+            \Log::error('Error al enviar correo de recuperación: ' . $e->getMessage());
         }
+
+        return back()->with('success', 'Si tu correo está registrado, recibirás un enlace en breve.');
     }
 
     // Mostrar formulario para nueva contraseña

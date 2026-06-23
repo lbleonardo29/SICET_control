@@ -205,7 +205,7 @@ class AsignacionController extends Controller
         // =====================================================
         if ($empleado && $empleado->correo) {
             try {
-                Mail::to('rogatwin09@gmail.com')->send(new AsignacionPendiente($asignacion, 'equipo'));
+                Mail::to($empleado->correo)->send(new AsignacionPendiente($asignacion, 'equipo'));
             } catch (\Exception $e) {
                 \Log::error('Error al enviar correo: ' . $e->getMessage());
             }

@@ -195,18 +195,5 @@ Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink'
 Route::get('/reset-password/{token}', [PasswordResetController::class, 'showResetForm'])->name('password.reset');
 Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])->name('password.update');
 
-
-// ================= OTRAS RUTAS =================
-Route::get('/test-mail', function () {
-    try {
-        \Illuminate\Support\Facades\Mail::raw('Prueba de correo', function($message) {
-            $message->to('rogatwin09@gmail.com')->subject('Prueba SITEC');
-        });
-        return 'Correo enviado correctamente';
-    } catch (\Exception $e) {
-        return 'Error: ' . $e->getMessage();
-    }
-});
-
 Route::put('/equipos/{id}/baja', [EquipoController::class, 'darDeBaja'])->name('equipos.baja');
 Route::put('/moviles/{id}/baja', [DispositivoMovilController::class, 'darDeBaja'])->name('moviles.baja');

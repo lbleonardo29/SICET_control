@@ -103,17 +103,16 @@
 
                     <div class="mb-4">
                         <label class="form-label fw-semibold">
-                            <i class="bi bi-person-badge me-1"></i>
-                            Número de Empleado
+                            <i class="bi bi-envelope me-1"></i>
+                            Correo electrónico
                         </label>
-                        <input type="text"
-                               name="numero_empleado"
+                        <input type="email"
+                               name="correo"
                                class="form-control form-control-lg"
-                               value="{{ old('numero_empleado') }}"
-                               placeholder="Ej: 1234"
-                               oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                               value="{{ old('correo') }}"
+                               placeholder="tucorreo@empresa.com"
                                required>
-                        <small class="text-muted">Ingresa tu número de empleado (el que usas para iniciar sesión)</small>
+                        <small class="text-muted">Ingresa el correo con el que estás registrado en SICET</small>
                     </div>
 
                     <button type="submit" class="btn-reset" id="submitBtn">

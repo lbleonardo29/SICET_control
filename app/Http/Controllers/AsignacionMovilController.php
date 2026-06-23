@@ -199,7 +199,7 @@ $empleados = Empleado::where('activo', 1)
         // =====================================================
         if ($empleado && $empleado->correo) {
             try {
-                Mail::to('rogatwin09@gmail.com')->send(new AsignacionPendiente($asignacion, 'movil'));
+                Mail::to($empleado->correo)->send(new AsignacionPendiente($asignacion, 'movil'));
             } catch (\Exception $e) {
                 \Log::error('Error al enviar correo móvil: ' . $e->getMessage());
             }

@@ -94,8 +94,7 @@ class EmpleadoController extends Controller
             ]);
 
             try {
-                // TODO (fase seguridad): enviar a $empleado->correo en lugar del correo de pruebas
-                Mail::to('rogatwin09@gmail.com')->send(new CredencialesUsuario($empleado, $password));
+                Mail::to($empleado->correo)->send(new CredencialesUsuario($empleado, $password));
             } catch (\Exception $e) {
                 \Log::error('Error al enviar correo: ' . $e->getMessage());
             }
@@ -156,7 +155,7 @@ class EmpleadoController extends Controller
                 ]);
 
                 try {
-                    Mail::to('rogatwin09@gmail.com')->send(new CredencialesUsuario($empleado, $passwordTemporal));
+                    Mail::to($empleado->correo)->send(new CredencialesUsuario($empleado, $passwordTemporal));
                 } catch (\Exception $e) {
                     \Log::error('Error al enviar correo: ' . $e->getMessage());
                 }
