@@ -1,4 +1,6 @@
-@extends('layouts.app')
+﻿@extends('layouts.sicet')
+
+@section('page-title', 'Registrar Empleado')
 
 @section('content')
 <div class="container">

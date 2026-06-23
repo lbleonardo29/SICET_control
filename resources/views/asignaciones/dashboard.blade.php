@@ -1,4 +1,6 @@
-@extends('layouts.app')
+﻿@extends('layouts.sicet')
+
+@section('page-title', 'Asignaciones de Equipos')
 
 @section('content')
 <div class="container-fluid">

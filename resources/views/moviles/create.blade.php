@@ -1,9 +1,11 @@
-@extends('layouts.app')
+﻿@extends('layouts.sicet')
+
+@section('page-title', 'Registrar Dispositivo')
 
 @section('content')
 <div class="container-fluid">
 
-    <h2 class="mb-4">➕ Registrar Dispositivo Móvil</h2>
+    <h2 class="mb-4"> Registrar Dispositivo Móvil</h2>
 
     {{-- Solo Admin puede ver el formulario --}}
     @if(auth()->user()->role !== 'admin')
@@ -96,7 +98,7 @@
                 </div>
 
                 <div class="mt-4 d-flex gap-2">
-                    <button class="btn btn-success">💾 Guardar</button>
+                    <button class="btn btn-success"> Guardar</button>
                     <a href="{{ route('moviles.index') }}" class="btn btn-secondary">Cancelar</a>
                 </div>
 

@@ -6,6 +6,10 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>SICET — @yield('page-title', 'Control de Equipos')</title>
     <link rel="icon" type="image/x-icon" href="{{ asset('sicet.ico') }}">
+    {{-- Bootstrap 5 (para vistas de contenido que usan clases Bootstrap) --}}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    {{-- SICET design system (sobreescribe sidebar, header y background) --}}
     <link rel="stylesheet" href="{{ asset('css/sicet-app.css') }}">
     @stack('styles')
 </head>
@@ -147,7 +151,12 @@
         {{-- Reportes --}}
         @if(in_array(Auth::user()->role, ['admin', 'seguridad']))
         <div class="s-nav-label">Reportes</div>
-        <a href="{{ route('reportes.index') }}"
+        @php
+            $reportesRoute = Auth::user()->role === 'admin'
+                ? route('reportes.index')
+                : route('reportes.create');
+        @endphp
+        <a href="{{ $reportesRoute }}"
            class="s-nav-row {{ Route::is('reportes.*') ? 'active' : '' }}">
             <svg class="s-nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -282,6 +291,9 @@ setTimeout(function () {
     });
 }, 5000);
 </script>
+
+{{-- Bootstrap JS --}}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 @stack('scripts')
 

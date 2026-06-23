@@ -1,8 +1,10 @@
-@extends('layouts.app')
+﻿@extends('layouts.sicet')
+
+@section('page-title', 'Editar Dispositivo')
 
 @section('content')
 <div class="container-fluid">
-    <h2 class="mb-4">✏️ Editar Dispositivo Móvil</h2>
+    <h2 class="mb-4"> Editar Dispositivo Móvil</h2>
 
     <div class="card shadow-sm">
         <div class="card-body">
@@ -77,11 +79,11 @@
                 </div>
 
                 <button class="btn btn-primary">
-                    💾 Guardar cambios
+                     Guardar cambios
                 </button>
 
                 <a href="{{ route('moviles.index') }}" class="btn btn-secondary">
-                    ↩️ Cancelar
+                     Cancelar
                 </a>
             </form>
         </div>

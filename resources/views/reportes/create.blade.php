@@ -1,4 +1,6 @@
-@extends('layouts.app')
+﻿@extends('layouts.sicet')
+
+@section('page-title', 'Nuevo Reporte')
 
 @section('content')
 <div class="container">

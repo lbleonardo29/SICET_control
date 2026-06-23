@@ -1,4 +1,6 @@
-@extends('layouts.app')
+﻿@extends('layouts.sicet')
+
+@section('page-title', 'Dispositivos Disponibles')
 
 @section('content')
 <div class="container-fluid">

@@ -3,139 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nueva Contraseña - SICET</title>
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            min-height: 100vh;
-        }
-        .reset-container {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-        }
-        .reset-card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-            width: 100%;
-            max-width: 450px;
-            overflow: hidden;
-        }
-        .reset-header {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            color: white;
-            padding: 2rem;
-            text-align: center;
-        }
-        .reset-header i {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 1rem;
-            border-radius: 50%;
-        }
-        .reset-body {
-            padding: 2rem;
-        }
-        .btn-reset {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            border: none;
-            border-radius: 12px;
-            padding: 0.8rem;
-            font-weight: 600;
-            width: 100%;
-            color: white;
-            transition: all 0.3s;
-        }
-        .btn-reset:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
-        }
-    </style>
+    <title>Nueva contraseña — SICET</title>
+    <link rel="icon" type="image/x-icon" href="{{ asset('sicet.ico') }}">
+    <link rel="stylesheet" href="{{ asset('css/sicet-login.css') }}">
 </head>
 <body>
-    <div class="reset-container">
-        <div class="reset-card">
-            <div class="reset-header">
-                <i class="bi bi-lock"></i>
-                <h3>Nueva Contraseña</h3>
-                <p>Ingresa tu nueva contraseña</p>
-            </div>
 
-            <div class="reset-body">
-                @if($errors->any())
-                    <div class="alert alert-danger">
-                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                        {{ $errors->first() }}
-                    </div>
-                @endif
+{{-- LEFT PANEL --}}
+<aside class="login-left">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
 
-                <form method="POST" action="{{ route('password.update') }}">
-                    @csrf
-                    <input type="hidden" name="token" value="{{ $token }}">
-                    <input type="hidden" name="email" value="{{ $email }}">
+    <div class="login-logo-box">
+        @if(file_exists(public_path('images/fruitex-logo.png')))
+            <img src="{{ asset('images/fruitex-logo.png') }}" alt="Fruitex de México">
+        @else
+            <span class="login-logo-placeholder">FX</span>
+        @endif
+    </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">
-                            <i class="bi bi-lock me-1"></i>
-                            Nueva Contraseña <span class="text-danger">*</span>
-                        </label>
-                        <input type="password"
-                               name="password"
-                               class="form-control form-control-lg"
-                               required>
-                        <small class="text-muted">Mínimo 6 caracteres</small>
-                    </div>
+    <div class="login-brand">
+        <h1>SICET</h1>
+        <p class="tagline">
+            Sistema de Control de Equipos<br>
+            <span class="company">Fruitex de México</span>
+        </p>
+    </div>
 
-                    <div class="mb-4">
-                        <label class="form-label fw-semibold">
-                            <i class="bi bi-lock me-1"></i>
-                            Confirmar Contraseña <span class="text-danger">*</span>
-                        </label>
-                        <input type="password"
-                               name="password_confirmation"
-                               class="form-control form-control-lg"
-                               required>
-                    </div>
-
-                    <button type="submit" class="btn-reset" id="submitBtn">
-                        <span class="button-text">
-                            <i class="bi bi-check-circle me-2"></i>
-                            Cambiar Contraseña
-                        </span>
-                        <span class="spinner-border spinner-border-sm ms-2" style="display: none;"></span>
-                    </button>
-
-                    <div class="text-center mt-3">
-                        <a href="{{ route('login') }}" class="text-decoration-none">
-                            <i class="bi bi-arrow-left me-1"></i>
-                            Volver al inicio de sesión
-                        </a>
-                    </div>
-                </form>
-            </div>
+    <div class="login-features">
+        <div class="login-feature">
+            <span class="feature-check">✓</span>
+            Enlace válido desde tu correo
+        </div>
+        <div class="login-feature">
+            <span class="feature-check">✓</span>
+            Usa mínimo 8 caracteres
+        </div>
+        <div class="login-feature">
+            <span class="feature-check">✓</span>
+            Acceso seguro con nueva contraseña
         </div>
     </div>
 
-    <script>
-        document.getElementById('submitBtn')?.addEventListener('click', function(e) {
-            const btn = this;
-            const text = btn.querySelector('.button-text');
-            const spinner = btn.querySelector('.spinner-border');
-            btn.disabled = true;
-            text.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Cambiando...';
-            spinner.style.display = 'inline-block';
-            btn.closest('form').submit();
-        });
-    </script>
+    <p class="login-copyright">
+        © {{ date('Y') }} Fruitex de México · Acceso restringido a personal autorizado
+    </p>
+</aside>
+
+{{-- RIGHT PANEL --}}
+<main class="login-right">
+    <div class="login-form-wrap">
+
+        <h2 class="form-title">Nueva contraseña</h2>
+        <p class="form-subtitle">
+            Ingresa y confirma tu nueva contraseña para recuperar el acceso a tu cuenta.
+        </p>
+
+        @if($errors->any())
+            <div class="alert-sicet alert-sicet-error">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                {{ $errors->first() }}
+            </div>
+        @endif
+
+        <form method="POST" action="{{ route('password.update') }}" id="resetForm">
+            @csrf
+            <input type="hidden" name="token" value="{{ $token }}">
+            <input type="hidden" name="email" value="{{ $email }}">
+
+            {{-- Nueva contraseña --}}
+            <div class="field-group">
+                <svg class="field-icon-left" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                <input
+                    type="password"
+                    name="password"
+                    id="passwordInput"
+                    class="field-input {{ $errors->has('password') ? 'is-invalid' : '' }}"
+                    placeholder="Nueva contraseña (mín. 8 caracteres)"
+                    autocomplete="new-password"
+                    required>
+                <button type="button" class="eye-btn" id="eyeBtn1" aria-label="Mostrar contraseña">
+                    <svg id="eye1Show" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                    <svg id="eye1Hide" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                        <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                        <line x1="1" y1="1" x2="23" y2="23"/>
+                    </svg>
+                </button>
+            </div>
+
+            {{-- Confirmar contraseña --}}
+            <div class="field-group" style="margin-bottom:24px">
+                <svg class="field-icon-left" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 12l2 2 4-4"/>
+                    <path d="M21 12c0 4.97-4.03 9-9 9S3 16.97 3 12 7.03 3 12 3s9 4.03 9 9z"/>
+                </svg>
+                <input
+                    type="password"
+                    name="password_confirmation"
+                    id="passwordConfirm"
+                    class="field-input"
+                    placeholder="Confirmar nueva contraseña"
+                    autocomplete="new-password"
+                    required>
+                <button type="button" class="eye-btn" id="eyeBtn2" aria-label="Mostrar confirmación">
+                    <svg id="eye2Show" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                    <svg id="eye2Hide" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                        <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                        <line x1="1" y1="1" x2="23" y2="23"/>
+                    </svg>
+                </button>
+            </div>
+
+            <button type="submit" class="btn-sicet-primary" id="submitBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                <span id="btnText">Cambiar contraseña</span>
+            </button>
+
+        </form>
+
+        <a href="{{ route('login') }}" class="back-to-login">
+            ← Volver al inicio de sesión
+        </a>
+
+    </div>
+</main>
+
+<script>
+    function toggleEye(inputId, showId, hideId) {
+        var inp = document.getElementById(inputId);
+        var isPass = inp.type === 'password';
+        inp.type = isPass ? 'text' : 'password';
+        document.getElementById(showId).style.display = isPass ? 'none' : '';
+        document.getElementById(hideId).style.display = isPass ? '' : 'none';
+    }
+
+    document.getElementById('eyeBtn1').addEventListener('click', function () {
+        toggleEye('passwordInput', 'eye1Show', 'eye1Hide');
+    });
+
+    document.getElementById('eyeBtn2').addEventListener('click', function () {
+        toggleEye('passwordConfirm', 'eye2Show', 'eye2Hide');
+    });
+
+    document.getElementById('resetForm').addEventListener('submit', function () {
+        var btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        document.getElementById('btnText').textContent = 'Cambiando...';
+    });
+</script>
+
 </body>
 </html>

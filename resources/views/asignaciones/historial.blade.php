@@ -1,4 +1,6 @@
-@extends('layouts.app')
+﻿@extends('layouts.sicet')
+
+@section('page-title', 'Historial por Equipo')
 
 @section('content')
 <div class="container-fluid">

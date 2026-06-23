@@ -1,4 +1,6 @@
-@extends('layouts.app')
+﻿@extends('layouts.sicet')
+
+@section('page-title', 'Confirmacion de Asignacion')
 
 @section('content')
 <div class="container text-center mt-5">
@@ -8,14 +10,14 @@
                 <div class="mb-4">
                     <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
                 </div>
-                <h2 class="text-success mb-3">✅ ¡Asignación Confirmada!</h2>
+                <h2 class="text-success mb-3"> ¡Asignación Confirmada!</h2>
                 <p class="lead">{{ $mensaje }}</p>
                 <p class="text-muted mt-3">La computadora ha sido registrada a tu nombre correctamente.</p>
             @else
                 <div class="mb-4">
                     <i class="bi bi-x-circle-fill text-danger" style="font-size: 5rem;"></i>
                 </div>
-                <h2 class="text-danger mb-3">❌ Asignación Rechazada</h2>
+                <h2 class="text-danger mb-3"> Asignación Rechazada</h2>
                 <p class="lead">{{ $mensaje }}</p>
                 <p class="text-muted mt-3">La computadora no ha sido asignada.</p>
             @endif

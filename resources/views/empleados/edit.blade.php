@@ -1,4 +1,6 @@
-@extends('layouts.app')
+﻿@extends('layouts.sicet')
+
+@section('page-title', 'Editar Empleado')
 
 @section('content')
 <div class="container">
@@ -162,10 +164,10 @@
                                                         -- Sin acceso --
                                                     </option>
                                                     <option value="user" {{ $rolActual === 'user' ? 'selected' : '' }}>
-                                                        👤 Usuario
+                                                         Usuario
                                                     </option>
                                                     <option value="admin" {{ $rolActual === 'admin' ? 'selected' : '' }}>
-                                                        ⚡ Administrador
+                                                         Administrador
                                                     </option>
                                                 </select>
                                             </div>

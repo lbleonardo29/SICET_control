@@ -1,4 +1,6 @@
-@extends('layouts.app')
+﻿@extends('layouts.sicet')
+
+@section('page-title', 'Equipos')
 
 @section('content')
 <div class="container-fluid">
@@ -426,7 +428,7 @@
                     
                     <div class="alert alert-info">
                         <i class="bi bi-info-circle-fill me-2"></i>
-                        <small>⚠️ El equipo quedará marcado como "Baja" y no podrá ser asignado nuevamente.</small>
+                        <small> El equipo quedará marcado como "Baja" y no podrá ser asignado nuevamente.</small>
                     </div>
                 </div>
                 <div class="modal-footer">
