@@ -45,8 +45,8 @@
                     <td>
                         @if($u->role === 'admin')
                             <span class="s-badge s-badge-green">Admin</span>
-                        @elseif($u->role === 'seguridad')
-                            <span class="s-badge s-badge-blue">Seguridad</span>
+                        @elseif($u->role === 'rh')
+                            <span class="s-badge s-badge-blue">RH</span>
                         @else
                             <span class="s-badge s-badge-gray">Usuario</span>
                         @endif
@@ -58,9 +58,9 @@
                             @method('PUT')
                             <select name="role" class="form-select form-select-sm" style="width:130px"
                                     onchange="this.closest('form').submit()">
-                                <option value="user"      {{ $u->role === 'user'      ? 'selected' : '' }}>Usuario</option>
-                                <option value="seguridad" {{ $u->role === 'seguridad' ? 'selected' : '' }}>Seguridad</option>
-                                <option value="admin"     {{ $u->role === 'admin'     ? 'selected' : '' }}>Admin</option>
+                                <option value="user"  {{ $u->role === 'user'  ? 'selected' : '' }}>Usuario</option>
+                                <option value="rh"    {{ $u->role === 'rh'    ? 'selected' : '' }}>RH</option>
+                                <option value="admin" {{ $u->role === 'admin' ? 'selected' : '' }}>Admin</option>
                             </select>
                         </form>
                     </td>

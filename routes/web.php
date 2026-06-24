@@ -52,22 +52,18 @@ Route::middleware('auth')->group(function () {
 });
 
 
-// ================= REPORTES (admin y seguridad) =================
-Route::middleware(['auth', 'role:admin,seguridad'])->group(function () {
-    Route::get('/reportes', [ReporteController::class, 'index'])->name('reportes.index');
-    Route::get('/reportes/create', [ReporteController::class, 'create'])->name('reportes.create');
-    Route::post('/reportes', [ReporteController::class, 'store'])->name('reportes.store');
+// ================= ASIGNACIONES - SOLO LECTURA (admin + rh) =================
+// RH (Recursos Humanos) solo visualiza las asignaciones: empleado, equipo y estado.
+Route::middleware(['auth', 'role:admin,rh'])->group(function () {
+    Route::get('/asignaciones/dashboard', [AsignacionController::class, 'dashboard'])->name('asignaciones.dashboard');
+    Route::get('/asignaciones-moviles', [AsignacionMovilController::class, 'dashboard'])->name('asignaciones.moviles.dashboard');
 });
 
 
 // ================= SOLO ADMIN =================
 Route::middleware(['auth', 'role:admin'])->group(function () {
 
-    // Exportar reportes
-    Route::get('/reportes/exportar', [ReporteController::class, 'exportar'])->name('reportes.exportar');
-
-    // Asignaciones computadoras — vistas globales
-    Route::get('/asignaciones/dashboard', [AsignacionController::class, 'dashboard'])->name('asignaciones.dashboard');
+    // Asignaciones computadoras — gestión (dashboard solo-lectura está en grupo admin+rh)
     Route::get('/asignaciones', [AsignacionController::class, 'index'])->name('asignaciones.index');
     Route::get('/asignaciones/historial/empleado/{empleado_id}', [AsignacionController::class, 'historialEmpleado'])->name('asignaciones.historial.empleado');
     Route::get('/asignaciones/historial/equipo/{equipo_id}', [AsignacionController::class, 'historialEquipo'])->name('asignaciones.historial.equipo');
@@ -111,8 +107,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/moviles/{movil}', [DispositivoMovilController::class, 'show'])->name('moviles.show');
     Route::put('/moviles/{id}/baja', [DispositivoMovilController::class, 'darDeBaja'])->name('moviles.baja');
 
-    // Asignaciones de móviles — vistas globales
-    Route::get('/asignaciones-moviles', [AsignacionMovilController::class, 'dashboard'])->name('asignaciones.moviles.dashboard');
+    // Asignaciones de móviles — gestión (dashboard solo-lectura está en grupo admin+rh)
     Route::get('/asignaciones-moviles/nueva/{id}', [DispositivoMovilController::class, 'createAsignacion'])->name('asignaciones.moviles.create');
     Route::post('/asignaciones-moviles', [AsignacionMovilController::class, 'store'])->name('asignaciones.moviles.store');
     Route::put('/asignaciones-moviles/{id}/devolver', [AsignacionMovilController::class, 'devolver'])->name('moviles.devolver');

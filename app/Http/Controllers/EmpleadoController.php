@@ -35,25 +35,25 @@ class EmpleadoController extends Controller
             return '';
         } catch (\Throwable $e) {
             \Log::error('Write-through tickets falló: ' . $e->getMessage());
-            return ' ⚠️ No se pudo sincronizar con el sistema corporativo; se reintentará en la próxima sincronización.';
+            return '  No se pudo sincronizar con el sistema corporativo; se reintentará en la próxima sincronización.';
         }
     }
 
-    // 📋 Listar empleados
+    // Listar empleados
     public function index()
     {
         $empleados = Empleado::with('user')->orderBy('id', 'desc')->get();
         return view('empleados.index', compact('empleados'));
     }
 
-    // ➕ Formulario crear
+    // Formulario crear
     public function create()
     {
         $plantas = Planta::orderBy('nombre')->get();
         return view('empleados.create', compact('plantas'));
     }
 
-    // 💾 Guardar empleado (y usuario de acceso si se asigna rol)
+    // Guardar empleado (y usuario de acceso si se asigna rol)
     public function store(Request $request)
     {
         $request->validate([
@@ -61,7 +61,7 @@ class EmpleadoController extends Controller
             'nombre'          => 'required|string|max:255',
             'email'           => 'required|email|unique:empleados,correo',
             'planta_id'       => 'required|exists:plantas,id',
-            'role'            => 'nullable|in:admin,user,seguridad',
+            'role'            => 'nullable|in:admin,user,rh',
             'password'        => 'nullable|min:8',
             'activo'          => 'nullable|boolean',
         ]);
@@ -100,14 +100,14 @@ class EmpleadoController extends Controller
             }
 
             return redirect()->route('empleados.index')
-                ->with('success', '✅ Empleado y usuario creados correctamente.' . $nota);
+                ->with('success', ' Empleado y usuario creados correctamente.' . $nota);
         }
 
         return redirect()->route('empleados.index')
             ->with('success', 'Empleado creado. Aún no tiene acceso al sistema.' . $nota);
     }
 
-    // ✏️ Editar empleado
+    // Editar empleado
     public function edit($id)
     {
         $empleado = Empleado::with('user')->where('id', $id)->firstOrFail();
@@ -115,7 +115,7 @@ class EmpleadoController extends Controller
         return view('empleados.edit', compact('empleado', 'plantas'));
     }
 
-    // 🔄 Actualizar empleado y crear usuario si hay rol
+    // Actualizar empleado y crear usuario si hay rol
     public function update(Request $request, $id)
     {
         $empleado = Empleado::with('user')->where('id', $id)->firstOrFail();
@@ -124,7 +124,7 @@ class EmpleadoController extends Controller
             'nombre'    => 'required|string|max:255',
             'email'     => 'required|email|unique:empleados,correo,' . $empleado->id,
             'planta_id' => 'required|exists:plantas,id',
-            'role'      => 'nullable|in:admin,user,seguridad',
+            'role'      => 'nullable|in:admin,user,rh',
             'activo'    => 'required|boolean',
         ]);
 
@@ -161,7 +161,7 @@ class EmpleadoController extends Controller
                 }
 
                 return redirect()->route('empleados.index')
-                    ->with('success', '✅ Usuario creado correctamente.' . $nota);
+                    ->with('success', ' Usuario creado correctamente.' . $nota);
             }
 
             $user->update([
@@ -175,7 +175,7 @@ class EmpleadoController extends Controller
             ->with('success', 'Empleado actualizado correctamente.' . $nota);
     }
 
-    // 🗑️ Eliminar empleado (o darlo de baja si la integración está activa)
+    // Eliminar empleado (o darlo de baja si la integración está activa)
     public function destroy($id)
     {
         $empleado = Empleado::with('user')->where('id', $id)->firstOrFail();
@@ -209,7 +209,7 @@ class EmpleadoController extends Controller
             ->with('success', 'Empleado eliminado correctamente');
     }
 
-    // 🔁 Activar / desactivar empleado
+    // Activar / desactivar empleado
     public function toggle($id)
     {
         $empleado = Empleado::where('id', $id)->firstOrFail();
@@ -229,6 +229,6 @@ class EmpleadoController extends Controller
         }
 
         return redirect()->route('empleados.index')
-            ->with('success', ($nuevoEstado ? '✅ Empleado activado correctamente' : '✅ Empleado desactivado correctamente') . $nota);
+            ->with('success', ($nuevoEstado ? ' Empleado activado correctamente' : ' Empleado desactivado correctamente') . $nota);
     }
 }

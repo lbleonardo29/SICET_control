@@ -121,7 +121,7 @@ class AdminController extends Controller
     public function actualizarRol(Request $request, $id)
     {
         $request->validate([
-            'role' => 'required|in:admin,seguridad,user',
+            'role' => 'required|in:admin,rh,user',
         ]);
 
         $user = User::findOrFail($id);
@@ -182,12 +182,12 @@ class AdminController extends Controller
             ->first();
 
         // =========================
-        // ASIGNACIONES PENDIENTES (solo para usuarios normales y seguridad)
+        // ASIGNACIONES PENDIENTES (solo para usuarios normales)
         // =========================
         $asignacionesPendientes = collect();
         $movilesPendientes = collect();
 
-        if (in_array($user->role, ['user', 'usuario', 'seguridad'])) {
+        if (in_array($user->role, ['user', 'usuario'])) {
             // Computadoras pendientes
             $asignacionesPendientes = Asignacion::with('equipo')
                 ->where('empleado_id', $user->empleado_id)

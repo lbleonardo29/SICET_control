@@ -17,7 +17,7 @@ class AsignacionController extends Controller
 {
 
     /* =====================================================
-       📋 LISTADO DE ASIGNACIONES
+        LISTADO DE ASIGNACIONES
     ===================================================== */
 
     public function index()
@@ -35,7 +35,7 @@ class AsignacionController extends Controller
     }
 
     /* =====================================================
-       📋 DASHBOARD - SOLO ASIGNACIONES ACEPTADAS
+        DASHBOARD - SOLO ASIGNACIONES ACEPTADAS
     ===================================================== */
 
     public function dashboard(Request $request)
@@ -43,7 +43,7 @@ class AsignacionController extends Controller
         $query = Asignacion::with(['empleado', 'equipo'])
             ->where('estado_asignacion', 'aceptada');
 
-        // 🔎 Buscador
+        // Buscador
         if ($request->q) {
             $query->where(function ($subquery) use ($request) {
                 $subquery->whereHas('empleado', function ($q) use ($request) {
@@ -56,17 +56,17 @@ class AsignacionController extends Controller
             });
         }
 
-        // 👤 Filtro empleado
+        // Filtro empleado
         if ($request->empleado_id) {
             $query->where('empleado_id', $request->empleado_id);
         }
 
-        // 💻 Filtro equipo
+        // Filtro equipo
         if ($request->equipo_id) {
             $query->where('equipo_id', $request->equipo_id);
         }
 
-        // 📦 Estado - POR DEFECTO MUESTRA SOLO ACTIVOS
+        // Estado - POR DEFECTO MUESTRA SOLO ACTIVOS
         if ($request->estado == 'activo') {
             $query->whereNull('fecha_devolucion');
         } elseif ($request->estado == 'devuelto') {
@@ -80,7 +80,7 @@ class AsignacionController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        // ✅ Datos para los filtros de la vista
+        // Datos para los filtros de la vista
         $empleadosFiltro = Empleado::where('activo', 1)->get();
         $equiposFiltro = Equipo::all();
 
@@ -88,7 +88,7 @@ class AsignacionController extends Controller
     }
 
     /* =====================================================
-       ➕ FORMULARIO DE ASIGNACIÓN (CREATE)
+        FORMULARIO DE ASIGNACIÓN (CREATE)
     ===================================================== */
 
     public function create($equipo)
@@ -100,10 +100,10 @@ class AsignacionController extends Controller
                 ->with('error', 'Esta computadora no está disponible para asignación.');
         }
 
-        // ✅ EMPLEADOS ACTIVOS QUE TENGAN USUARIO
+        // EMPLEADOS ACTIVOS QUE TENGAN USUARIO
         $empleados = Empleado::where('activo', 1)
             ->whereHas('user', function($q) {
-                $q->whereIn('role', ['admin', 'user', 'seguridad']);
+                $q->whereIn('role', ['admin', 'user', 'rh']);
             })
             ->get();
 
@@ -111,8 +111,8 @@ class AsignacionController extends Controller
     }
 
     /* =====================================================
-       💾 GUARDAR ASIGNACIÓN (STORE) - CON ESTADO PENDIENTE
-       📌 LÍMITE: 3 COMPUTADORAS POR EMPLEADO
+        GUARDAR ASIGNACIÓN (STORE) - CON ESTADO PENDIENTE
+        LÍMITE: 3 COMPUTADORAS POR EMPLEADO
     ===================================================== */
 
     public function store(Request $request)
@@ -142,7 +142,7 @@ class AsignacionController extends Controller
             return back()->with('error', 'Esta computadora ya tiene una asignación pendiente de respuesta.');
         }
 
-        // ✅ NUEVO: Verificar cuántas computadoras activas tiene el empleado (máximo 3)
+        // NUEVO: Verificar cuántas computadoras activas tiene el empleado (máximo 3)
         $totalActivas = Asignacion::where('empleado_id', $request->empleado_id)
             ->whereNull('fecha_devolucion')
             ->whereIn('estado_asignacion', ['pendiente', 'aceptada'])
@@ -170,7 +170,7 @@ class AsignacionController extends Controller
             'estado_asignacion' => 'pendiente',
         ]);
 
-        // ✅ Cambiar estado del equipo a "Pendiente"
+        // Cambiar estado del equipo a "Pendiente"
         $equipo->update(['estado' => 'Pendiente']);
 
         // Buscar empleado
@@ -213,11 +213,11 @@ class AsignacionController extends Controller
 
         return redirect()
             ->route('asignaciones.dashboard')
-            ->with('success', '✅ Asignación creada en estado "En espera". El empleado deberá aceptarla desde el sistema.');
+            ->with('success', ' Asignación creada en estado "En espera". El empleado deberá aceptarla desde el sistema.');
     }
 
     /* =====================================================
-       ✅ ACEPTAR ASIGNACIÓN (desde el sistema)
+        ACEPTAR ASIGNACIÓN (desde el sistema)
     ===================================================== */
 
     public function aceptar($id)
@@ -250,11 +250,11 @@ class AsignacionController extends Controller
         $asignacion->equipo->update(['estado' => 'Asignado']);
         
         return redirect()->route('dashboard')
-            ->with('success', '✅ Has aceptado la computadora ' . $asignacion->equipo->codigo_interno);
+            ->with('success', ' Has aceptado la computadora ' . $asignacion->equipo->codigo_interno);
     }
 
     /* =====================================================
-       ❌ RECHAZAR ASIGNACIÓN (desde el sistema)
+        RECHAZAR ASIGNACIÓN (desde el sistema)
     ===================================================== */
 
     public function rechazar($id)
@@ -279,15 +279,15 @@ class AsignacionController extends Controller
             'fecha_devolucion' => now(),
         ]);
         
-        // ✅ Volver a Disponible cuando rechaza
+        // Volver a Disponible cuando rechaza
         $asignacion->equipo->update(['estado' => 'Disponible']);
         
         return redirect()->route('dashboard')
-            ->with('info', '❌ Has rechazado la computadora ' . $asignacion->equipo->codigo_interno);
+            ->with('info', ' Has rechazado la computadora ' . $asignacion->equipo->codigo_interno);
     }
 
     /* =====================================================
-       🔄 DEVOLVER (solo para asignaciones ACEPTADAS)
+        DEVOLVER (solo para asignaciones ACEPTADAS)
     ===================================================== */
 
     public function devolver($id)
@@ -308,11 +308,11 @@ class AsignacionController extends Controller
 
         $asignacion->equipo->update(['estado' => 'Disponible']);
 
-        return back()->with('success', '✅ Computadora devuelta correctamente.');
+        return back()->with('success', ' Computadora devuelta correctamente.');
     }
 
     /* =====================================================
-       📄 VER PDF (CARTA RESPONSIVA)
+        VER PDF (CARTA RESPONSIVA)
     ===================================================== */
 
     public function cartaResponsiva($equipo_id)
@@ -333,7 +333,7 @@ class AsignacionController extends Controller
     }
 
     /* =====================================================
-       📄 DESCARGAR PDF
+        DESCARGAR PDF
     ===================================================== */
 
     public function descargar($id)
@@ -352,7 +352,7 @@ class AsignacionController extends Controller
     }
 
     /* =====================================================
-       🗑️ ELIMINAR (solo asignaciones rechazadas o devueltas)
+        ELIMINAR (solo asignaciones rechazadas o devueltas)
     ===================================================== */
 
     public function destroy($id)
@@ -369,11 +369,11 @@ class AsignacionController extends Controller
 
         $asignacion->delete();
 
-        return back()->with('success', '✅ Asignación eliminada correctamente.');
+        return back()->with('success', ' Asignación eliminada correctamente.');
     }
 
     /* =====================================================
-       🔍 BUSCAR EMPLEADOS (API)
+        BUSCAR EMPLEADOS (API)
     ===================================================== */
 
     public function buscarEmpleados(Request $request)
@@ -382,7 +382,7 @@ class AsignacionController extends Controller
         
         $empleados = Empleado::where('activo', 1)
             ->whereHas('user', function($q) {
-                $q->whereIn('role', ['admin', 'user', 'seguridad']);
+                $q->whereIn('role', ['admin', 'user', 'rh']);
             })
             ->where(function ($q) use ($term) {
                 $q->where('nombre_completo', 'LIKE', "%{$term}%")

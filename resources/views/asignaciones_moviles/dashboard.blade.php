@@ -21,10 +21,12 @@
         </div>
         <div class="col-md-4 text-md-end">
             <div class="btn-group" role="group">
+                @role('admin')
                 <a href="{{ route('moviles.disponibles') }}" class="btn btn-primary">
                     <i class="bi bi-plus-circle me-1"></i>
                     Nueva Asignación
                 </a>
+                @endrole
                 <button type="button" class="btn btn-outline-secondary" onclick="window.print()">
                     <i class="bi bi-printer"></i>
                 </button>
@@ -255,8 +257,9 @@
 
                                 {{-- Acciones --}}
                                 <td class="text-center">
+                                    @role('admin')
                                     <div class="d-flex justify-content-center gap-2 flex-wrap">
-                                        
+
                                         {{-- Botones PDF --}}
                                         @if($asignacion->carta_pdf)
                                             <button type="button" 
@@ -308,6 +311,7 @@
                                             </form>
                                         @endif
                                     </div>
+                                    @endrole
                                 </td>
                             </tr>
                         @empty
@@ -315,11 +319,13 @@
                                 <td colspan="6" class="text-center py-5">
                                     <i class="bi bi-phone display-1 text-muted d-block mb-3"></i>
                                     <h4 class="text-muted">No hay asignaciones registradas</h4>
+                                    @role('admin')
                                     <p class="text-muted mb-4">Comienza creando una nueva asignación</p>
                                     <a href="{{ route('moviles.disponibles') }}" class="btn btn-primary">
                                         <i class="bi bi-plus-circle me-2"></i>
                                         Nueva Asignación
                                     </a>
+                                    @endrole
                                 </div>
                             </tr>
                         @endforelse

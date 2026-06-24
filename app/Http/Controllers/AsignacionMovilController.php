@@ -23,7 +23,7 @@ class AsignacionMovilController extends Controller
         $query = AsignacionMovil::with(['dispositivo', 'empleado'])
             ->where('estado_asignacion', 'aceptada');
 
-        // 🔎 Buscador
+        // Buscador
         if ($request->q) {
             $query->where(function ($sub) use ($request) {
                 $sub->whereHas('empleado', function ($q) use ($request) {
@@ -36,17 +36,17 @@ class AsignacionMovilController extends Controller
             });
         }
 
-        // 👤 Filtro empleado
+        // Filtro empleado
         if ($request->empleado_id) {
             $query->where('empleado_id', $request->empleado_id);
         }
 
-        // 📱 Filtro dispositivo
+        // Filtro dispositivo
         if ($request->dispositivo_id) {
             $query->where('dispositivo_movil_id', $request->dispositivo_id);
         }
 
-        // 📦 Estado
+        // Estado
         if ($request->estado == 'activo') {
             $query->whereNull('fecha_devolucion');
         } elseif ($request->estado == 'devuelto') {
@@ -60,7 +60,7 @@ class AsignacionMovilController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        // ✅ Datos para los filtros
+        // Datos para los filtros
         $empleadosFiltro = Empleado::where('activo', 1)->get();
         $dispositivosFiltro = DispositivoMovil::all();
 
@@ -95,10 +95,10 @@ class AsignacionMovilController extends Controller
                 ->with('error', 'Este dispositivo ya tiene una asignación pendiente de respuesta.');
         }
         
-        // ✅ SOLO EMPLEADOS ACTIVOS QUE TENGAN USUARIO (CON ROL)
+        // SOLO EMPLEADOS ACTIVOS QUE TENGAN USUARIO (CON ROL)
 $empleados = Empleado::where('activo', 1)
     ->whereHas('user', function($q) {
-        $q->whereIn('role', ['admin', 'user', 'seguridad']);
+        $q->whereIn('role', ['admin', 'user', 'rh']);
     })
     ->get();
 
@@ -164,7 +164,7 @@ $empleados = Empleado::where('activo', 1)
             'estado_asignacion' => 'pendiente',
         ]);
 
-        // ✅ Cambiar estado del dispositivo a "Pendiente"
+        // Cambiar estado del dispositivo a "Pendiente"
         $movil->update([
             'estado' => 'Pendiente',
             'asignado' => true
@@ -207,11 +207,11 @@ $empleados = Empleado::where('activo', 1)
 
         return redirect()
             ->route('asignaciones.moviles.dashboard')
-            ->with('success', '✅ Asignación creada en estado "En espera". El empleado deberá aceptarla desde el sistema.');
+            ->with('success', ' Asignación creada en estado "En espera". El empleado deberá aceptarla desde el sistema.');
     }
 
     /* =====================================================
-       ✅ ACEPTAR ASIGNACIÓN (desde el sistema)
+        ACEPTAR ASIGNACIÓN (desde el sistema)
     ===================================================== */
     public function aceptar($id)
     {
@@ -246,11 +246,11 @@ $empleados = Empleado::where('activo', 1)
         ]);
         
         return redirect()->route('dashboard')
-            ->with('success', '✅ Has aceptado el dispositivo ' . $asignacion->dispositivo->codigo_interno);
+            ->with('success', ' Has aceptado el dispositivo ' . $asignacion->dispositivo->codigo_interno);
     }
 
     /* =====================================================
-       ❌ RECHAZAR ASIGNACIÓN (desde el sistema)
+        RECHAZAR ASIGNACIÓN (desde el sistema)
     ===================================================== */
     public function rechazar($id)
     {
@@ -274,18 +274,18 @@ $empleados = Empleado::where('activo', 1)
             'fecha_devolucion' => now(),
         ]);
         
-        // ✅ Volver a Disponible cuando rechaza
+        // Volver a Disponible cuando rechaza
         $asignacion->dispositivo->update([
             'estado' => 'Disponible',
             'asignado' => false
         ]);
         
         return redirect()->route('dashboard')
-            ->with('info', '❌ Has rechazado el dispositivo ' . $asignacion->dispositivo->codigo_interno);
+            ->with('info', ' Has rechazado el dispositivo ' . $asignacion->dispositivo->codigo_interno);
     }
 
     /* =====================================================
-       🔄 DEVOLVER DISPOSITIVO (solo asignaciones ACEPTADAS)
+        DEVOLVER DISPOSITIVO (solo asignaciones ACEPTADAS)
     ===================================================== */
     public function devolver($id)
     {
@@ -308,11 +308,11 @@ $empleados = Empleado::where('activo', 1)
             'asignado' => false
         ]);
 
-        return back()->with('success', '✅ Dispositivo devuelto correctamente.');
+        return back()->with('success', ' Dispositivo devuelto correctamente.');
     }
 
     /* =====================================================
-       📄 VER PDF (CARTA RESPONSIVA)
+        VER PDF (CARTA RESPONSIVA)
     ===================================================== */
     public function responsiva($id)
     {
@@ -330,7 +330,7 @@ $empleados = Empleado::where('activo', 1)
     }
 
     /* =====================================================
-       📄 DESCARGAR PDF
+        DESCARGAR PDF
     ===================================================== */
     public function descargar($id)
     {
@@ -348,7 +348,7 @@ $empleados = Empleado::where('activo', 1)
     }
 
     /* =====================================================
-       🗑️ ELIMINAR ASIGNACIÓN (solo rechazadas o devueltas)
+        ELIMINAR ASIGNACIÓN (solo rechazadas o devueltas)
     ===================================================== */
     public function destroy($id)
     {
@@ -364,6 +364,6 @@ $empleados = Empleado::where('activo', 1)
 
         $asignacion->delete();
 
-        return back()->with('success', '✅ Asignación eliminada correctamente.');
+        return back()->with('success', ' Asignación eliminada correctamente.');
     }
 }
