@@ -10,6 +10,7 @@ class Equipo extends Model
     use HasFactory;
 
     protected $fillable = [
+        'nombre_equipo',
         'codigo_interno',
         'marca',
         'modelo',
@@ -18,11 +19,15 @@ class Equipo extends Model
         'procesador',
         'ram',
         'ssd',
+        'tipo_almacenamiento',
+        'capacidad_almacenamiento',
         'cargador',
         'fecha_adquisicion',
         'planta_id',
         'estado',
         'observaciones',
+        'fecha_baja',
+        'motivo_baja',
     ];
 
     protected static function boot()
@@ -30,7 +35,7 @@ class Equipo extends Model
         parent::boot();
 
         static::creating(function ($equipo) {
-            // 🔢 Obtener último código registrado
+            // Obtener último código registrado
             $ultimo = self::orderBy('id', 'desc')->first();
 
             if ($ultimo && $ultimo->codigo_interno) {
@@ -41,7 +46,7 @@ class Equipo extends Model
 
             $equipo->codigo_interno = 'SICET-' . str_pad($numero, 4, '0', STR_PAD_LEFT);
 
-            // 🔒 Forzar estado por defecto
+            // Forzar estado por defecto
             if (!$equipo->estado) {
                 $equipo->estado = 'Disponible';
             }

@@ -74,6 +74,9 @@ class AdminController extends Controller
         $nombreCompleto = trim("{$empleado->nombre} {$empleado->apellidos}");
         $emailLocal     = $empleado->email ?? "{$empleado->id_emp}@sicet.fruitex.mx";
 
+        // Empleado local espejo (sicet.empleados) vinculado por numero_empleado = id_emp
+        $empleadoLocal = Empleado::where('numero_empleado', (string) $empleado->id_emp)->first();
+
         // Buscar o crear User local en sicet.users vinculado por numero_empleado
         $user = User::firstOrCreate(
             ['numero_empleado' => (string) $empleado->id_emp],
@@ -83,12 +86,16 @@ class AdminController extends Controller
                 'password'      => $empleado->contrasenia,
                 'role'          => 'user',
                 'primer_inicio' => 0,
+                'empleado_id'   => $empleadoLocal?->id,
             ]
         );
 
-        // Sincronizar nombre y hash en cada login (por si cambiaron en tickets)
+        // Sincronizar nombre, hash y vínculo con empleado en cada login
         $user->name     = $nombreCompleto;
         $user->password = $empleado->contrasenia;
+        if ($empleadoLocal && !$user->empleado_id) {
+            $user->empleado_id = $empleadoLocal->id;
+        }
         $user->save();
 
         Auth::login($user, $request->boolean('remember'));
