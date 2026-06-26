@@ -42,7 +42,7 @@ class EmpleadoController extends Controller
     // Listar empleados
     public function index()
     {
-        $empleados = Empleado::with('user')->orderBy('id', 'desc')->get();
+        $empleados = Empleado::with('user')->orderBy('numero_empleado', 'asc')->get();
         return view('empleados.index', compact('empleados'));
     }
 

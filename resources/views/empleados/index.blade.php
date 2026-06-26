@@ -62,7 +62,7 @@
                         <input type="text" 
                                class="form-control border-start-0" 
                                id="searchInput"
-                               placeholder="Buscar por nombre, correo o ID...">
+                               placeholder="Buscar por nombre, correo o núm. de empleado...">
                     </div>
                 </div>
                 <div class="col-md-3">
@@ -106,7 +106,7 @@
                 <table class="table table-hover align-middle mb-0" id="empleadosTable">
                     <thead class="table-dark">
                         <tr>
-                            <th class="px-3">ID</th>
+                            <th class="px-3" style="white-space:nowrap">Núm. Empleado</th>
                             <th>Empleado</th>
                             <th>Contacto</th>
                             <th>Rol</th>
@@ -119,25 +119,29 @@
                     <tbody>
                         @forelse($empleados as $empleado)
                             <tr>
-                                <td class="px-3 fw-bold">#{{ $empleado->id }}</td>
-                                
+                                <td class="px-3 fw-bold text-primary" style="font-size:1rem;letter-spacing:.5px">
+                                    {{ $empleado->numero_empleado ?? '—' }}
+                                </td>
+
                                 {{-- Información del empleado --}}
                                 <td>
                                     <div class="fw-bold">{{ $empleado->nombre_completo }}</div>
-                                    <small class="text-muted d-block">
-        <i class="bi bi-badge-id me-1"></i>
-        {{ $empleado->numero_empleado }}
-    </small>
                                 </td>
 
                                 {{-- Contacto --}}
                                 <td>
-                                    <div>
-                                        <i class="bi bi-envelope me-1 text-muted"></i>
-                                        {{ $empleado->correo }}
-                                    </div>
+                                    @if($empleado->correo)
+                                        <div>
+                                            <i class="bi bi-envelope me-1 text-muted"></i>
+                                            {{ $empleado->correo }}
+                                        </div>
+                                    @else
+                                        <span class="badge bg-secondary bg-opacity-50 text-muted">
+                                            <i class="bi bi-envelope-slash me-1"></i>Sin correo
+                                        </span>
+                                    @endif
                                     @if($empleado->planta)
-                                        <small class="text-muted">
+                                        <small class="text-muted d-block">
                                             <i class="bi bi-building me-1"></i>
                                             {{ $empleado->planta->nombre }}
                                         </small>
@@ -285,25 +289,25 @@
             Array.from(rows).forEach(row => {
                 if (row.cells.length === 1) return; // Fila vacía
 
-                const nombre = row.cells[1]?.textContent.toLowerCase() || '';
-                const email = row.cells[2]?.textContent.toLowerCase() || '';
-                const id = row.cells[0]?.textContent.toLowerCase() || '';
-                
+                const numEmp  = row.cells[0]?.textContent.toLowerCase() || '';
+                const nombre  = row.cells[1]?.textContent.toLowerCase() || '';
+                const email   = row.cells[2]?.textContent.toLowerCase() || '';
+
                 // Estado (columna 4)
                 const estadoCell = row.cells[4]?.textContent.toLowerCase() || '';
                 const esActivo = estadoCell.includes('activo');
-                
+
                 // Rol (columna 3)
                 const rolCell = row.cells[3]?.textContent.toLowerCase() || '';
                 const esAdmin = rolCell.includes('admin');
-                const esUser = rolCell.includes('user');
+                const esUser  = rolCell.includes('user');
                 const sinUsuario = rolCell.includes('sin usuario');
 
                 // Filtro de búsqueda
-                const matchesSearch = searchTerm === '' || 
-                    nombre.includes(searchTerm) || 
-                    email.includes(searchTerm) || 
-                    id.includes(searchTerm);
+                const matchesSearch = searchTerm === '' ||
+                    numEmp.includes(searchTerm) ||
+                    nombre.includes(searchTerm) ||
+                    email.includes(searchTerm);
 
                 // Filtro de estado
                 let matchesEstado = true;
