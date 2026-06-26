@@ -296,14 +296,63 @@
                     </div>
                 </div>
                 <div style="display:flex;gap:8px">
-                    <form method="POST" action="{{ route('asignaciones.aceptar', $asig->id) }}">
-                        @csrf @method('PUT')
-                        <button type="submit" style="padding:7px 16px;background:rgb(21,64,31);color:#BFE06A;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Aceptar</button>
-                    </form>
+                    <button type="button" class="firma-trigger" data-bs-toggle="modal" data-bs-target="#firmaModalEq{{ $asig->id }}"
+                            style="padding:7px 16px;background:rgb(21,64,31);color:#BFE06A;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">
+                        Revisar y firmar
+                    </button>
                     <form method="POST" action="{{ route('asignaciones.rechazar', $asig->id) }}">
                         @csrf @method('PUT')
                         <button type="submit" style="padding:7px 16px;background:transparent;color:rgb(194,65,12);border:1.5px solid rgba(234,88,12,0.4);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Rechazar</button>
                     </form>
+                </div>
+            </div>
+        </div>
+
+        {{-- Modal: carta provisional + firma electrónica --}}
+        <div class="modal fade firma-modal" id="firmaModalEq{{ $asig->id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Carta responsiva — Confirmación de equipo</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-warning py-2" style="font-size:12px">
+                            <strong>Plantilla provisional.</strong> Revisa los datos y firma en el recuadro para aceptar el equipo.
+                        </div>
+                        <h6 class="text-center fw-bold mb-3">CARTA RESPONSIVA EQUIPO DE CÓMPUTO</h6>
+                        <p style="font-size:13px">Recibí de <strong>Fruitex de México, S.A.P.I. de C.V.</strong> el equipo:</p>
+                        <table class="table table-sm table-bordered" style="font-size:13px">
+                            <tr><th style="width:35%">Marca</th><td>{{ $asig->equipo->marca }}</td></tr>
+                            <tr><th>Modelo</th><td>{{ $asig->equipo->modelo }}</td></tr>
+                            <tr><th>No. de serie</th><td>{{ $asig->equipo->numero_serie }}</td></tr>
+                            <tr><th>Código interno</th><td>{{ $asig->equipo->codigo_interno }}</td></tr>
+                        </table>
+                        <p style="font-size:12px;color:#555">
+                            Me comprometo a cuidarlo y utilizarlo exclusivamente para fines laborales. En caso de
+                            extravío, daño o uso inadecuado, me responsabilizo del costo de reparación o reposición.
+                        </p>
+                        <label class="fw-semibold mt-2" style="font-size:13px">Firma de aceptación:</label>
+                        <div class="firma-wrap">
+                            <canvas class="firma-canvas" id="canvasEq{{ $asig->id }}"></canvas>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-secondary mt-2" onclick="limpiarFirma('canvasEq{{ $asig->id }}')">
+                            <i class="bi bi-eraser me-1"></i> Limpiar
+                        </button>
+                    </div>
+                    <div class="modal-footer">
+                        <form method="POST" action="{{ route('asignaciones.rechazar', $asig->id) }}" class="m-0">
+                            @csrf @method('PUT')
+                            <button type="submit" class="btn btn-outline-danger">Rechazar</button>
+                        </form>
+                        <form method="POST" action="{{ route('asignaciones.firmar', $asig->id) }}" class="m-0 firma-form" data-canvas="canvasEq{{ $asig->id }}">
+                            @csrf @method('PUT')
+                            <input type="hidden" name="firma" class="firma-input">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-pen me-1"></i> Firmar y aceptar
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
@@ -327,20 +376,70 @@
                 <div>
                     <div style="font-weight:600;font-size:14px;color:rgb(27,32,24)">
                         {{ $asig->dispositivo->marca ?? '' }} {{ $asig->dispositivo->modelo ?? '' }}
+                        <span style="color:rgb(130,136,124);font-weight:400;font-size:12px">— {{ $asig->dispositivo->codigo_interno ?? '' }}</span>
                     </div>
                     <div style="font-size:12px;color:rgb(130,136,124);margin-top:2px">
                         Fecha asignación: {{ \Carbon\Carbon::parse($asig->fecha_asignacion)->format('d/m/Y') }}
                     </div>
                 </div>
                 <div style="display:flex;gap:8px">
-                    <form method="POST" action="{{ route('asignaciones.moviles.aceptar', $asig->id) }}">
-                        @csrf @method('PUT')
-                        <button type="submit" style="padding:7px 16px;background:rgb(21,64,31);color:#BFE06A;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Aceptar</button>
-                    </form>
+                    <button type="button" class="firma-trigger" data-bs-toggle="modal" data-bs-target="#firmaModalMov{{ $asig->id }}"
+                            style="padding:7px 16px;background:rgb(21,64,31);color:#BFE06A;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">
+                        Revisar y firmar
+                    </button>
                     <form method="POST" action="{{ route('asignaciones.moviles.rechazar', $asig->id) }}">
                         @csrf @method('PUT')
                         <button type="submit" style="padding:7px 16px;background:transparent;color:rgb(194,65,12);border:1.5px solid rgba(234,88,12,0.4);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Rechazar</button>
                     </form>
+                </div>
+            </div>
+        </div>
+
+        {{-- Modal: carta provisional + firma electrónica (móvil) --}}
+        <div class="modal fade firma-modal" id="firmaModalMov{{ $asig->id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Carta responsiva — Confirmación de dispositivo</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-warning py-2" style="font-size:12px">
+                            <strong>Plantilla provisional.</strong> Revisa los datos y firma en el recuadro para aceptar el dispositivo.
+                        </div>
+                        <h6 class="text-center fw-bold mb-3">CARTA RESPONSIVA DISPOSITIVO MÓVIL</h6>
+                        <p style="font-size:13px">Recibí de <strong>Fruitex de México, S.A.P.I. de C.V.</strong> el dispositivo:</p>
+                        <table class="table table-sm table-bordered" style="font-size:13px">
+                            <tr><th style="width:35%">Marca</th><td>{{ $asig->dispositivo->marca }}</td></tr>
+                            <tr><th>Modelo</th><td>{{ $asig->dispositivo->modelo }}</td></tr>
+                            <tr><th>IMEI</th><td>{{ $asig->dispositivo->imei }}</td></tr>
+                            <tr><th>Código interno</th><td>{{ $asig->dispositivo->codigo_interno }}</td></tr>
+                        </table>
+                        <p style="font-size:12px;color:#555">
+                            Me comprometo a cuidarlo y utilizarlo exclusivamente para fines laborales. En caso de
+                            extravío, daño o uso inadecuado, me responsabilizo del costo de reparación o reposición.
+                        </p>
+                        <label class="fw-semibold mt-2" style="font-size:13px">Firma de aceptación:</label>
+                        <div class="firma-wrap">
+                            <canvas class="firma-canvas" id="canvasMov{{ $asig->id }}"></canvas>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-secondary mt-2" onclick="limpiarFirma('canvasMov{{ $asig->id }}')">
+                            <i class="bi bi-eraser me-1"></i> Limpiar
+                        </button>
+                    </div>
+                    <div class="modal-footer">
+                        <form method="POST" action="{{ route('asignaciones.moviles.rechazar', $asig->id) }}" class="m-0">
+                            @csrf @method('PUT')
+                            <button type="submit" class="btn btn-outline-danger">Rechazar</button>
+                        </form>
+                        <form method="POST" action="{{ route('asignaciones.moviles.firmar', $asig->id) }}" class="m-0 firma-form" data-canvas="canvasMov{{ $asig->id }}">
+                            @csrf @method('PUT')
+                            <input type="hidden" name="firma" class="firma-input">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-pen me-1"></i> Firmar y aceptar
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
@@ -352,3 +451,83 @@
 @endif {{-- end admin check --}}
 
 @endsection
+
+@push('styles')
+<style>
+    .firma-wrap {
+        border: 2px dashed #cbd5e1;
+        border-radius: 10px;
+        background: #fff;
+        margin-top: 6px;
+    }
+    .firma-canvas {
+        width: 100%;
+        height: 180px;
+        display: block;
+        touch-action: none;
+        cursor: crosshair;
+        border-radius: 10px;
+    }
+</style>
+@endpush
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+<script>
+(function () {
+    if (typeof SignaturePad === 'undefined') return;
+
+    var pads = {};
+
+    function initPad(canvas) {
+        var pad = new SignaturePad(canvas, {
+            penColor: 'rgb(21,64,31)',
+            backgroundColor: 'rgba(255,255,255,0)'
+        });
+        pads[canvas.id] = pad;
+        return pad;
+    }
+
+    function resizePad(canvas) {
+        var pad = pads[canvas.id] || initPad(canvas);
+        var ratio = Math.max(window.devicePixelRatio || 1, 1);
+        canvas.width = canvas.offsetWidth * ratio;
+        canvas.height = canvas.offsetHeight * ratio;
+        canvas.getContext('2d').scale(ratio, ratio);
+        pad.clear();
+    }
+
+    document.querySelectorAll('.firma-canvas').forEach(initPad);
+
+    // El canvas solo tiene tamaño real cuando el modal es visible
+    document.querySelectorAll('.firma-modal').forEach(function (modal) {
+        modal.addEventListener('shown.bs.modal', function () {
+            var canvas = modal.querySelector('.firma-canvas');
+            if (canvas) resizePad(canvas);
+        });
+    });
+
+    window.limpiarFirma = function (canvasId) {
+        if (pads[canvasId]) pads[canvasId].clear();
+    };
+
+    document.querySelectorAll('.firma-form').forEach(function (form) {
+        form.addEventListener('submit', function (e) {
+            var pad = pads[form.getAttribute('data-canvas')];
+            if (!pad || pad.isEmpty()) {
+                e.preventDefault();
+                alert('Por favor dibuja tu firma antes de aceptar.');
+                return false;
+            }
+            form.querySelector('.firma-input').value = pad.toDataURL('image/png');
+        });
+    });
+
+    // Abrir automáticamente la primera asignación pendiente
+    var firstModal = document.querySelector('.firma-modal');
+    if (firstModal && window.bootstrap) {
+        new bootstrap.Modal(firstModal).show();
+    }
+})();
+</script>
+@endpush

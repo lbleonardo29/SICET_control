@@ -47,8 +47,10 @@ Route::middleware('auth')->group(function () {
     // Aceptar / rechazar asignaciones (el usuario acepta su propia asignación)
     Route::put('/asignaciones/aceptar/{id}', [AsignacionController::class, 'aceptar'])->name('asignaciones.aceptar');
     Route::put('/asignaciones/rechazar/{id}', [AsignacionController::class, 'rechazar'])->name('asignaciones.rechazar');
+    Route::put('/asignaciones/firmar/{id}', [AsignacionController::class, 'firmar'])->name('asignaciones.firmar');
     Route::put('/asignaciones-moviles/aceptar/{id}', [AsignacionMovilController::class, 'aceptar'])->name('asignaciones.moviles.aceptar');
     Route::put('/asignaciones-moviles/rechazar/{id}', [AsignacionMovilController::class, 'rechazar'])->name('asignaciones.moviles.rechazar');
+    Route::put('/asignaciones-moviles/firmar/{id}', [AsignacionMovilController::class, 'firmar'])->name('asignaciones.moviles.firmar');
 
     // Notificaciones (campana) — todos los roles
     Route::get('/notificaciones', [NotificacionController::class, 'index'])->name('notificaciones.index');

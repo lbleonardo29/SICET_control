@@ -15,6 +15,8 @@ class AsignacionMovil extends Model
         'fecha_asignacion',
         'fecha_devolucion',
         'carta_pdf',
+        'firma',               // NUEVO: firma electrónica (PNG base64)
+        'fecha_firma',         // NUEVO: cuándo firmó
         'estado_asignacion',   // NUEVO: pendiente, aceptada, rechazada
         'fecha_respuesta',     // NUEVO: cuando el empleado respondió
         // 'estado',            // Opcional: mantener por compatibilidad (ya no se usa)
@@ -25,6 +27,7 @@ class AsignacionMovil extends Model
         'fecha_asignacion' => 'datetime',
         'fecha_devolucion' => 'datetime',
         'fecha_respuesta' => 'datetime',  // NUEVO
+        'fecha_firma' => 'datetime',      // NUEVO
     ];
 
     /* =====================================================
@@ -57,25 +60,25 @@ class AsignacionMovil extends Model
        SCOPES (consultas comunes)
     ===================================================== */
 
-    // 🔹 Scope para asignaciones pendientes
+    // Scope para asignaciones pendientes
     public function scopePendientes($query)
     {
         return $query->where('estado_asignacion', 'pendiente');
     }
 
-    // 🔹 Scope para asignaciones aceptadas
+    // Scope para asignaciones aceptadas
     public function scopeAceptadas($query)
     {
         return $query->where('estado_asignacion', 'aceptada');
     }
 
-    // 🔹 Scope para asignaciones rechazadas
+    // Scope para asignaciones rechazadas
     public function scopeRechazadas($query)
     {
         return $query->where('estado_asignacion', 'rechazada');
     }
 
-    // 🔹 Scope para asignaciones activas (aceptadas y sin devolución)
+    // Scope para asignaciones activas (aceptadas y sin devolución)
     public function scopeActivas($query)
     {
         return $query->where('estado_asignacion', 'aceptada')

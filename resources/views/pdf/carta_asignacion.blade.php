@@ -215,9 +215,17 @@
     <table class="tabla-firmas">
         <tr>
             <td>
+                @if(!empty($asignacion) && !empty($asignacion->firma))
+                    <img src="{{ $asignacion->firma }}" alt="Firma de aceptación"
+                         style="max-width:200px; max-height:70px; display:block; margin-bottom:-8px;">
+                @endif
                 <div class="firma-linea"></div>
                 <div class="nombre-firma">
                     <strong>FIRMA DE ACEPTACIÓN:</strong>
+                    @if(!empty($asignacion) && !empty($asignacion->fecha_firma))
+                        <br><span style="font-size:9pt;">Firmado electrónicamente el
+                        {{ \Carbon\Carbon::parse($asignacion->fecha_firma)->format('d/m/Y H:i') }}</span>
+                    @endif
                 </div>
             </td>
             <td>
@@ -234,7 +242,7 @@
             </td>
             <td>
                 <strong>NOMBRE:</strong><br>
-                {{ auth()->user()->name ?? '_________________________' }}
+                Gerencia de Tecnologías de la Información
             </td>
         </tr>
         <tr>

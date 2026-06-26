@@ -20,6 +20,8 @@ class Asignacion extends Model
         'fecha_asignacion',
         'fecha_devolucion',
         'carta_pdf',
+        'firma',               // NUEVO: firma electrónica (PNG base64)
+        'fecha_firma',         // NUEVO: cuándo firmó
         'user_id',
         'estado_asignacion',   // NUEVO: pendiente, aceptada, rechazada
         'fecha_respuesta',     // NUEVO: cuando el empleado respondió
@@ -31,19 +33,20 @@ class Asignacion extends Model
         'fecha_asignacion' => 'datetime',
         'fecha_devolucion' => 'datetime',
         'fecha_respuesta' => 'datetime',  // NUEVO
+        'fecha_firma' => 'datetime',      // NUEVO
     ];
 
     /* =========================
        RELACIONES
     ========================== */
 
-    // 🔹 Equipo asignado (computadora)
+    // Equipo asignado (computadora)
     public function equipo()
     {
         return $this->belongsTo(Equipo::class, 'equipo_id', 'id');
     }
 
-    // 🔹 Empleado (PK = id en tabla empleados)
+    // Empleado (PK = id en tabla empleados)
     public function empleado()
     {
         return $this->belongsTo(
@@ -53,7 +56,7 @@ class Asignacion extends Model
         );
     }
 
-    // 🔹 Usuario que hizo la asignación
+    // Usuario que hizo la asignación
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
@@ -63,25 +66,25 @@ class Asignacion extends Model
        SCOPES (consultas comunes)
     ========================== */
 
-    // 🔹 Scope para asignaciones pendientes
+    // Scope para asignaciones pendientes
     public function scopePendientes($query)
     {
         return $query->where('estado_asignacion', 'pendiente');
     }
 
-    // 🔹 Scope para asignaciones aceptadas
+    // Scope para asignaciones aceptadas
     public function scopeAceptadas($query)
     {
         return $query->where('estado_asignacion', 'aceptada');
     }
 
-    // 🔹 Scope para asignaciones rechazadas
+    // Scope para asignaciones rechazadas
     public function scopeRechazadas($query)
     {
         return $query->where('estado_asignacion', 'rechazada');
     }
 
-    // 🔹 Scope para asignaciones activas (aceptadas y sin devolución)
+    // Scope para asignaciones activas (aceptadas y sin devolución)
     public function scopeActivas($query)
     {
         return $query->where('estado_asignacion', 'aceptada')
@@ -95,6 +98,6 @@ class Asignacion extends Model
     // Si quieres que ciertos campos se guarden en mayúsculas
     // public function setObservacionesAttribute($value)
     // {
-    //     $this->attributes['observaciones'] = strtoupper($value);
+    // $this->attributes['observaciones'] = strtoupper($value);
     // }
 }

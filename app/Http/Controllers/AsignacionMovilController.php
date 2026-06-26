@@ -275,6 +275,76 @@ $empleados = Empleado::where('activo', 1)
     }
 
     /* =====================================================
+        FIRMAR Y ACEPTAR (firma electrónica desde el modal)
+    ===================================================== */
+
+    public function firmar(Request $request, $id)
+    {
+        $request->validate([
+            'firma' => ['required', 'string', 'regex:/^data:image\/png;base64,/'],
+        ], [
+            'firma.required' => 'Debes firmar antes de aceptar.',
+            'firma.regex'    => 'La firma recibida no es válida.',
+        ]);
+
+        $asignacion = AsignacionMovil::with(['dispositivo', 'empleado'])->findOrFail($id);
+
+        if ($asignacion->estado_asignacion !== 'pendiente') {
+            return back()->with('error', 'Esta asignación ya fue respondida.');
+        }
+
+        $user = Auth::user();
+        if ($user->empleado_id != $asignacion->empleado_id) {
+            return back()->with('error', 'No tienes permiso para firmar esta asignación.');
+        }
+
+        // Guardar firma + aceptar
+        $asignacion->update([
+            'estado_asignacion' => 'aceptada',
+            'fecha_respuesta'   => now(),
+            'firma'             => $request->firma,
+            'fecha_firma'       => now(),
+        ]);
+
+        $asignacion->dispositivo->update([
+            'estado'   => 'Asignado',
+            'asignado' => true,
+        ]);
+
+        // Regenerar la carta responsiva CON la firma incrustada
+        try {
+            if (!Storage::disk('public')->exists('cartas')) {
+                Storage::disk('public')->makeDirectory('cartas');
+            }
+            $pdf = Pdf::loadView('pdf.carta_asignacion_movil', [
+                'movil'      => $asignacion->dispositivo,
+                'empleado'   => $asignacion->empleado,
+                'asignacion' => $asignacion,
+            ]);
+            $ruta = 'cartas/carta_movil_' . $asignacion->id . '.pdf';
+            Storage::disk('public')->put($ruta, $pdf->output());
+            $asignacion->update(['carta_pdf' => $ruta]);
+        } catch (\Exception $e) {
+            \Log::error('Error al generar PDF móvil firmado: ' . $e->getMessage());
+        }
+
+        // Notificar a los administradores
+        Notification::send(
+            User::where('role', 'admin')->get(),
+            new SistemaNotificacion(
+                'Asignación firmada',
+                ($asignacion->empleado->nombre_completo ?? 'Un empleado') . " firmó y aceptó el dispositivo {$asignacion->dispositivo->codigo_interno}.",
+                route('asignaciones.moviles.dashboard'),
+                'check-circle',
+                'success'
+            )
+        );
+
+        return redirect()->route('dashboard')
+            ->with('success', ' Firmaste y aceptaste el dispositivo ' . $asignacion->dispositivo->codigo_interno . '. Ya puedes descargar tu carta responsiva.');
+    }
+
+    /* =====================================================
         RECHAZAR ASIGNACIÓN (desde el sistema)
     ===================================================== */
     public function rechazar($id)
