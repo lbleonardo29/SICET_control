@@ -9,7 +9,7 @@
 <body>
 
 <h1 class="text-primary text-center mt-5">
-    🎉 Duralux cargado correctamente
+     Duralux cargado correctamente
 </h1>
 
 </body>

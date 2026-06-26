@@ -192,7 +192,7 @@
     <div class="email-container">
         {{-- HEADER --}}
         <div class="email-header">
-            <div class="logo-icon">🖥️</div>
+            <div class="logo-icon"></div>
             <h1>SICET</h1>
             <p>Sistema de Control de Computadoras</p>
         </div>
@@ -210,7 +210,7 @@
             {{-- INFO CARD --}}
             <div class="info-card">
                 <h3>
-                    📋 Detalles del dispositivo
+                     Detalles del dispositivo
                 </h3>
                 <table class="info-table">
                     @if($tipo == 'equipo')
@@ -248,7 +248,7 @@
                     </tr>
                     <tr>
                         <td class="info-label">Estado:</td>
-                        <td class="info-value"><span class="badge-pending">⏳ Pendiente de confirmación</span></td>
+                        <td class="info-value"><span class="badge-pending"> Pendiente de confirmación</span></td>
                     </tr>
                 </table>
             </div>
@@ -256,19 +256,19 @@
             {{-- BOTÓN ÚNICO --}}
             <div class="btn-group">
                 <a href="{{ route('login') }}" class="btn btn-login">
-                    🔐 Iniciar sesión en SICET
+                     Iniciar sesión en SICET
                 </a>
             </div>
 
             {{-- IMPORTANTE --}}
             <div class="info-box">
-                <strong>📌 ¿Qué debes hacer?</strong>
+                <strong> ¿Qué debes hacer?</strong>
                 Inicia sesión en el sistema SICET para aceptar o rechazar esta asignación.
                 La solicitud estará pendiente hasta que ingreses al sistema y la respondas.
             </div>
 
             <div class="info-box" style="background-color: #fffbeb; border-left-color: #f59e0b; color: #92400e;">
-                <strong>⚠️ Información importante</strong>
+                <strong> Información importante</strong>
                 • Al aceptar, quedas registrado como responsable del equipo.<br>
                 • Si rechazas, la asignación será cancelada.<br>
                 • Si no reconoces esta solicitud, ignora este mensaje.
@@ -277,7 +277,7 @@
 
         {{-- FOOTER --}}
         <div class="email-footer">
-            <p>📧 Este es un mensaje automático generado por <strong>SICET</strong></p>
+            <p> Este es un mensaje automático generado por <strong>SICET</strong></p>
             <p>Por favor, no responder a este correo.</p>
             <div class="company-info">
                 <p>Fruitex de México, S.A.P.I. de C.V.</p>

@@ -5,7 +5,7 @@ namespace App\Models\Corp;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Modelo del lado corporativo: tabla `tbl_empleados` de la base `tickets`.
+     * Modelo del lado corporativo: tabla `tbl_empleados` de la base `tickets`.
  * Esquema VIEJO (id_emp manual, nombre+apellidos, email, activo 'S'/'N', id_planta).
  * Solo se usa para sincronización (lectura) y write-through (escritura).
  */

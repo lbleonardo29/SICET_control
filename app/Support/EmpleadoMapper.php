@@ -3,10 +3,9 @@
 namespace App\Support;
 
 /**
- * Traducción de columnas en la frontera entre el esquema corporativo (`tickets`)
+     * Traducción de columnas en la frontera entre el esquema corporativo (`tickets`)
  * y el esquema local de SICET. Métodos puros, sin acceso a BD (fáciles de testear).
- *
- * Pivote estable entre sistemas: empleados.numero_empleado (SICET) == tbl_empleados.id_emp (tickets).
+ * * Pivote estable entre sistemas: empleados.numero_empleado (SICET) == tbl_empleados.id_emp (tickets).
  */
 class EmpleadoMapper
 {

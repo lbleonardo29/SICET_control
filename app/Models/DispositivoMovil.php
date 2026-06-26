@@ -28,7 +28,7 @@ class DispositivoMovil extends Model
     ];
 
     /* =====================================================
-       🔗 RELACIONES
+        RELACIONES
     ===================================================== */
 
     // historial de asignaciones

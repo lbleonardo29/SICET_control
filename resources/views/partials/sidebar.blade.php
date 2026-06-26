@@ -2,7 +2,7 @@
 
     {{-- LOGO --}}
     <div class="text-white text-center py-4 fw-bold fs-5 border-bottom">
-        🖥️ SICET
+         SICET
     </div>
 
     {{-- DASHBOARD --}}

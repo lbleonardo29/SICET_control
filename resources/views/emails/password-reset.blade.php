@@ -72,9 +72,9 @@
             <p>Se ha solicitado restablecer la contraseña para el siguiente empleado:</p>
             
             <div class="info-box">
-                <strong>👤 Empleado:</strong> {{ $empleado->nombre_completo }}<br>
-                <strong>📧 Correo del empleado:</strong> {{ $empleado->correo }}<br>
-                <strong>🔢 Número de empleado:</strong> {{ $empleado->numero_empleado }}
+                <strong> Empleado:</strong> {{ $empleado->nombre_completo }}<br>
+                <strong> Correo del empleado:</strong> {{ $empleado->correo }}<br>
+                <strong> Número de empleado:</strong> {{ $empleado->numero_empleado }}
             </div>
             
             <p>Para restablecer la contraseña, haz clic en el siguiente botón:</p>
@@ -91,7 +91,7 @@
             </p>
             
             <div class="warning">
-                <strong>⚠️ Nota de prueba:</strong>
+                <strong> Nota de prueba:</strong>
                 <p style="margin: 5px 0 0;">
                     si no reconoce este correo ignorelo
                 </p>

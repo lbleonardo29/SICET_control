@@ -26,36 +26,36 @@
 
         body {
             font-family: Arial, sans-serif;
-            font-size: 12pt;
-            line-height: 1.5;
+            font-size: 10pt;
+            line-height: 1.35;
             color: #000000;
-            margin: 2.5cm;
+            margin: 1.2cm 1.8cm;
         }
 
-        .encabezado { width: 100%; margin-bottom: 20px; text-align: center; }
-        .logo-izq { float: left; width: 80px; }
-        .logo-der { float: right; width: 80px; }
+        .encabezado { width: 100%; margin-bottom: 10px; text-align: center; }
+        .logo-izq { float: left; width: 65px; }
+        .logo-der { float: right; width: 65px; }
         .clearfix { clear: both; }
 
         .titulo {
             text-align: center;
             font-weight: bold;
-            font-size: 14pt;
-            margin: 40px 0 20px 0;
+            font-size: 12pt;
+            margin: 15px 0 10px 0;
         }
 
-        .fecha { text-align: right; margin-bottom: 30px; }
+        .fecha { text-align: right; margin-bottom: 15px; }
 
-        .texto { text-align: justify; margin-bottom: 15px; }
+        .texto { text-align: justify; margin-bottom: 10px; }
 
         .tabla-equipo {
             width: 100%;
             border-collapse: collapse;
-            margin: 20px 0;
+            margin: 10px 0;
         }
         .tabla-equipo td {
             border: 1px solid #000000;
-            padding: 8px;
+            padding: 6px;
             vertical-align: top;
         }
         .tabla-equipo .etiqueta {
@@ -67,26 +67,26 @@
         .tabla-firmas {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 40px;
+            margin-top: 20px;
         }
         .tabla-firmas td {
             width: 50%;
             vertical-align: top;
-            padding: 10px;
+            padding: 6px 10px;
         }
 
         .firma-linea {
             border-top: 1px solid #000000;
-            margin-top: 40px;
+            margin-top: 30px;
             padding-top: 5px;
             width: 80%;
         }
 
-        .nombre-firma { margin-top: 10px; font-weight: normal; }
+        .nombre-firma { margin-top: 8px; font-weight: normal; }
 
         .nota {
-            margin-top: 40px;
-            font-size: 10pt;
+            margin-top: 20px;
+            font-size: 8.5pt;
             font-style: italic;
             text-align: center;
         }

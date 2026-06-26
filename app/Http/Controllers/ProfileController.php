@@ -56,7 +56,7 @@ class ProfileController extends Controller
         $user->primer_inicio = 0;
         $user->save();
 
-        return redirect()->route('dashboard')->with('success', '✅ Contraseña cambiada correctamente.');
+        return redirect()->route('dashboard')->with('success', ' Contraseña cambiada correctamente.');
     }
 
     public function eliminarFoto()
@@ -69,6 +69,6 @@ class ProfileController extends Controller
         $user->save();
     }
     
-    return redirect()->route('perfil.index')->with('success', '✅ Foto eliminada correctamente');
+    return redirect()->route('perfil.index')->with('success', ' Foto eliminada correctamente');
 }
 }

@@ -15,7 +15,7 @@ class Reporte extends Model
         'inconsistencias',
         'tipo',
         'user_id',
-        'numero_empleado',  // 👈 AGREGAR ESTA LÍNEA
+        'numero_empleado',  // AGREGAR ESTA LÍNEA
     ];
 
     public function user()

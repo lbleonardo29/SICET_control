@@ -15,8 +15,7 @@ class AsignacionPendiente extends Mailable
 
     /**
      * Create a new message instance.
-     *
-     * @param mixed $asignacion  // Instancia de Asignacion o AsignacionMovil
+     * * @param mixed $asignacion  // Instancia de Asignacion o AsignacionMovil
      * @param string $tipo       // 'equipo' o 'movil'
      */
     public function __construct($asignacion, $tipo)
@@ -32,7 +31,7 @@ class AsignacionPendiente extends Mailable
     {
         $titulo = $this->tipo === 'equipo' ? 'Computadora' : 'Dispositivo Móvil';
         
-        return $this->subject("📱 SICET - Nueva asignación pendiente de {$titulo}")
+        return $this->subject(" SICET - Nueva asignación pendiente de {$titulo}")
                     ->view('emails.asignacion_pendiente');
     }
 }

@@ -5,7 +5,7 @@ namespace App\Models\Corp;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Modelo del lado corporativo: tabla `planta` (singular) de la base `tickets`.
+     * Modelo del lado corporativo: tabla `planta` (singular) de la base `tickets`.
  */
 class PlantaTicket extends Model
 {

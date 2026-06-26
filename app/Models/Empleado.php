@@ -23,7 +23,7 @@ class Empleado extends Model
         'planta_id',
     ];
 
-    // 🔥 FORZAR ACTIVO A BOOLEAN
+    // FORZAR ACTIVO A BOOLEAN
     protected $casts = [
         'activo' => 'boolean',
     ];

@@ -126,7 +126,7 @@
 <body>
     <div class="email-container">
         <div class="email-header">
-            <div class="logo-icon">🖥️</div>
+            <div class="logo-icon"></div>
             <h1>SICET</h1>
         </div>
 
@@ -140,23 +140,23 @@
             </div>
 
             <div class="password-box">
-                <span class="password-label">🔐 CONTRASEÑA TEMPORAL</span>
+                <span class="password-label"> CONTRASEÑA TEMPORAL</span>
                 <div class="password-value">{{ $password }}</div>
             </div>
 
             <div class="warning-box">
-                ⚠️ Esta es una contraseña <strong>temporal</strong>. Deberás cambiarla la primera vez que inicies sesión.
+                 Esta es una contraseña <strong>temporal</strong>. Deberás cambiarla la primera vez que inicies sesión.
             </div>
 
             <div class="btn-container">
                 <a href="{{ route('login') }}" class="btn">
-                    🔓 Iniciar sesión en SICET
+                     Iniciar sesión en SICET
                 </a>
             </div>
         </div>
 
         <div class="email-footer">
-            <p>© {{ date('Y') }} SICET - Sistema de Control de Computadoras</p>
+            <p> {{ date('Y') }} SICET - Sistema de Control de Computadoras</p>
             <p>Este es un correo automático, por favor no responder.</p>
         </div>
     </div>

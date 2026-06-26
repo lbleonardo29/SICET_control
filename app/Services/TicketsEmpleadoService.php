@@ -8,10 +8,9 @@ use App\Models\Corp\EmpleadoTicket;
 use App\Support\EmpleadoMapper;
 
 /**
- * Write-through hacia la base corporativa `tickets`: cuando SICET crea/edita/da de baja
+     * Write-through hacia la base corporativa `tickets`: cuando SICET crea/edita/da de baja
  * un empleado, refleja el cambio en tbl_empleados.
- *
- * Lanza excepción si la conexión/escritura falla; el llamador (EmpleadoController) la
+ * * Lanza excepción si la conexión/escritura falla; el llamador (EmpleadoController) la
  * captura y degrada de forma elegante (patrón local-first): SICET nunca se bloquea.
  */
 class TicketsEmpleadoService

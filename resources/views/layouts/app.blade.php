@@ -99,6 +99,7 @@
             justify-content: space-between;
             transition: left 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
             box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            
         }
         .sidebar.collapsed ~ .main-wrapper .header { left: 70px; }
 

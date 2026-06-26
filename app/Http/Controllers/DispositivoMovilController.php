@@ -17,7 +17,7 @@ class DispositivoMovilController extends Controller
     {
         $query = DispositivoMovil::with(['ultimaAsignacion.empleado']);
 
-        // 🔍 Búsqueda por texto
+        // Búsqueda por texto
         if ($request->filled('q')) {
             $q = $request->q;
             $query->where(function ($sub) use ($q) {
@@ -29,17 +29,17 @@ class DispositivoMovilController extends Controller
             });
         }
 
-        // 🏷️ Filtro por estado
+        // Filtro por estado
         if ($request->filled('estado')) {
             $query->where('estado', $request->estado);
         }
 
-        // 🏷️ Filtro por marca
+        // Filtro por marca
         if ($request->filled('marca')) {
             $query->where('marca', $request->marca);
         }
 
-        // 📅 Ordenamiento
+        // Ordenamiento
         switch ($request->orden) {
             case 'antiguo':
                 $query->orderBy('created_at', 'asc');
@@ -176,13 +176,13 @@ class DispositivoMovilController extends Controller
         // Verificar que no esté asignado actualmente
         if ($movil->asignado) {
             return redirect()->route('moviles.index')
-                ->with('error', '❌ No se puede dar de baja un dispositivo que está actualmente asignado.');
+                ->with('error', ' No se puede dar de baja un dispositivo que está actualmente asignado.');
         }
         
         // Verificar que no esté ya dado de baja
         if ($movil->estado === 'Baja') {
             return redirect()->route('moviles.index')
-                ->with('error', '⚠️ Este dispositivo ya está dado de baja.');
+                ->with('error', ' Este dispositivo ya está dado de baja.');
         }
         
         $request->validate([
@@ -197,7 +197,7 @@ class DispositivoMovilController extends Controller
         ]);
         
         return redirect()->route('moviles.index')
-            ->with('success', '✅ Dispositivo móvil dado de baja correctamente.');
+            ->with('success', ' Dispositivo móvil dado de baja correctamente.');
     }
 
     /* ==========================================
