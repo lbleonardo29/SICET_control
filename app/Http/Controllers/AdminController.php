@@ -96,6 +96,16 @@ class AdminController extends Controller
         if ($empleadoLocal && !$user->empleado_id) {
             $user->empleado_id = $empleadoLocal->id;
         }
+
+        // Mantener el correo actualizado (necesario para recuperación de contraseña),
+        // solo si no lo tiene otro usuario (evita choque con la restricción única).
+        if ($emailLocal && $user->email !== $emailLocal) {
+            $ocupado = User::where('email', $emailLocal)->where('id', '!=', $user->id)->exists();
+            if (!$ocupado) {
+                $user->email = $emailLocal;
+            }
+        }
+
         $user->save();
 
         Auth::login($user, $request->boolean('remember'));
@@ -182,12 +192,13 @@ class AdminController extends Controller
             ->first();
 
         // =========================
-        // ASIGNACIONES PENDIENTES (solo para usuarios normales)
+        // ASIGNACIONES PENDIENTES (cualquier rol con empleado vinculado:
+        // todos pueden recibir equipo y deben poder aceptarlo/rechazarlo)
         // =========================
         $asignacionesPendientes = collect();
         $movilesPendientes = collect();
 
-        if (in_array($user->role, ['user', 'usuario'])) {
+        if ($user->empleado_id) {
             // Computadoras pendientes
             $asignacionesPendientes = Asignacion::with('equipo')
                 ->where('empleado_id', $user->empleado_id)

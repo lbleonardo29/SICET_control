@@ -182,6 +182,7 @@ class EquipoController extends Controller
             'marca'                      => 'required|string|max:100',
             'modelo'                     => 'required|string|max:100',
             'numero_serie'               => 'required|string|max:100|unique:equipos,numero_serie',
+            'direccion_mac'              => ['nullable', 'regex:/^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/'],
             'color'                      => 'nullable|string|max:50',
             'procesador'                 => 'required|string|max:100',
             'ram'                        => 'required|string|max:50',
@@ -191,6 +192,8 @@ class EquipoController extends Controller
             'fecha_adquisicion'          => 'required|date|before_or_equal:today',
             'planta_id'                  => 'required|exists:plantas,id',
             'observaciones'              => 'required|string|max:1000',
+        ], [
+            'direccion_mac.regex' => 'La dirección MAC debe tener el formato XX:XX:XX:XX:XX:XX (6 pares hexadecimales).',
         ]);
 
         // Generar código interno automático
@@ -206,6 +209,7 @@ class EquipoController extends Controller
             'marca'                      => strtoupper($request->marca),
             'modelo'                     => strtoupper($request->modelo),
             'numero_serie'               => strtoupper($request->numero_serie),
+            'direccion_mac'              => $request->direccion_mac ? strtoupper($request->direccion_mac) : null,
             'color'                      => strtoupper($request->color),
             'procesador'                 => strtoupper($request->procesador),
             'ram'                        => strtoupper($request->ram),
@@ -289,6 +293,7 @@ class EquipoController extends Controller
             'marca'                      => 'required|string|max:100',
             'modelo'                     => 'required|string|max:100',
             'numero_serie'               => 'required|string|max:100|unique:equipos,numero_serie,' . $equipo->id,
+            'direccion_mac'              => ['nullable', 'regex:/^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/'],
             'color'                      => 'nullable|string|max:50',
             'procesador'                 => 'required|string|max:100',
             'ram'                        => 'required|string|max:50',
@@ -298,6 +303,8 @@ class EquipoController extends Controller
             'fecha_adquisicion'          => 'required|date|before_or_equal:today',
             'planta_id'                  => 'required|exists:plantas,id',
             'observaciones'              => 'required|string|max:1000',
+        ], [
+            'direccion_mac.regex' => 'La dirección MAC debe tener el formato XX:XX:XX:XX:XX:XX (6 pares hexadecimales).',
         ]);
 
         // Combinar tipo y capacidad para el campo ssd
@@ -308,6 +315,7 @@ class EquipoController extends Controller
             'marca'                      => strtoupper($request->marca),
             'modelo'                     => strtoupper($request->modelo),
             'numero_serie'               => strtoupper($request->numero_serie),
+            'direccion_mac'              => $request->direccion_mac ? strtoupper($request->direccion_mac) : null,
             'color'                      => strtoupper($request->color),
             'procesador'                 => strtoupper($request->procesador),
             'ram'                        => strtoupper($request->ram),

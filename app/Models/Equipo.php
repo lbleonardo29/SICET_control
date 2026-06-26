@@ -15,6 +15,7 @@ class Equipo extends Model
         'marca',
         'modelo',
         'numero_serie',
+        'direccion_mac',
         'color',
         'procesador',
         'ram',
