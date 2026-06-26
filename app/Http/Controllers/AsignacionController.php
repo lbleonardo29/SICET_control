@@ -11,7 +11,9 @@ use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 use App\Mail\AsignacionPendiente;
+use App\Notifications\SistemaNotificacion;
 
 class AsignacionController extends Controller
 {
@@ -211,6 +213,19 @@ class AsignacionController extends Controller
             }
         }
 
+        // =====================================================
+        // NOTIFICACIÓN INTERNA (campana) al empleado, si tiene cuenta
+        // =====================================================
+        if ($user) {
+            $user->notify(new SistemaNotificacion(
+                'Nueva asignación pendiente',
+                "Se te asignó la computadora {$equipo->codigo_interno} ({$equipo->marca} {$equipo->modelo}). Acéptala o recházala desde tu panel.",
+                route('dashboard'),
+                'pc-display',
+                'info'
+            ));
+        }
+
         return redirect()
             ->route('asignaciones.dashboard')
             ->with('success', ' Asignación creada en estado "En espera". El empleado deberá aceptarla desde el sistema.');
@@ -248,7 +263,19 @@ class AsignacionController extends Controller
         
         // Cambiar estado del equipo a "Asignado"
         $asignacion->equipo->update(['estado' => 'Asignado']);
-        
+
+        // Notificar a los administradores
+        Notification::send(
+            User::where('role', 'admin')->get(),
+            new SistemaNotificacion(
+                'Asignación aceptada',
+                ($asignacion->empleado->nombre_completo ?? 'Un empleado') . " aceptó la computadora {$asignacion->equipo->codigo_interno}.",
+                route('asignaciones.dashboard'),
+                'check-circle',
+                'success'
+            )
+        );
+
         return redirect()->route('dashboard')
             ->with('success', ' Has aceptado la computadora ' . $asignacion->equipo->codigo_interno);
     }
@@ -281,7 +308,19 @@ class AsignacionController extends Controller
         
         // Volver a Disponible cuando rechaza
         $asignacion->equipo->update(['estado' => 'Disponible']);
-        
+
+        // Notificar a los administradores
+        Notification::send(
+            User::where('role', 'admin')->get(),
+            new SistemaNotificacion(
+                'Asignación rechazada',
+                ($asignacion->empleado->nombre_completo ?? 'Un empleado') . " rechazó la computadora {$asignacion->equipo->codigo_interno}.",
+                route('asignaciones.dashboard'),
+                'x-circle',
+                'warning'
+            )
+        );
+
         return redirect()->route('dashboard')
             ->with('info', ' Has rechazado la computadora ' . $asignacion->equipo->codigo_interno);
     }

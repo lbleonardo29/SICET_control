@@ -11,7 +11,9 @@ use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 use App\Mail\AsignacionPendiente;
+use App\Notifications\SistemaNotificacion;
 
 class AsignacionMovilController extends Controller
 {
@@ -205,6 +207,17 @@ $empleados = Empleado::where('activo', 1)
             }
         }
 
+        // Notificación interna (campana) al empleado, si tiene cuenta
+        if ($user) {
+            $user->notify(new SistemaNotificacion(
+                'Nueva asignación pendiente',
+                "Se te asignó el dispositivo {$movil->codigo_interno} ({$movil->marca} {$movil->modelo}). Acéptalo o recházalo desde tu panel.",
+                route('dashboard'),
+                'phone',
+                'info'
+            ));
+        }
+
         return redirect()
             ->route('asignaciones.moviles.dashboard')
             ->with('success', ' Asignación creada en estado "En espera". El empleado deberá aceptarla desde el sistema.');
@@ -244,7 +257,19 @@ $empleados = Empleado::where('activo', 1)
             'estado' => 'Asignado',
             'asignado' => true
         ]);
-        
+
+        // Notificar a los administradores
+        Notification::send(
+            User::where('role', 'admin')->get(),
+            new SistemaNotificacion(
+                'Asignación aceptada',
+                ($asignacion->empleado->nombre_completo ?? 'Un empleado') . " aceptó el dispositivo {$asignacion->dispositivo->codigo_interno}.",
+                route('asignaciones.moviles.dashboard'),
+                'check-circle',
+                'success'
+            )
+        );
+
         return redirect()->route('dashboard')
             ->with('success', ' Has aceptado el dispositivo ' . $asignacion->dispositivo->codigo_interno);
     }
@@ -279,7 +304,19 @@ $empleados = Empleado::where('activo', 1)
             'estado' => 'Disponible',
             'asignado' => false
         ]);
-        
+
+        // Notificar a los administradores
+        Notification::send(
+            User::where('role', 'admin')->get(),
+            new SistemaNotificacion(
+                'Asignación rechazada',
+                ($asignacion->empleado->nombre_completo ?? 'Un empleado') . " rechazó el dispositivo {$asignacion->dispositivo->codigo_interno}.",
+                route('asignaciones.moviles.dashboard'),
+                'x-circle',
+                'warning'
+            )
+        );
+
         return redirect()->route('dashboard')
             ->with('info', ' Has rechazado el dispositivo ' . $asignacion->dispositivo->codigo_interno);
     }

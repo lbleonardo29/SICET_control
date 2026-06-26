@@ -11,6 +11,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DispositivoMovilController;
 use App\Http\Controllers\AsignacionMovilController;
 use App\Http\Controllers\ReporteController;
+use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\PasswordResetController;
 
 /* |--------------------------------------------------------------------------
@@ -49,6 +50,11 @@ Route::middleware('auth')->group(function () {
     Route::put('/asignaciones-moviles/aceptar/{id}', [AsignacionMovilController::class, 'aceptar'])->name('asignaciones.moviles.aceptar');
     Route::put('/asignaciones-moviles/rechazar/{id}', [AsignacionMovilController::class, 'rechazar'])->name('asignaciones.moviles.rechazar');
 
+    // Notificaciones (campana) — todos los roles
+    Route::get('/notificaciones', [NotificacionController::class, 'index'])->name('notificaciones.index');
+    Route::post('/notificaciones/leer-todas', [NotificacionController::class, 'leerTodas'])->name('notificaciones.leerTodas');
+    Route::get('/notificaciones/{id}/leer', [NotificacionController::class, 'leer'])->name('notificaciones.leer');
+
 });
 
 
@@ -73,7 +79,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/asignaciones/descargar/{id}', [AsignacionController::class, 'descargar'])->name('asignaciones.descargar');
     Route::delete('/asignaciones/{id}', [AsignacionController::class, 'destroy'])->name('asignaciones.destroy');
 
-    // Catálogo UNIFICADO (computadoras + móviles)
+    // Catálogo UNIFICADO(NUEVO)
     Route::get('/catalogo', [EquipoController::class, 'catalogo'])->name('equipos.catalogo');
 
     // Equipos (computadoras)

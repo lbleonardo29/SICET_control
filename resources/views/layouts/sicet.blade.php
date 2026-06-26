@@ -11,6 +11,26 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     {{-- SICET design system (sobreescribe sidebar, header y background) --}}
     <link rel="stylesheet" href="{{ asset('css/sicet-app.css') }}">
+    <style>
+        .s-notif-count {
+            position: absolute; top: -4px; right: -4px;
+            background: #e11d48; color: #fff;
+            font-size: 10px; font-weight: 700; line-height: 1;
+            min-width: 16px; height: 16px; padding: 0 4px;
+            border-radius: 999px; display: flex; align-items: center; justify-content: center;
+        }
+        .s-notif-menu { width: 340px; max-height: 460px; overflow: hidden; border-radius: 12px; }
+        .s-notif-list { max-height: 330px; overflow-y: auto; }
+        .s-notif-item:hover { background: #f6f7f5; }
+        .s-notif-ico {
+            width: 30px; height: 30px; flex-shrink: 0; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center; font-size: 14px;
+        }
+        .s-notif-info    { background: #e0f2fe; color: #0369a1; }
+        .s-notif-success { background: #dcfce7; color: #15803d; }
+        .s-notif-warning { background: #fef9c3; color: #a16207; }
+        .s-notif-danger  { background: #fee2e2; color: #b91c1c; }
+    </style>
     @stack('styles')
 </head>
 <body>
@@ -132,7 +152,7 @@
 
         @endrole
 
-        {{-- ===== RH: solo visualiza asignaciones (solo lectura) ===== --}}
+        {{-- ===== RH: solo vizualizar (lectura) ===== --}}
         @role('rh')
         <div class="s-nav-label">Asignaciones</div>
         <a href="{{ route('asignaciones.dashboard') }}"
@@ -190,13 +210,57 @@
                 {{ now()->locale('es')->translatedFormat('j \d\e F, Y') }}
             </span>
 
-            <button class="s-notif-btn" title="Notificaciones" type="button">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-                </svg>
-                <span class="s-notif-dot"></span>
-            </button>
+            @php $notiNoLeidas = Auth::user()->unreadNotifications; @endphp
+            <div class="dropdown">
+                <button class="s-notif-btn position-relative" title="Notificaciones" type="button"
+                        data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                    </svg>
+                    @if($notiNoLeidas->count() > 0)
+                        <span class="s-notif-count">{{ $notiNoLeidas->count() > 9 ? '9+' : $notiNoLeidas->count() }}</span>
+                    @endif
+                </button>
+
+                <div class="dropdown-menu dropdown-menu-end shadow border-0 p-0 s-notif-menu">
+                    <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
+                        <strong style="font-size:14px;">Notificaciones</strong>
+                        @if($notiNoLeidas->count() > 0)
+                        <form method="POST" action="{{ route('notificaciones.leerTodas') }}" class="m-0">
+                            @csrf
+                            <button class="btn btn-link p-0 text-decoration-none" style="font-size:12px;">Marcar todas</button>
+                        </form>
+                        @endif
+                    </div>
+
+                    <div class="s-notif-list">
+                        @forelse($notiNoLeidas->take(8) as $n)
+                            <a href="{{ route('notificaciones.leer', $n->id) }}"
+                               class="d-flex gap-2 px-3 py-2 border-bottom text-decoration-none text-dark s-notif-item">
+                                <span class="s-notif-ico s-notif-{{ $n->data['tipo'] ?? 'info' }}">
+                                    <i class="bi bi-{{ $n->data['icono'] ?? 'bell' }}"></i>
+                                </span>
+                                <span class="flex-grow-1">
+                                    <span class="d-block fw-semibold" style="font-size:13px;">{{ $n->data['titulo'] ?? 'Notificación' }}</span>
+                                    <span class="d-block text-muted" style="font-size:12px;">{{ \Illuminate\Support\Str::limit($n->data['mensaje'] ?? '', 80) }}</span>
+                                    <span class="d-block text-muted" style="font-size:11px;">{{ $n->created_at->diffForHumans() }}</span>
+                                </span>
+                            </a>
+                        @empty
+                            <div class="text-center text-muted py-4" style="font-size:13px;">
+                                <i class="bi bi-bell-slash d-block mb-2" style="font-size:22px;"></i>
+                                Sin notificaciones nuevas
+                            </div>
+                        @endforelse
+                    </div>
+
+                    <a href="{{ route('notificaciones.index') }}"
+                       class="d-block text-center py-2 border-top text-decoration-none" style="font-size:13px;">
+                        Ver todas
+                    </a>
+                </div>
+            </div>
 
             <a href="{{ route('perfil.index') }}" class="s-user-chip">
                 <div class="s-avatar">
