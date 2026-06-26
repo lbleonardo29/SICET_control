@@ -22,12 +22,18 @@ class PasswordResetController extends Controller
     public function sendResetLink(Request $request)
     {
         $request->validate([
-            'correo' => 'required|email'
+            'correo' => 'required|string'
         ]);
 
-        $user = User::where('email', $request->correo)->first();
+        $input = trim($request->correo);
 
-        // Siempre devolver mensaje genérico para no revelar si el correo existe
+        // Aceptar correo O número de empleado
+        $user = User::where('email', $input)->first();
+        if (!$user && is_numeric($input)) {
+            $user = User::where('numero_empleado', $input)->first();
+        }
+
+        // Siempre devolver mensaje genérico para no revelar si el dato existe
         if (!$user) {
             return back()->with('success', 'Si tu correo está registrado, recibirás un enlace en breve.');
         }

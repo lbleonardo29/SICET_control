@@ -56,7 +56,7 @@
 
         <h2 class="form-title">Recuperar contraseña</h2>
         <p class="form-subtitle">
-            Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.
+            Ingresa tu correo electrónico o tu número de empleado y te enviaremos un enlace para restablecer tu contraseña.
         </p>
 
         @if(session('success'))
@@ -88,12 +88,12 @@
                     <polyline points="22,6 12,13 2,6"/>
                 </svg>
                 <input
-                    type="email"
+                    type="text"
                     name="correo"
                     class="field-input {{ $errors->has('correo') ? 'is-invalid' : '' }}"
                     value="{{ old('correo') }}"
-                    placeholder="tucorreo@fruitex.com.mx"
-                    autocomplete="email"
+                    placeholder="Correo o número de empleado"
+                    autocomplete="username"
                     required>
             </div>
 

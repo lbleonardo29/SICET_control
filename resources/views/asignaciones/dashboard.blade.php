@@ -168,7 +168,7 @@
                             <th>Computadora</th>
                             <th>Asignación</th>
                             <th>Estado</th>
-                            <th class="text-center">Acciones</th>
+                            @role('admin')<th class="text-center">Acciones</th>@endrole
                         </tr>
                     </thead>
                     <tbody>
@@ -255,15 +255,15 @@
                                     </div>
                                 </td>
 
-                                {{-- Acciones --}}
+                                {{-- Acciones (solo admin) --}}
+                                @role('admin')
                                 <td class="text-center">
-                                    @role('admin')
                                     <div class="d-flex justify-content-center gap-2 flex-wrap">
 
                                         {{-- Botones PDF --}}
                                         @if($asignacion->carta_pdf)
-                                            <button type="button" 
-                                                    class="btn btn-sm btn-info" 
+                                            <button type="button"
+                                                    class="btn btn-sm btn-info"
                                                     onclick="verPDF('{{ route('equipos.carta', $asignacion->equipo_id) }}', '{{ route('asignaciones.descargar', $asignacion->id) }}')"
                                                     title="Ver PDF"
                                                     data-bs-toggle="tooltip">
@@ -311,8 +311,8 @@
                                             </form>
                                         @endif
                                     </div>
-                                    @endrole
                                 </td>
+                                @endrole
                             </tr>
                         @empty
                             <tr>
