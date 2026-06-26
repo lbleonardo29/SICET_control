@@ -5,17 +5,118 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Equipo;
 use App\Models\Planta;
+use App\Models\DispositivoMovil;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class EquipoController extends Controller
 {
     /**
-     * 📋 Mostrar todos los equipos con filtros y paginación
+     * Catálogo UNIFICADO: computadoras (equipos) + móviles (dispositivos_moviles).
+     * Las tablas siguen separadas; aquí se normalizan a una forma común para
+     * listarlos juntos con su etiqueta de tipo. Filtros: q, tipo, estado.
+     */
+    public function catalogo(Request $request)
+    {
+        $q      = trim((string) $request->q);
+        $tipo   = $request->tipo;   // computadora | movil | (vacío = ambos)
+        $estado = $request->estado; // Disponible | Asignado | Mantenimiento | Pendiente | Baja
+
+        $items = collect();
+
+        // ---- Computadoras ----
+        if ($tipo !== 'movil') {
+            foreach (Equipo::with('planta')->get() as $e) {
+                $items->push((object) [
+                    'tipo'                => 'computadora',
+                    'id'                  => $e->id,
+                    'codigo_interno'      => $e->codigo_interno,
+                    'nombre'              => $e->nombre_equipo,
+                    'marca'               => $e->marca,
+                    'modelo'              => $e->modelo,
+                    'identificador'       => $e->numero_serie,
+                    'identificador_label' => 'Serie',
+                    'estado'              => $e->estado,
+                    'planta'              => optional($e->planta)->nombre,
+                    'created_at'          => $e->created_at,
+                    'show_url'            => route('equipos.show', $e->id),
+                    'edit_url'            => route('equipos.edit', $e->id),
+                    'historial_url'       => route('equipos.historial', $e->id),
+                ]);
+            }
+        }
+
+        // ---- Móviles (normaliza estado a partir del booleano 'asignado') ----
+        if ($tipo !== 'computadora') {
+            foreach (DispositivoMovil::all() as $m) {
+                $estadoMovil = $m->estado === 'Baja'
+                    ? 'Baja'
+                    : ($m->asignado ? 'Asignado' : 'Disponible');
+
+                $items->push((object) [
+                    'tipo'                => 'movil',
+                    'id'                  => $m->id,
+                    'codigo_interno'      => $m->codigo_interno,
+                    'nombre'              => trim("{$m->marca} {$m->modelo}"),
+                    'marca'               => $m->marca,
+                    'modelo'              => $m->modelo,
+                    'identificador'       => $m->imei,
+                    'identificador_label' => 'IMEI',
+                    'estado'              => $estadoMovil,
+                    'planta'              => null,
+                    'created_at'          => $m->created_at,
+                    'show_url'            => route('moviles.show', $m->id),
+                    'edit_url'            => route('moviles.edit', $m->id),
+                    'historial_url'       => route('moviles.historial', $m->id),
+                ]);
+            }
+        }
+
+        // ---- Filtro de texto ----
+        if ($q !== '') {
+            $needle = mb_strtolower($q);
+            $items = $items->filter(function ($it) use ($needle) {
+                $heno = mb_strtolower(implode(' ', array_filter([
+                    $it->codigo_interno, $it->nombre, $it->marca,
+                    $it->modelo, $it->identificador,
+                ])));
+                return str_contains($heno, $needle);
+            });
+        }
+
+        // ---- Filtro por estado ----
+        if ($estado) {
+            $items = $items->filter(fn ($it) => $it->estado === $estado);
+        }
+
+        // ---- Orden: más recientes primero ----
+        $items = $items->sortByDesc(fn ($it) => optional($it->created_at)->timestamp ?? 0)->values();
+
+        // ---- Paginación manual sobre la colección combinada ----
+        $perPage = 15;
+        $page    = LengthAwarePaginator::resolveCurrentPage();
+        $equipos = new LengthAwarePaginator(
+            $items->forPage($page, $perPage)->values(),
+            $items->count(),
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
+        // Conteos para las tarjetas/resumen
+        $totalComputadoras = Equipo::count();
+        $totalMoviles      = DispositivoMovil::count();
+
+        return view('equipos.catalogo', compact('equipos', 'totalComputadoras', 'totalMoviles'));
+    }
+
+    /**
+     * Mostrar todos los equipos con filtros y paginación
      */
     public function index(Request $request)
     {
         $query = Equipo::with(['planta', 'ultimaAsignacion.empleado']);
 
-        // 🔍 Búsqueda por texto
+        // Búsqueda por texto
         if ($request->filled('q')) {
             $q = $request->q;
             $query->where(function ($sub) use ($q) {
@@ -27,17 +128,17 @@ class EquipoController extends Controller
             });
         }
 
-        // 🏷️ Filtro por estado
+        // Filtro por estado
         if ($request->filled('estado')) {
             $query->where('estado', $request->estado);
         }
 
-        // 🏭 Filtro por planta
+        // Filtro por planta
         if ($request->filled('planta_id')) {
             $query->where('planta_id', $request->planta_id);
         }
 
-        // 📅 Ordenamiento
+        // Ordenamiento
         switch ($request->orden) {
             case 'antiguo':
                 $query->orderBy('created_at', 'asc');
@@ -63,7 +164,7 @@ class EquipoController extends Controller
     }
 
     /**
-     * ➕ Formulario para registrar equipo
+     * Formulario para registrar equipo
      */
     public function create()
     {
@@ -72,7 +173,7 @@ class EquipoController extends Controller
     }
 
     /**
-     * 💾 Guardar nuevo equipo
+     * Guardar nuevo equipo
      */
     public function store(Request $request)
     {
@@ -118,17 +219,17 @@ class EquipoController extends Controller
 
         return redirect()
             ->route('equipos.index')
-            ->with('success', '✅ Computadora registrada correctamente');
+            ->with('success', ' Computadora registrada correctamente');
     }
 
     /**
-     * ✅ Equipos disponibles (vista simplificada)
+     * Equipos disponibles (vista simplificada)
      */
     public function disponiblesView(Request $request)
     {
         $query = Equipo::where('estado', 'Disponible');
 
-        // 🔍 Búsqueda
+        // Búsqueda
         if ($request->filled('q')) {
             $q = $request->q;
             $query->where(function ($sub) use ($q) {
@@ -140,12 +241,12 @@ class EquipoController extends Controller
             });
         }
 
-        // 🏷️ Filtro por marca
+        // Filtro por marca
         if ($request->filled('marca')) {
             $query->where('marca', $request->marca);
         }
 
-        // 📅 Ordenamiento
+        // Ordenamiento
         switch ($request->orden) {
             case 'antiguo':
                 $query->orderBy('created_at', 'asc');
@@ -170,7 +271,7 @@ class EquipoController extends Controller
     }
 
     /**
-     * ✏️ Formulario edición
+     * Formulario edición
      */
     public function edit(Equipo $equipo)
     {
@@ -179,7 +280,7 @@ class EquipoController extends Controller
     }
 
     /**
-     * 🔄 Actualizar equipo
+     * Actualizar equipo
      */
     public function update(Request $request, Equipo $equipo)
     {
@@ -219,11 +320,11 @@ class EquipoController extends Controller
 
         return redirect()
             ->route('equipos.index')
-            ->with('success', '✅ Computadora actualizada correctamente');
+            ->with('success', ' Computadora actualizada correctamente');
     }
 
     /**
-     * 📦 DAR DE BAJA un equipo
+     * DAR DE BAJA un equipo
      */
     public function darDeBaja(Request $request, $id)
     {
@@ -233,14 +334,14 @@ class EquipoController extends Controller
         if ($equipo->asignaciones()->whereNull('fecha_devolucion')->exists()) {
             return redirect()
                 ->route('equipos.index')
-                ->with('error', '❌ No se puede dar de baja un equipo que está actualmente asignado.');
+                ->with('error', ' No se puede dar de baja un equipo que está actualmente asignado.');
         }
         
         // Verificar que no esté ya dado de baja
         if ($equipo->estado === 'Baja') {
             return redirect()
                 ->route('equipos.index')
-                ->with('error', '⚠️ Este equipo ya está dado de baja.');
+                ->with('error', ' Este equipo ya está dado de baja.');
         }
         
         $request->validate([
@@ -255,18 +356,18 @@ class EquipoController extends Controller
         
         return redirect()
             ->route('equipos.index')
-            ->with('success', '✅ Equipo dado de baja correctamente.');
+            ->with('success', ' Equipo dado de baja correctamente.');
     }
 
     /**
-     * 🗑️ ELIMINAR equipo (ya no se usa, pero se mantiene por compatibilidad)
+     * ELIMINAR equipo (ya no se usa, pero se mantiene por compatibilidad)
      */
     public function destroy(Equipo $equipo)
     {
         if ($equipo->asignaciones()->whereNull('fecha_devolucion')->exists()) {
             return redirect()
                 ->route('equipos.index')
-                ->with('error', '❌ No se puede eliminar la computadora porque está asignada actualmente.');
+                ->with('error', ' No se puede eliminar la computadora porque está asignada actualmente.');
         }
 
         $equipo->asignaciones()->delete();
@@ -274,11 +375,11 @@ class EquipoController extends Controller
 
         return redirect()
             ->route('equipos.index')
-            ->with('success', '✅ Computadora eliminada correctamente');
+            ->with('success', ' Computadora eliminada correctamente');
     }
 
     /**
-     * 📜 Historial de asignaciones
+     * Historial de asignaciones
      */
     public function historial(Equipo $equipo)
     {
@@ -291,7 +392,7 @@ class EquipoController extends Controller
     }
 
     /**
-     * 🔍 Ver detalles de un equipo
+     * Ver detalles de un equipo
      */
     public function show(Equipo $equipo)
     {

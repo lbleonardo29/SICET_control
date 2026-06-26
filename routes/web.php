@@ -73,6 +73,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/asignaciones/descargar/{id}', [AsignacionController::class, 'descargar'])->name('asignaciones.descargar');
     Route::delete('/asignaciones/{id}', [AsignacionController::class, 'destroy'])->name('asignaciones.destroy');
 
+    // Catálogo UNIFICADO (computadoras + móviles)
+    Route::get('/catalogo', [EquipoController::class, 'catalogo'])->name('equipos.catalogo');
+
     // Equipos (computadoras)
     Route::get('/equipos', [EquipoController::class, 'index'])->name('equipos.index');
     Route::get('/equipos/create', [EquipoController::class, 'create'])->name('equipos.create');

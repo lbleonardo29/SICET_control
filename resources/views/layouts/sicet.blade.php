@@ -51,68 +51,44 @@
         {{-- ===== ADMIN: computadoras, dispositivos, empleados ===== --}}
         @role('admin')
 
-        <div class="s-nav-label">Computadoras</div>
+        <div class="s-nav-label">Equipos</div>
 
-        @php $compActive = Route::is('asignaciones.dashboard') || Route::is('asignaciones.*') || Route::is('equipos.*'); @endphp
-        <div class="s-nav-row expandable {{ $compActive ? 'expanded' : '' }}" onclick="sToggle('nav-comp', this)">
+        @php $eqActive = Route::is('equipos.*') || Route::is('moviles.*') || Route::is('asignaciones.*'); @endphp
+        <div class="s-nav-row expandable {{ $eqActive ? 'expanded' : '' }}" onclick="sToggle('nav-eq', this)">
             <svg class="s-nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="2" y="3" width="20" height="14" rx="2"/>
                 <line x1="8" y1="21" x2="16" y2="21"/>
                 <line x1="12" y1="17" x2="12" y2="21"/>
             </svg>
-            <span class="s-nav-text">Computadoras</span>
+            <span class="s-nav-text">Equipos</span>
             <svg class="s-nav-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <polyline points="9 18 15 12 9 6"/>
             </svg>
         </div>
-        <div class="s-sub-nav {{ $compActive ? 'open' : '' }}" id="nav-comp">
-            <a href="{{ route('asignaciones.dashboard') }}"
-               class="s-sub-link {{ Route::is('asignaciones.dashboard') ? 'active' : '' }}">
-                <span class="s-sub-dot"></span> Asignaciones
+        <div class="s-sub-nav {{ $eqActive ? 'open' : '' }}" id="nav-eq">
+            <a href="{{ route('equipos.catalogo') }}"
+               class="s-sub-link {{ Route::is('equipos.catalogo') ? 'active' : '' }}">
+                <span class="s-sub-dot"></span> Catálogo (todos)
+            </a>
+            <a href="{{ route('equipos.catalogo', ['estado' => 'Disponible']) }}"
+               class="s-sub-link">
+                <span class="s-sub-dot"></span> Disponibles
             </a>
             <a href="{{ route('equipos.create') }}"
                class="s-sub-link {{ Route::is('equipos.create') ? 'active' : '' }}">
-                <span class="s-sub-dot"></span> Registrar equipo
-            </a>
-            <a href="{{ route('equipos.index') }}"
-               class="s-sub-link {{ Route::is('equipos.index') ? 'active' : '' }}">
-                <span class="s-sub-dot"></span> Todos los equipos
-            </a>
-            <a href="{{ route('equipos.disponibles') }}"
-               class="s-sub-link {{ Route::is('equipos.disponibles') ? 'active' : '' }}">
-                <span class="s-sub-dot"></span> Disponibles
-            </a>
-        </div>
-
-        <div class="s-nav-label">Dispositivos</div>
-
-        @php $dispActive = Route::is('moviles.*') || Route::is('asignaciones.moviles.*'); @endphp
-        <div class="s-nav-row expandable {{ $dispActive ? 'expanded' : '' }}" onclick="sToggle('nav-disp', this)">
-            <svg class="s-nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
-                <line x1="12" y1="18" x2="12.01" y2="18"/>
-            </svg>
-            <span class="s-nav-text">Dispositivos</span>
-            <svg class="s-nav-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <polyline points="9 18 15 12 9 6"/>
-            </svg>
-        </div>
-        <div class="s-sub-nav {{ $dispActive ? 'open' : '' }}" id="nav-disp">
-            <a href="{{ route('asignaciones.moviles.dashboard') }}"
-               class="s-sub-link {{ Route::is('asignaciones.moviles.dashboard') ? 'active' : '' }}">
-                <span class="s-sub-dot"></span> Asignaciones
+                <span class="s-sub-dot"></span> Registrar computadora
             </a>
             <a href="{{ route('moviles.create') }}"
                class="s-sub-link {{ Route::is('moviles.create') ? 'active' : '' }}">
-                <span class="s-sub-dot"></span> Registrar dispositivo
+                <span class="s-sub-dot"></span> Registrar móvil
             </a>
-            <a href="{{ route('moviles.index') }}"
-               class="s-sub-link {{ Route::is('moviles.index') ? 'active' : '' }}">
-                <span class="s-sub-dot"></span> Todos
+            <a href="{{ route('asignaciones.dashboard') }}"
+               class="s-sub-link {{ Route::is('asignaciones.dashboard') ? 'active' : '' }}">
+                <span class="s-sub-dot"></span> Asignaciones · Computadoras
             </a>
-            <a href="{{ route('moviles.disponibles') }}"
-               class="s-sub-link {{ Route::is('moviles.disponibles') ? 'active' : '' }}">
-                <span class="s-sub-dot"></span> Disponibles
+            <a href="{{ route('asignaciones.moviles.dashboard') }}"
+               class="s-sub-link {{ Route::is('asignaciones.moviles.dashboard') ? 'active' : '' }}">
+                <span class="s-sub-dot"></span> Asignaciones · Móviles
             </a>
         </div>
 
