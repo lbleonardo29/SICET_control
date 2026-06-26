@@ -156,9 +156,12 @@
         CARTA RESPONSIVA EQUIPO DE CÓMPUTO PORTÁTIL
     </div>
 
-    {{-- FECHA --}}
+    {{-- FECHA (fecha de firma si ya firmó; si no, fecha actual) --}}
     <div class="fecha">
-        Fecha: {{ now()->format('d/m/Y') }}
+        Fecha:
+        {{ !empty($asignacion) && !empty($asignacion->fecha_firma)
+            ? \Carbon\Carbon::parse($asignacion->fecha_firma)->format('d/m/Y')
+            : now()->format('d/m/Y') }}
     </div>
 
     {{-- TEXTO DE RECEPCIÓN --}}
@@ -242,7 +245,7 @@
             </td>
             <td>
                 <strong>NOMBRE:</strong><br>
-                Gerencia de Tecnologías de la Información
+                Edgar Alcántara
             </td>
         </tr>
         <tr>
