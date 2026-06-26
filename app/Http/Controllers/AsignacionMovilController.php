@@ -23,7 +23,7 @@ class AsignacionMovilController extends Controller
     public function dashboard(Request $request)
     {
         $query = AsignacionMovil::with(['dispositivo', 'empleado'])
-            ->where('estado_asignacion', 'aceptada');
+            ->whereIn('estado_asignacion', ['pendiente', 'aceptada']);
 
         // Buscador
         if ($request->q) {
@@ -199,9 +199,10 @@ $empleados = Empleado::where('activo', 1)
         // =====================================================
         // ENVIAR CORREO DE NOTIFICACIÓN (sin enlaces)
         // =====================================================
-        if ($empleado && $empleado->correo) {
+        $emailDestino = ($empleado && $empleado->correo) ? $empleado->correo : ($user ? $user->email : null);
+        if ($emailDestino) {
             try {
-                Mail::to($empleado->correo)->send(new AsignacionPendiente($asignacion, 'movil'));
+                Mail::to($emailDestino)->send(new AsignacionPendiente($asignacion, 'movil'));
             } catch (\Exception $e) {
                 \Log::error('Error al enviar correo móvil: ' . $e->getMessage());
             }

@@ -180,6 +180,188 @@
     @endif
 </div>
 
+{{-- ======================== PENDIENTES DEL ADMIN (si tiene equipo pendiente de firma) ======================== --}}
+@if($asignacionesPendientes->isNotEmpty() || $movilesPendientes->isNotEmpty())
+<div class="s-alert s-alert-warning" style="margin-bottom:24px;margin-top:24px">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+    </svg>
+    Tienes {{ $asignacionesPendientes->count() + $movilesPendientes->count() }} asignación(es) pendiente(s) de confirmar.
+</div>
+@endif
+
+@if($asignacionesPendientes->isNotEmpty())
+<div class="s-card s-mb-24">
+    <div class="s-card-header">
+        <div class="s-card-header-left">
+            <span class="s-card-title">Equipos pendientes de confirmación</span>
+        </div>
+        <span class="s-badge s-badge-yellow">{{ $asignacionesPendientes->count() }}</span>
+    </div>
+    <div class="s-card-body" style="display:flex;flex-direction:column;gap:10px">
+        @foreach($asignacionesPendientes as $asig)
+        <div class="s-pending-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+                <div>
+                    <div style="font-weight:600;font-size:14px;color:rgb(27,32,24)">
+                        {{ $asig->equipo->marca ?? '' }} {{ $asig->equipo->modelo ?? '' }}
+                        <span style="color:rgb(130,136,124);font-weight:400;font-size:12px">— {{ $asig->equipo->codigo_interno ?? '' }}</span>
+                    </div>
+                    <div style="font-size:12px;color:rgb(130,136,124);margin-top:2px">
+                        Fecha asignación: {{ \Carbon\Carbon::parse($asig->fecha_asignacion)->format('d/m/Y') }}
+                    </div>
+                </div>
+                <div style="display:flex;gap:8px">
+                    <button type="button" class="firma-trigger" data-bs-toggle="modal" data-bs-target="#firmaModalEqAdm{{ $asig->id }}"
+                            style="padding:7px 16px;background:rgb(21,64,31);color:#BFE06A;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">
+                        Revisar y firmar
+                    </button>
+                    <form method="POST" action="{{ route('asignaciones.rechazar', $asig->id) }}">
+                        @csrf @method('PUT')
+                        <button type="submit" style="padding:7px 16px;background:transparent;color:rgb(194,65,12);border:1.5px solid rgba(234,88,12,0.4);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Rechazar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade firma-modal" id="firmaModalEqAdm{{ $asig->id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Carta responsiva — Confirmación de equipo</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-warning py-2" style="font-size:12px">
+                            <strong>Plantilla provisional.</strong> Revisa los datos y firma en el recuadro para aceptar el equipo.
+                        </div>
+                        <h6 class="text-center fw-bold mb-3">CARTA RESPONSIVA EQUIPO DE CÓMPUTO</h6>
+                        <p style="font-size:13px">Recibí de <strong>Fruitex de México, S.A.P.I. de C.V.</strong> el equipo:</p>
+                        <table class="table table-sm table-bordered" style="font-size:13px">
+                            <tr><th style="width:35%">Marca</th><td>{{ $asig->equipo->marca }}</td></tr>
+                            <tr><th>Modelo</th><td>{{ $asig->equipo->modelo }}</td></tr>
+                            <tr><th>No. de serie</th><td>{{ $asig->equipo->numero_serie }}</td></tr>
+                            <tr><th>Código interno</th><td>{{ $asig->equipo->codigo_interno }}</td></tr>
+                        </table>
+                        <p style="font-size:12px;color:#555">
+                            Me comprometo a cuidarlo y utilizarlo exclusivamente para fines laborales. En caso de
+                            extravío, daño o uso inadecuado, me responsabilizo del costo de reparación o reposición.
+                        </p>
+                        <label class="fw-semibold mt-2" style="font-size:13px">Firma de aceptación:</label>
+                        <div class="firma-wrap">
+                            <canvas class="firma-canvas" id="canvasEqAdm{{ $asig->id }}"></canvas>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-secondary mt-2" onclick="limpiarFirma('canvasEqAdm{{ $asig->id }}')">
+                            <i class="bi bi-eraser me-1"></i> Limpiar
+                        </button>
+                    </div>
+                    <div class="modal-footer">
+                        <form method="POST" action="{{ route('asignaciones.rechazar', $asig->id) }}" class="m-0">
+                            @csrf @method('PUT')
+                            <button type="submit" class="btn btn-outline-danger">Rechazar</button>
+                        </form>
+                        <form method="POST" action="{{ route('asignaciones.firmar', $asig->id) }}" class="m-0 firma-form" data-canvas="canvasEqAdm{{ $asig->id }}">
+                            @csrf @method('PUT')
+                            <input type="hidden" name="firma" class="firma-input">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-pen me-1"></i> Firmar y aceptar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endforeach
+    </div>
+</div>
+@endif
+
+@if($movilesPendientes->isNotEmpty())
+<div class="s-card s-mb-24">
+    <div class="s-card-header">
+        <div class="s-card-header-left">
+            <span class="s-card-title">Dispositivos pendientes de confirmación</span>
+        </div>
+        <span class="s-badge s-badge-yellow">{{ $movilesPendientes->count() }}</span>
+    </div>
+    <div class="s-card-body" style="display:flex;flex-direction:column;gap:10px">
+        @foreach($movilesPendientes as $asig)
+        <div class="s-pending-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+                <div>
+                    <div style="font-weight:600;font-size:14px;color:rgb(27,32,24)">
+                        {{ $asig->dispositivo->marca ?? '' }} {{ $asig->dispositivo->modelo ?? '' }}
+                        <span style="color:rgb(130,136,124);font-weight:400;font-size:12px">— {{ $asig->dispositivo->codigo_interno ?? '' }}</span>
+                    </div>
+                    <div style="font-size:12px;color:rgb(130,136,124);margin-top:2px">
+                        Fecha asignación: {{ \Carbon\Carbon::parse($asig->fecha_asignacion)->format('d/m/Y') }}
+                    </div>
+                </div>
+                <div style="display:flex;gap:8px">
+                    <button type="button" class="firma-trigger" data-bs-toggle="modal" data-bs-target="#firmaModalMovAdm{{ $asig->id }}"
+                            style="padding:7px 16px;background:rgb(21,64,31);color:#BFE06A;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">
+                        Revisar y firmar
+                    </button>
+                    <form method="POST" action="{{ route('asignaciones.moviles.rechazar', $asig->id) }}">
+                        @csrf @method('PUT')
+                        <button type="submit" style="padding:7px 16px;background:transparent;color:rgb(194,65,12);border:1.5px solid rgba(234,88,12,0.4);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Rechazar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade firma-modal" id="firmaModalMovAdm{{ $asig->id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Carta responsiva — Confirmación de dispositivo</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-warning py-2" style="font-size:12px">
+                            <strong>Plantilla provisional.</strong> Revisa los datos y firma en el recuadro para aceptar el dispositivo.
+                        </div>
+                        <h6 class="text-center fw-bold mb-3">CARTA RESPONSIVA DISPOSITIVO MÓVIL</h6>
+                        <p style="font-size:13px">Recibí de <strong>Fruitex de México, S.A.P.I. de C.V.</strong> el dispositivo:</p>
+                        <table class="table table-sm table-bordered" style="font-size:13px">
+                            <tr><th style="width:35%">Marca</th><td>{{ $asig->dispositivo->marca }}</td></tr>
+                            <tr><th>Modelo</th><td>{{ $asig->dispositivo->modelo }}</td></tr>
+                            <tr><th>IMEI</th><td>{{ $asig->dispositivo->imei }}</td></tr>
+                            <tr><th>Código interno</th><td>{{ $asig->dispositivo->codigo_interno }}</td></tr>
+                        </table>
+                        <p style="font-size:12px;color:#555">
+                            Me comprometo a cuidarlo y utilizarlo exclusivamente para fines laborales. En caso de
+                            extravío, daño o uso inadecuado, me responsabilizo del costo de reparación o reposición.
+                        </p>
+                        <label class="fw-semibold mt-2" style="font-size:13px">Firma de aceptación:</label>
+                        <div class="firma-wrap">
+                            <canvas class="firma-canvas" id="canvasMovAdm{{ $asig->id }}"></canvas>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-secondary mt-2" onclick="limpiarFirma('canvasMovAdm{{ $asig->id }}')">
+                            <i class="bi bi-eraser me-1"></i> Limpiar
+                        </button>
+                    </div>
+                    <div class="modal-footer">
+                        <form method="POST" action="{{ route('asignaciones.moviles.rechazar', $asig->id) }}" class="m-0">
+                            @csrf @method('PUT')
+                            <button type="submit" class="btn btn-outline-danger">Rechazar</button>
+                        </form>
+                        <form method="POST" action="{{ route('asignaciones.moviles.firmar', $asig->id) }}" class="m-0 firma-form" data-canvas="canvasMovAdm{{ $asig->id }}">
+                            @csrf @method('PUT')
+                            <input type="hidden" name="firma" class="firma-input">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-pen me-1"></i> Firmar y aceptar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endforeach
+    </div>
+</div>
+@endif
+
 {{-- ======================== USER / SEGURIDAD VIEW ======================== --}}
 @else
 

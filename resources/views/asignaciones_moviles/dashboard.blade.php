@@ -235,6 +235,8 @@
                                 <td>
                                     @if($asignacion->fecha_devolucion)
                                         <span class="badge bg-secondary px-3 py-2">Devuelto</span>
+                                    @elseif($asignacion->estado_asignacion === 'pendiente')
+                                        <span class="badge bg-warning text-dark px-3 py-2">Pendiente firma</span>
                                     @else
                                         <span class="badge bg-success px-3 py-2">Activo</span>
                                     @endif
