@@ -446,8 +446,14 @@ class AsignacionController extends Controller
     {
         $asignacion = Asignacion::findOrFail($id);
 
+        // Solo admin o el empleado dueño de la asignación
+        $user = Auth::user();
+        if ($user->role !== 'admin' && $user->empleado_id != $asignacion->empleado_id) {
+            abort(403, 'No tienes permiso para descargar esta carta.');
+        }
+
         if (!$asignacion->carta_pdf) {
-            return back()->with('error', 'No hay PDF disponible.');
+            return back()->with('error', 'No hay PDF disponible. La carta se genera al firmar la asignación.');
         }
 
         if (!Storage::disk('public')->exists($asignacion->carta_pdf)) {

@@ -52,6 +52,10 @@ Route::middleware('auth')->group(function () {
     Route::put('/asignaciones-moviles/rechazar/{id}', [AsignacionMovilController::class, 'rechazar'])->name('asignaciones.moviles.rechazar');
     Route::put('/asignaciones-moviles/firmar/{id}', [AsignacionMovilController::class, 'firmar'])->name('asignaciones.moviles.firmar');
 
+    // Descargar carta responsiva (admin o el empleado dueño — verificado en el controlador)
+    Route::get('/asignaciones/descargar/{id}', [AsignacionController::class, 'descargar'])->name('asignaciones.descargar');
+    Route::get('/asignaciones-moviles/{id}/descargar', [AsignacionMovilController::class, 'descargar'])->name('asignaciones.moviles.descargar');
+
     // Notificaciones (campana) — todos los roles
     Route::get('/notificaciones', [NotificacionController::class, 'index'])->name('notificaciones.index');
     Route::post('/notificaciones/leer-todas', [NotificacionController::class, 'leerTodas'])->name('notificaciones.leerTodas');
@@ -78,7 +82,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/asignaciones/create/{equipo}', [AsignacionController::class, 'create'])->name('asignaciones.create');
     Route::post('/asignaciones', [AsignacionController::class, 'store'])->name('asignaciones.store');
     Route::put('/asignaciones/devolver/{id}', [AsignacionController::class, 'devolver'])->name('asignaciones.devolver');
-    Route::get('/asignaciones/descargar/{id}', [AsignacionController::class, 'descargar'])->name('asignaciones.descargar');
     Route::delete('/asignaciones/{id}', [AsignacionController::class, 'destroy'])->name('asignaciones.destroy');
 
     // Catálogo UNIFICADO(NUEVO)
@@ -123,7 +126,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::post('/asignaciones-moviles', [AsignacionMovilController::class, 'store'])->name('asignaciones.moviles.store');
     Route::put('/asignaciones-moviles/{id}/devolver', [AsignacionMovilController::class, 'devolver'])->name('moviles.devolver');
     Route::get('/asignaciones-moviles/{id}/responsiva', [AsignacionMovilController::class, 'responsiva'])->name('asignaciones.moviles.responsiva');
-    Route::get('/asignaciones-moviles/{id}/descargar', [AsignacionMovilController::class, 'descargar'])->name('asignaciones.moviles.descargar');
     Route::delete('/asignaciones-moviles/{id}', [AsignacionMovilController::class, 'destroy'])->name('asignaciones.moviles.destroy');
 
     // Gestión de usuarios

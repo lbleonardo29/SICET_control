@@ -443,8 +443,14 @@ $empleados = Empleado::where('activo', 1)
     {
         $asignacion = AsignacionMovil::findOrFail($id);
 
+        // Solo admin o el empleado dueño de la asignación
+        $user = Auth::user();
+        if ($user->role !== 'admin' && $user->empleado_id != $asignacion->empleado_id) {
+            abort(403, 'No tienes permiso para descargar esta carta.');
+        }
+
         if (!$asignacion->carta_pdf) {
-            return back()->with('error', 'No existe PDF para esta asignación.');
+            return back()->with('error', 'No existe PDF. La carta se genera al firmar la asignación.');
         }
 
         if (!Storage::disk('public')->exists($asignacion->carta_pdf)) {

@@ -229,6 +229,11 @@
                     </div>
                     <div class="s-device-detail">Serie: <span>{{ $asig->equipo->numero_serie }}</span></div>
                     <div class="s-device-detail">Asignado el: <span>{{ \Carbon\Carbon::parse($asig->fecha_asignacion)->format('d/m/Y') }}</span></div>
+                    @if($asig->carta_pdf)
+                    <a href="{{ route('asignaciones.descargar', $asig->id) }}" class="s-pdf-btn">
+                        <i class="bi bi-file-earmark-pdf me-1"></i> Descargar carta (PDF)
+                    </a>
+                    @endif
                 </div>
                 @endforeach
             </div>
@@ -266,6 +271,11 @@
                     </div>
                     <div class="s-device-detail">IMEI: <span>{{ $movil->dispositivo->imei }}</span></div>
                     <div class="s-device-detail">Asignado el: <span>{{ \Carbon\Carbon::parse($movil->fecha_asignacion)->format('d/m/Y') }}</span></div>
+                    @if($movil->carta_pdf)
+                    <a href="{{ route('asignaciones.moviles.descargar', $movil->id) }}" class="s-pdf-btn">
+                        <i class="bi bi-file-earmark-pdf me-1"></i> Descargar carta (PDF)
+                    </a>
+                    @endif
                 </div>
             </div>
         @endif
@@ -468,6 +478,19 @@
         cursor: crosshair;
         border-radius: 10px;
     }
+    .s-pdf-btn {
+        display: inline-flex;
+        align-items: center;
+        margin-top: 10px;
+        padding: 7px 14px;
+        background: rgb(21,64,31);
+        color: #BFE06A;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+    .s-pdf-btn:hover { background: rgb(27,80,40); color: #d2f08a; }
 </style>
 @endpush
 
