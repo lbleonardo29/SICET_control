@@ -66,9 +66,16 @@
                         </div>
                     </div>
 
+                    {{-- datos del equipo para el modal --}}
+                    <span id="equipoInfo" hidden
+                        data-equipo="{{ $equipo->marca }} {{ $equipo->modelo }}"
+                        data-codigo="Código: {{ $equipo->codigo_interno }} · Serie: {{ $equipo->numero_serie ?? 'N/A' }}"></span>
+
                     <form action="{{ route('asignaciones.store') }}" method="POST" id="asignacionForm">
                         @csrf
                         <input type="hidden" name="equipo_id" value="{{ $equipo->id }}">
+                        <input type="hidden" id="dispNombre" value="">
+                        <input type="hidden" id="dispNumero" value="">
 
                         {{-- BUSCADOR DE EMPLEADOS --}}
                         <div class="mb-4">
@@ -142,9 +149,9 @@
                                 <i class="bi bi-x-circle me-2"></i>
                                 Cancelar
                             </a>
-                            <button type="submit" class="btn btn-success px-4 py-2" id="submitBtn" disabled>
-                                <i class="bi bi-person-plus me-2"></i>
-                                Asignar Computadora
+                            <button type="button" class="btn btn-success px-4 py-2" id="submitBtn" disabled onclick="abrirModalConfirmacion()">
+                                <i class="bi bi-clipboard-check me-2"></i>
+                                Resumen y confirmar
                             </button>
                         </div>
                     </form>
@@ -153,6 +160,77 @@
         </div>
     </div>
 </div>
+{{-- ===== MODAL CONFIRMACIÓN ===== --}}
+<div class="modal fade" id="modalConfirmacion" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-clipboard-check me-2"></i>
+                    Confirmar Asignación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+
+                {{-- Equipo --}}
+                <div class="d-flex align-items-center p-3 rounded-3 bg-light mb-3">
+                    <i class="bi bi-pc-display-horizontal fs-2 text-success me-3 flex-shrink-0"></i>
+                    <div>
+                        <div class="text-muted small mb-1">Equipo a asignar</div>
+                        <div class="fw-bold" id="mc-equipo">—</div>
+                        <div class="text-muted small" id="mc-codigo">—</div>
+                    </div>
+                </div>
+
+                {{-- Empleado --}}
+                <div class="d-flex align-items-center p-3 rounded-3 bg-light mb-3">
+                    <i class="bi bi-person-circle fs-2 text-primary me-3 flex-shrink-0"></i>
+                    <div>
+                        <div class="text-muted small mb-1">Asignado a</div>
+                        <div class="fw-bold" id="mc-empleado">—</div>
+                        <div class="text-muted small" id="mc-empleado-num">—</div>
+                    </div>
+                </div>
+
+                {{-- Fecha y observaciones --}}
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="p-3 rounded-3 bg-light h-100">
+                            <div class="text-muted small mb-1">
+                                <i class="bi bi-calendar2 me-1"></i>Fecha de asignación
+                            </div>
+                            <div class="fw-bold" id="mc-fecha">—</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 rounded-3 bg-light h-100">
+                            <div class="text-muted small mb-1">
+                                <i class="bi bi-chat-text me-1"></i>Observaciones
+                            </div>
+                            <div class="small text-muted fst-italic" id="mc-obs">Sin observaciones</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-warning d-flex align-items-center gap-2 mt-3 py-2 mb-0">
+                    <i class="bi bi-send fs-5 flex-shrink-0"></i>
+                    <span class="small">Al confirmar se enviará un correo y notificación al empleado.</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-arrow-left me-1"></i> Regresar
+                </button>
+                <button type="button" class="btn btn-success px-4" id="btnConfirmarOk">
+                    <i class="bi bi-check-circle me-2"></i>
+                    Confirmar y asignar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('styles')
@@ -239,7 +317,10 @@
 
                     // Mostrar resultados
                     resultadosDiv.innerHTML = data.map(empleado => `
-                        <div class="resultado-item p-3 empleado-card" data-id="${empleado.id}">
+                        <div class="resultado-item p-3 empleado-card"
+                             data-id="${empleado.id}"
+                             data-nombre="${empleado.nombre_completo}"
+                             data-numero="${empleado.numero_empleado || 'N/A'}">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <div class="fw-bold">
@@ -284,12 +365,14 @@
                             this.classList.add('selected');
                             this.style.borderLeftColor = '#198754';
                             
-                            // Guardar ID seleccionado
+                            // Guardar ID + datos para modal
                             empleadoIdInput.value = id;
-                            
+                            document.getElementById('dispNombre').value = this.dataset.nombre || nombre;
+                            document.getElementById('dispNumero').value = this.dataset.numero || '';
+
                             // Limpiar error
                             empleadoError.classList.add('d-none');
-                            
+
                             // Habilitar botón de submit
                             submitBtn.disabled = false;
                             
@@ -328,19 +411,46 @@
             timeoutId = setTimeout(() => buscarEmpleados(termino), 300);
         });
 
-        // Validar antes de enviar
+        // Validar al intentar enviar (por si acaso se hace submit por teclado)
         document.getElementById('asignacionForm').addEventListener('submit', function(e) {
             if (!empleadoIdInput.value) {
                 e.preventDefault();
                 empleadoError.classList.remove('d-none');
                 empleadoError.textContent = 'Debes seleccionar un empleado de la lista';
-                return;
             }
-            
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Asignando...';
         });
+    });
+
+    // Abrir modal con resumen
+    function abrirModalConfirmacion() {
+        const empId = document.getElementById('empleado_id').value;
+        if (!empId) {
+            document.getElementById('empleadoError').classList.remove('d-none');
+            document.getElementById('empleadoError').textContent = 'Debes seleccionar un empleado de la lista';
+            return;
+        }
+
+        const eq   = document.getElementById('equipoInfo');
+        const fecha = document.querySelector('[name="fecha_asignacion"]').value;
+        const obs   = document.querySelector('[name="observaciones"]').value.trim();
+
+        document.getElementById('mc-equipo').textContent      = eq.dataset.equipo;
+        document.getElementById('mc-codigo').textContent      = eq.dataset.codigo;
+        document.getElementById('mc-empleado').textContent    = document.getElementById('dispNombre').value;
+        document.getElementById('mc-empleado-num').textContent = 'Núm. empleado: ' + document.getElementById('dispNumero').value;
+        document.getElementById('mc-fecha').textContent       = fecha
+            ? new Date(fecha + 'T12:00:00').toLocaleDateString('es-MX', {day:'2-digit', month:'long', year:'numeric'})
+            : '—';
+        document.getElementById('mc-obs').textContent         = obs || 'Sin observaciones';
+
+        new bootstrap.Modal(document.getElementById('modalConfirmacion')).show();
+    }
+
+    // Confirmar desde el modal → submit real
+    document.getElementById('btnConfirmarOk').addEventListener('click', function () {
+        this.disabled = true;
+        this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Asignando...';
+        document.getElementById('asignacionForm').submit();
     });
 </script>
 @endpush

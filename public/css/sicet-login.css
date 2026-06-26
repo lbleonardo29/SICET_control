@@ -318,3 +318,19 @@ body {
     .login-left { display: none; }
     .login-right { padding: 32px 24px; }
 }
+
+/* ===== DECORACIONES FRUITEX ===== */
+.login-right { position: relative; overflow: hidden; }
+
+.fruit-deco {
+    position: absolute;
+    pointer-events: none;
+    user-select: none;
+    color: #1B5A2A;
+    opacity: 0.065;
+}
+.fruit-mango  { top: -30px;  right: -30px; width: 210px; height: 250px; }
+.fruit-orange { bottom: -20px; left: -15px; width: 155px; height: 155px; }
+.fruit-leaf-a { top: 38%; right: 28px; width: 52px; height: 68px; transform: rotate(35deg); opacity: 0.05; }
+.fruit-leaf-b { top: 22%; left: 36px;  width: 42px; height: 56px; transform: rotate(-22deg); opacity: 0.048; }
+.fruit-dots   { bottom: 18%; right: 50px; width: 76px; height: 76px; opacity: 0.038; }

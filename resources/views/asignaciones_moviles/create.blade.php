@@ -35,9 +35,17 @@
                 </div>
                 
                 <div class="card-body p-4">
+
+                    {{-- datos del dispositivo para el modal --}}
+                    <span id="movilInfo" hidden
+                        data-equipo="{{ $movil->marca }} {{ $movil->modelo }}"
+                        data-codigo="Código: {{ $movil->codigo_interno }} · IMEI: {{ $movil->imei }}"></span>
+
                     <form action="{{ route('asignaciones.moviles.store') }}" method="POST" id="asignacionForm">
                         @csrf
                         <input type="hidden" name="dispositivo_movil_id" value="{{ $movil->id }}">
+                        <input type="hidden" id="dispMovilNombre" value="">
+                        <input type="hidden" id="dispMovilNumero" value="">
 
                         {{-- Dispositivo --}}
                         <div class="mb-4">
@@ -123,9 +131,9 @@
                                 <i class="bi bi-x-circle me-2"></i>
                                 Cancelar
                             </a>
-                            <button type="submit" class="btn btn-primary px-4 py-2">
-                                <i class="bi bi-check-circle me-2"></i>
-                                Asignar dispositivo
+                            <button type="button" class="btn btn-primary px-4 py-2" onclick="abrirModalMovil()">
+                                <i class="bi bi-clipboard-check me-2"></i>
+                                Resumen y confirmar
                             </button>
                         </div>
                     </form>
@@ -134,6 +142,65 @@
         </div>
     </div>
 </div>
+{{-- ===== MODAL CONFIRMACIÓN ===== --}}
+<div class="modal fade" id="modalConfMovil" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-clipboard-check me-2"></i>
+                    Confirmar Asignación de Móvil
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+
+                {{-- Dispositivo --}}
+                <div class="d-flex align-items-center p-3 rounded-3 bg-light mb-3">
+                    <i class="bi bi-phone fs-2 text-primary me-3 flex-shrink-0"></i>
+                    <div>
+                        <div class="text-muted small mb-1">Dispositivo a asignar</div>
+                        <div class="fw-bold" id="mcm-movil">—</div>
+                        <div class="text-muted small" id="mcm-codigo">—</div>
+                    </div>
+                </div>
+
+                {{-- Empleado --}}
+                <div class="d-flex align-items-center p-3 rounded-3 bg-light mb-3">
+                    <i class="bi bi-person-circle fs-2 text-success me-3 flex-shrink-0"></i>
+                    <div>
+                        <div class="text-muted small mb-1">Asignado a</div>
+                        <div class="fw-bold" id="mcm-empleado">—</div>
+                        <div class="text-muted small" id="mcm-empleado-num">—</div>
+                    </div>
+                </div>
+
+                {{-- Fecha --}}
+                <div class="p-3 rounded-3 bg-light mb-3">
+                    <div class="text-muted small mb-1">
+                        <i class="bi bi-calendar2 me-1"></i>Fecha de asignación
+                    </div>
+                    <div class="fw-bold" id="mcm-fecha">—</div>
+                </div>
+
+                <div class="alert alert-warning d-flex align-items-center gap-2 py-2 mb-0">
+                    <i class="bi bi-send fs-5 flex-shrink-0"></i>
+                    <span class="small">Al confirmar se enviará un correo y notificación al empleado.</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-arrow-left me-1"></i> Regresar
+                </button>
+                <button type="button" class="btn btn-primary px-4" id="btnConfirmarMovil">
+                    <i class="bi bi-check-circle me-2"></i>
+                    Confirmar y asignar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
@@ -178,6 +245,11 @@
                 empEmail.textContent = selected.getAttribute('data-email') || 'No disponible';
                 empNumero.textContent = selected.getAttribute('data-numero') || 'No disponible';
                 infoDiv.classList.remove('d-none');
+
+                // Guardar para el modal
+                const nombre = selected.textContent.split(' - ')[0].trim();
+                document.getElementById('dispMovilNombre').value = nombre;
+                document.getElementById('dispMovilNumero').value = selected.getAttribute('data-numero') || 'N/A';
             } else {
                 infoDiv.classList.add('d-none');
             }
@@ -189,6 +261,33 @@
         if (selectEmpleado.value) {
             selectEmpleado.dispatchEvent(new Event('change'));
         }
+    });
+
+    function abrirModalMovil() {
+        const empId = document.getElementById('empleado_id').value;
+        if (!empId) {
+            alert('Debes seleccionar un empleado.');
+            return;
+        }
+
+        const mv    = document.getElementById('movilInfo');
+        const fecha = document.querySelector('[name="fecha_asignacion"]').value;
+
+        document.getElementById('mcm-movil').textContent      = mv.dataset.equipo;
+        document.getElementById('mcm-codigo').textContent     = mv.dataset.codigo;
+        document.getElementById('mcm-empleado').textContent   = document.getElementById('dispMovilNombre').value;
+        document.getElementById('mcm-empleado-num').textContent = 'Núm. empleado: ' + document.getElementById('dispMovilNumero').value;
+        document.getElementById('mcm-fecha').textContent      = fecha
+            ? new Date(fecha + 'T12:00:00').toLocaleDateString('es-MX', {day:'2-digit', month:'long', year:'numeric'})
+            : '—';
+
+        new bootstrap.Modal(document.getElementById('modalConfMovil')).show();
+    }
+
+    document.getElementById('btnConfirmarMovil').addEventListener('click', function () {
+        this.disabled = true;
+        this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Asignando...';
+        document.getElementById('asignacionForm').submit();
     });
 </script>
 @endpush

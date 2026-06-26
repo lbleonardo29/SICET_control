@@ -52,6 +52,41 @@
 
 {{-- ===== RIGHT PANEL ===== --}}
 <main class="login-right">
+
+    {{-- Decoraciones Fruitex --}}
+    <svg class="fruit-deco fruit-mango" viewBox="0 0 210 250" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+        <path d="M105 18 C142 18 172 50 175 102 C178 158 158 220 105 238 C52 220 32 158 35 102 C38 50 68 18 105 18Z"/>
+        <path d="M105 18 C109 3 122 -3 129 5 C120 9 112 14 105 18Z" opacity="0.82"/>
+        <path d="M114 10 C138 -5 162 6 153 26 C136 16 123 11 114 10Z" opacity="0.72"/>
+    </svg>
+
+    <svg class="fruit-deco fruit-orange" viewBox="0 0 155 155" fill="none" stroke="currentColor" stroke-width="5" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="77" cy="77" r="70"/>
+        <line x1="7" y1="77" x2="147" y2="77"/>
+        <line x1="77" y1="7" x2="77" y2="147"/>
+        <line x1="28" y1="28" x2="126" y2="126"/>
+        <line x1="126" y1="28" x2="28" y2="126"/>
+        <circle cx="77" cy="77" r="19" fill="currentColor" stroke="none"/>
+    </svg>
+
+    <svg class="fruit-deco fruit-leaf-a" viewBox="0 0 52 68" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+        <path d="M26 4 C44 17 48 48 26 65 C4 48 8 17 26 4Z"/>
+        <line x1="26" y1="4" x2="26" y2="65" stroke="white" stroke-width="1.5" fill="none" opacity="0.35"/>
+    </svg>
+
+    <svg class="fruit-deco fruit-leaf-b" viewBox="0 0 42 56" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+        <path d="M21 3 C37 13 40 40 21 53 C2 40 5 13 21 3Z"/>
+    </svg>
+
+    <svg class="fruit-deco fruit-dots" viewBox="0 0 76 76" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="9"  cy="9"  r="5"/><circle cx="28" cy="9"  r="3.5"/><circle cx="9"  cy="28" r="3.5"/>
+        <circle cx="47" cy="9"  r="2.5"/><circle cx="28" cy="28" r="5"/><circle cx="9"  cy="47" r="2.5"/>
+        <circle cx="47" cy="28" r="3"/><circle cx="66" cy="9"  r="2"/><circle cx="28" cy="47" r="3"/>
+        <circle cx="47" cy="47" r="5"/><circle cx="66" cy="28" r="2.5"/><circle cx="66" cy="47" r="3.5"/>
+        <circle cx="66" cy="66" r="5"/><circle cx="47" cy="66" r="3"/><circle cx="28" cy="66" r="2.5"/>
+        <circle cx="9"  cy="66" r="2"/>
+    </svg>
+
     <div class="login-form-wrap">
 
         <h2 class="form-title">Bienvenido</h2>
