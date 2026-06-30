@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use App\Models\User;
+use App\Mail\CredencialesUsuario;
 
 class PasswordResetController extends Controller
 {
@@ -18,7 +19,7 @@ class PasswordResetController extends Controller
         return view('auth.forgot-password');
     }
 
-    // Enviar enlace de recuperación por correo
+    // Generar una contraseña temporal y enviarla por correo
     public function sendResetLink(Request $request)
     {
         $request->validate([
@@ -35,36 +36,23 @@ class PasswordResetController extends Controller
 
         // Siempre devolver mensaje genérico para no revelar si el dato existe
         if (!$user) {
-            return back()->with('success', 'Si tu correo está registrado, recibirás un enlace en breve.');
+            return back()->with('success', 'Si tu correo está registrado, recibirás una contraseña temporal en breve.');
         }
 
-        $token = Str::random(60);
-
-        DB::table('password_reset_tokens')->updateOrInsert(
-            ['email' => $user->email],
-            [
-                'email' => $user->email,
-                'token' => $token,
-                'created_at' => Carbon::now()
-            ]
-        );
-
-        $resetUrl = route('password.reset', $token);
+        // Generar contraseña temporal y forzar cambio en el próximo inicio
+        $temporal = User::generarPasswordTemporal();
+        $user->password = Hash::make($temporal);
+        $user->primer_inicio = 1;
+        $user->save();
 
         try {
-            Mail::send('emails.password-reset', [
-                'nombre' => $user->name,
-                'resetUrl' => $resetUrl,
-                'email' => $user->email,
-            ], function ($message) use ($user) {
-                $message->to($user->email)
-                        ->subject('Recuperación de contraseña - SICET');
-            });
+            $datos = (object) ['nombre_completo' => $user->name];
+            Mail::to($user->email)->send(new CredencialesUsuario($datos, $temporal));
         } catch (\Exception $e) {
             \Log::error('Error al enviar correo de recuperación: ' . $e->getMessage());
         }
 
-        return back()->with('success', 'Si tu correo está registrado, recibirás un enlace en breve.');
+        return back()->with('success', 'Si tu correo está registrado, recibirás una contraseña temporal en breve.');
     }
 
     // Mostrar formulario para nueva contraseña

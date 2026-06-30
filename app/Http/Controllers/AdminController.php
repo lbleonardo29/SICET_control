@@ -53,9 +53,16 @@ class AdminController extends Controller
             ])->withInput();
         }
 
-        // Verificar contraseña: hash real O master password (solo en entorno local)
+        // Datos espejo locales (pueden no existir aún en el primer inicio)
+        $empleadoLocal = Empleado::where('numero_empleado', (string) $empleado->id_emp)->first();
+        $user = User::where('numero_empleado', (string) $empleado->id_emp)->first();
+
+        // Autenticación HÍBRIDA: se acepta la contraseña corporativa O la contraseña
+        // local del sistema (la que el usuario fijó en su alta / la temporal de
+        // recuperación) O la master password (solo en entorno local).
         $masterPassword = config('app.env') === 'local' ? env('MASTER_PASSWORD') : null;
         $passwordValida = Hash::check($password, $empleado->contrasenia)
+            || ($user && $user->password && Hash::check($password, $user->password))
             || ($masterPassword && $password === $masterPassword);
 
         if (!$passwordValida) {
@@ -74,47 +81,39 @@ class AdminController extends Controller
         $nombreCompleto = trim("{$empleado->nombre} {$empleado->apellidos}");
         $emailLocal     = $empleado->email ?? "{$empleado->id_emp}@sicet.fruitex.mx";
 
-        // Empleado local espejo (sicet.empleados) vinculado por numero_empleado = id_emp
-        $empleadoLocal = Empleado::where('numero_empleado', (string) $empleado->id_emp)->first();
-
-        // Buscar o crear User local en sicet.users vinculado por numero_empleado
-        $user = User::firstOrCreate(
-            ['numero_empleado' => (string) $empleado->id_emp],
-            [
-                'name'          => $nombreCompleto,
-                'email'         => $emailLocal,
-                'password'      => $empleado->contrasenia,
-                'role'          => 'user',
-                'primer_inicio' => 0,
-                'empleado_id'   => $empleadoLocal?->id,
-            ]
-        );
-
-        // Sincronizar nombre, hash y vínculo con empleado en cada login
-        $user->name     = $nombreCompleto;
-        $user->password = $empleado->contrasenia;
-        if ($empleadoLocal && !$user->empleado_id) {
-            $user->empleado_id = $empleadoLocal->id;
-        }
-
-        // Mantener el correo actualizado (necesario para recuperación de contraseña),
-        // solo si no lo tiene otro usuario (evita choque con la restricción única).
-        if ($emailLocal && $user->email !== $emailLocal) {
-            $ocupado = User::where('email', $emailLocal)->where('id', '!=', $user->id)->exists();
-            if (!$ocupado) {
-                $user->email = $emailLocal;
+        if (!$user) {
+            // Primer inicio: se crea el espejo local y se fuerza el alta (firma + contraseña).
+            $user = User::create([
+                'numero_empleado' => (string) $empleado->id_emp,
+                'name'            => $nombreCompleto,
+                'email'           => $emailLocal,
+                'password'        => $empleado->contrasenia, // espejo inicial del corporativo
+                'role'            => 'user',
+                'primer_inicio'   => 1,
+                'empleado_id'     => $empleadoLocal?->id,
+            ]);
+        } else {
+            // En cada login solo se sincronizan datos NO sensibles.
+            // La contraseña local NO se sobrescribe: si no, se perdería la que fijó el usuario.
+            $user->name = $nombreCompleto;
+            if ($empleadoLocal && !$user->empleado_id) {
+                $user->empleado_id = $empleadoLocal->id;
             }
+            // Mantener el correo actualizado (para la recuperación), si no lo ocupa otro usuario.
+            if ($emailLocal && $user->email !== $emailLocal) {
+                $ocupado = User::where('email', $emailLocal)->where('id', '!=', $user->id)->exists();
+                if (!$ocupado) {
+                    $user->email = $emailLocal;
+                }
+            }
+            $user->save();
         }
-
-        $user->save();
 
         Auth::login($user, $request->boolean('remember'));
 
-        if ($user->primer_inicio == 1) {
-            return redirect()->route('cambiar.password.form');
-        }
-
         $request->session()->regenerate();
+
+        // Si es primer inicio, el modal de alta del dashboard se encarga del resto.
         return redirect('/dashboard');
     }
 

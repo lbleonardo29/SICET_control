@@ -5,6 +5,109 @@
 
 @section('content')
 
+{{-- ======================== MODAL DE PRIMER INICIO / ALTA ======================== --}}
+@if(auth()->user()->necesitaAlta())
+@php $sinFirma = empty(auth()->user()->firma); @endphp
+<div class="modal fade firma-modal" id="modalAlta" tabindex="-1"
+     data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header" style="background:rgb(21,64,31);color:#BFE06A">
+                <h5 class="modal-title">
+                    <i class="bi bi-stars me-2"></i>
+                    @if($sinFirma) Bienvenido a SICET — Alta en la plataforma
+                    @else Establece tu nueva contraseña @endif
+                </h5>
+            </div>
+
+            <form method="POST" action="{{ route('cambiar.password') }}"
+                  class="@if($sinFirma) firma-form @endif"
+                  @if($sinFirma) data-canvas="canvasAlta" @endif>
+                @csrf
+                @if($sinFirma)
+                    <input type="hidden" name="firma" class="firma-input">
+                @endif
+
+                <div class="modal-body p-4">
+
+                    @if($errors->any())
+                        <div class="alert alert-danger py-2">
+                            <i class="bi bi-exclamation-triangle me-1"></i>{{ $errors->first() }}
+                        </div>
+                    @endif
+
+                    <p class="text-muted mb-4">
+                        @if($sinFirma)
+                            Es tu primer ingreso. Para activar tu cuenta, firma tu alta y establece una contraseña personal. La firma solo se solicita esta vez.
+                        @else
+                            Por seguridad debes establecer una nueva contraseña personal antes de continuar.
+                        @endif
+                    </p>
+
+                    @if($sinFirma)
+                    {{-- Firma de alta --}}
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-pen me-1 text-success"></i> Firma de alta
+                        </label>
+                        <p class="text-muted small mb-2">
+                            Al firmar, me doy de alta y acepto el uso de la plataforma SICET.
+                        </p>
+                        <div class="firma-wrap">
+                            <canvas class="firma-canvas" id="canvasAlta"></canvas>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-secondary mt-2"
+                                onclick="limpiarFirma('canvasAlta')">
+                            <i class="bi bi-eraser me-1"></i> Limpiar
+                        </button>
+                    </div>
+                    @endif
+
+                    {{-- Nueva contraseña --}}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-lock me-1 text-success"></i> Nueva contraseña
+                        </label>
+                        <input type="password" name="password" id="altaPwd"
+                               class="form-control form-control-lg"
+                               placeholder="Mínimo 8 caracteres" minlength="8" required>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-lock-fill me-1 text-success"></i> Confirmar contraseña
+                        </label>
+                        <input type="password" name="password_confirmation" id="altaPwd2"
+                               class="form-control form-control-lg" minlength="8" required>
+                    </div>
+
+                    <div class="form-check mb-1">
+                        <input class="form-check-input" type="checkbox" id="altaShowPwd"
+                               onclick="var t=this.checked?'text':'password';document.getElementById('altaPwd').type=t;document.getElementById('altaPwd2').type=t;">
+                        <label class="form-check-label small text-muted" for="altaShowPwd">Mostrar contraseña</label>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success px-4">
+                        <i class="bi bi-check-circle me-2"></i> Guardar y continuar
+                    </button>
+                </div>
+            </form>
+
+            <div class="text-center pb-3">
+                <form method="POST" action="{{ route('logout') }}" class="d-inline">
+                    @csrf
+                    <button type="submit" class="btn btn-link btn-sm text-muted text-decoration-none">
+                        Cerrar sesión
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+
 {{-- ======================== ADMIN VIEW ======================== --}}
 @if($user->role === 'admin')
 
@@ -728,10 +831,20 @@
         });
     });
 
-    // Abrir automáticamente la primera asignación pendiente
-    var firstModal = document.querySelector('.firma-modal');
-    if (firstModal && window.bootstrap) {
-        new bootstrap.Modal(firstModal).show();
+    // Auto-abrir: si NO hay modal de alta, abrir la primera asignación pendiente.
+    if (!document.getElementById('modalAlta')) {
+        var firstModal = document.querySelector('.firma-modal');
+        if (firstModal && window.bootstrap) {
+            new bootstrap.Modal(firstModal).show();
+        }
+    }
+})();
+
+// El modal de alta debe abrirse y bloquear SIEMPRE (aun si falla la librería de firma).
+(function () {
+    var alta = document.getElementById('modalAlta');
+    if (alta && window.bootstrap) {
+        bootstrap.Modal.getOrCreateInstance(alta, { backdrop: 'static', keyboard: false }).show();
     }
 })();
 </script>

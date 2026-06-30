@@ -56,7 +56,7 @@
 
         <h2 class="form-title">Recuperar contraseña</h2>
         <p class="form-subtitle">
-            Ingresa tu correo electrónico o tu número de empleado y te enviaremos un enlace para restablecer tu contraseña.
+            Ingresa tu correo electrónico o tu número de empleado y te enviaremos una contraseña temporal para acceder. Al entrar deberás establecer una nueva.
         </p>
 
         @if(session('success'))
@@ -102,7 +102,7 @@
                     <line x1="22" y1="2" x2="11" y2="13"/>
                     <polygon points="22 2 15 22 11 13 2 9 22 2"/>
                 </svg>
-                <span id="btnText">Enviar enlace de recuperación</span>
+                <span id="btnText">Enviar contraseña temporal</span>
             </button>
 
         </form>

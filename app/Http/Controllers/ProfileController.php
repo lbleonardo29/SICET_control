@@ -39,24 +39,38 @@ class ProfileController extends Controller
         return back()->with('success', 'Perfil actualizado correctamente');
     }
 
-    // ================= CAMBIO DE CONTRASEÑA (PRIMER INICIO) =================
+    // ================= ALTA / CAMBIO DE CONTRASEÑA (PRIMER INICIO) =================
+    // El formulario dedicado quedó reemplazado por el modal del dashboard.
     public function cambiarPasswordForm()
     {
-        return view('auth.cambiar_password');
+        return redirect()->route('dashboard');
     }
 
     public function cambiarPassword(Request $request)
     {
-        $request->validate([
-            'password' => 'required|min:8|confirmed',
+        $user = Auth::user();
+
+        // Si aún no se ha dado de alta (sin firma), exigir también la firma.
+        $requiereFirma = empty($user->firma);
+
+        $reglas = ['password' => 'required|min:8|confirmed'];
+        if ($requiereFirma) {
+            $reglas['firma'] = 'required|string';
+        }
+        $request->validate($reglas, [
+            'firma.required' => 'Debes firmar para darte de alta en la plataforma.',
         ]);
 
-        $user = Auth::user();
+        if ($requiereFirma) {
+            $user->firma = $request->firma;          // PNG en base64 (data URI)
+            $user->firma_alta_at = now();
+        }
+
         $user->password = Hash::make($request->password);
         $user->primer_inicio = 0;
         $user->save();
 
-        return redirect()->route('dashboard')->with('success', ' Contraseña cambiada correctamente.');
+        return redirect()->route('dashboard')->with('success', ' Listo, tu cuenta quedó activada.');
     }
 
     public function eliminarFoto()

@@ -49,7 +49,8 @@ class AsignacionController extends Controller
         if ($request->q) {
             $query->where(function ($subquery) use ($request) {
                 $subquery->whereHas('empleado', function ($q) use ($request) {
-                    $q->where('nombre_completo', 'LIKE', '%' . $request->q . '%');
+                    $q->where('nombre_completo', 'LIKE', '%' . $request->q . '%')
+                      ->orWhere('numero_empleado', 'LIKE', '%' . $request->q . '%');
                 })->orWhereHas('equipo', function ($q) use ($request) {
                     $q->where('marca', 'like', '%' . $request->q . '%')
                       ->orWhere('modelo', 'like', '%' . $request->q . '%')

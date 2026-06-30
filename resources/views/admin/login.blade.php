@@ -53,39 +53,36 @@
 {{-- ===== RIGHT PANEL ===== --}}
 <main class="login-right">
 
-    {{-- Decoraciones Fruitex --}}
-    <svg class="fruit-deco fruit-mango" viewBox="0 0 210 250" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-        <path d="M105 18 C142 18 172 50 175 102 C178 158 158 220 105 238 C52 220 32 158 35 102 C38 50 68 18 105 18Z"/>
-        <path d="M105 18 C109 3 122 -3 129 5 C120 9 112 14 105 18Z" opacity="0.82"/>
-        <path d="M114 10 C138 -5 162 6 153 26 C136 16 123 11 114 10Z" opacity="0.72"/>
+    {{-- Decoraciones Fruitex — mangos --}}
+    @php
+        $mangos = [
+            ['cls' => 'fruit-mango-1', 'id' => 'mg1'],
+            ['cls' => 'fruit-mango-2', 'id' => 'mg2'],
+            ['cls' => 'fruit-mango-3', 'id' => 'mg3'],
+        ];
+    @endphp
+    @foreach($mangos as $m)
+    <svg class="fruit-deco {{ $m['cls'] }}" viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="{{ $m['id'] }}" x1="15%" y1="10%" x2="90%" y2="95%">
+                <stop offset="0%"   stop-color="#5AB14F"/>
+                <stop offset="32%"  stop-color="#B6D34A"/>
+                <stop offset="58%"  stop-color="#F7C53D"/>
+                <stop offset="82%"  stop-color="#F18C2E"/>
+                <stop offset="100%" stop-color="#E8552F"/>
+            </linearGradient>
+        </defs>
+        {{-- cuerpo del mango --}}
+        <path d="M70 34 C120 18 182 54 186 122 C190 188 140 230 92 226 C44 222 16 176 18 128 C20 76 38 48 70 34 Z"
+              fill="url(#{{ $m['id'] }})"/>
+        {{-- brillo suave --}}
+        <path d="M64 64 C92 50 120 58 132 84 C112 70 86 70 64 64 Z" fill="#ffffff" opacity="0.22"/>
+        {{-- hoja --}}
+        <path d="M96 34 C92 10 112 0 134 6 C123 20 110 30 96 34 Z" fill="#2E8B40"/>
+        {{-- tallo --}}
+        <path d="M96 34 C99 24 101 18 104 10" stroke="#7A4B22" stroke-width="4" fill="none" stroke-linecap="round"/>
     </svg>
-
-    <svg class="fruit-deco fruit-orange" viewBox="0 0 155 155" fill="none" stroke="currentColor" stroke-width="5" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="77" cy="77" r="70"/>
-        <line x1="7" y1="77" x2="147" y2="77"/>
-        <line x1="77" y1="7" x2="77" y2="147"/>
-        <line x1="28" y1="28" x2="126" y2="126"/>
-        <line x1="126" y1="28" x2="28" y2="126"/>
-        <circle cx="77" cy="77" r="19" fill="currentColor" stroke="none"/>
-    </svg>
-
-    <svg class="fruit-deco fruit-leaf-a" viewBox="0 0 52 68" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-        <path d="M26 4 C44 17 48 48 26 65 C4 48 8 17 26 4Z"/>
-        <line x1="26" y1="4" x2="26" y2="65" stroke="white" stroke-width="1.5" fill="none" opacity="0.35"/>
-    </svg>
-
-    <svg class="fruit-deco fruit-leaf-b" viewBox="0 0 42 56" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-        <path d="M21 3 C37 13 40 40 21 53 C2 40 5 13 21 3Z"/>
-    </svg>
-
-    <svg class="fruit-deco fruit-dots" viewBox="0 0 76 76" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="9"  cy="9"  r="5"/><circle cx="28" cy="9"  r="3.5"/><circle cx="9"  cy="28" r="3.5"/>
-        <circle cx="47" cy="9"  r="2.5"/><circle cx="28" cy="28" r="5"/><circle cx="9"  cy="47" r="2.5"/>
-        <circle cx="47" cy="28" r="3"/><circle cx="66" cy="9"  r="2"/><circle cx="28" cy="47" r="3"/>
-        <circle cx="47" cy="47" r="5"/><circle cx="66" cy="28" r="2.5"/><circle cx="66" cy="47" r="3.5"/>
-        <circle cx="66" cy="66" r="5"/><circle cx="47" cy="66" r="3"/><circle cx="28" cy="66" r="2.5"/>
-        <circle cx="9"  cy="66" r="2"/>
-    </svg>
+    @endforeach
 
     <div class="login-form-wrap">
 

@@ -133,9 +133,9 @@ class EquipoController extends Controller
             $query->where('estado', $request->estado);
         }
 
-        // Filtro por planta
-        if ($request->filled('planta_id')) {
-            $query->where('planta_id', $request->planta_id);
+        // Filtro por marca
+        if ($request->filled('marca')) {
+            $query->where('marca', $request->marca);
         }
 
         // Ordenamiento
@@ -159,8 +159,9 @@ class EquipoController extends Controller
         // Obtener listas para filtros
         $estados = Equipo::distinct()->pluck('estado')->filter();
         $plantas = Planta::all();
+        $marcas  = Equipo::distinct()->pluck('marca')->filter()->values();
 
-        return view('equipos.index', compact('equipos', 'estados', 'plantas'));
+        return view('equipos.index', compact('equipos', 'estados', 'plantas', 'marcas'));
     }
 
     /**

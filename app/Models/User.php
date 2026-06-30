@@ -21,6 +21,8 @@ class User extends Authenticatable
         'empleado_id',
         'primer_inicio',
         'numero_empleado',
+        'firma',
+        'firma_alta_at',
     ];
 
     protected $hidden = [
@@ -48,6 +50,15 @@ class User extends Authenticatable
     public function asignacionesMoviles()
     {
         return $this->hasMany(AsignacionMovil::class, 'user_id');
+    }
+
+    /**
+     * ¿El usuario debe completar su alta (modal de primer inicio)?
+     * Aplica si está marcado como primer inicio o si aún no tiene firma de alta.
+     */
+    public function necesitaAlta(): bool
+    {
+        return $this->primer_inicio == 1 || empty($this->firma);
     }
 
     /**
