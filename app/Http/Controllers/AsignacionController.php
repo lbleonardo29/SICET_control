@@ -49,17 +49,19 @@ class AsignacionController extends Controller
         $query = Asignacion::with(['empleado', 'equipo'])
             ->where('estado_asignacion', 'aceptada');
 
-        // Buscador
+        // Buscador. El empleado vive en `tickets` (otra conexión), así que NO se puede
+        // usar whereHas('empleado') (generaría un subquery en sicet sobre tbl_empleados).
+        // Se resuelven primero los id_emp que coinciden y se filtra por empleado_id.
         if ($request->q) {
-            $query->where(function ($subquery) use ($request) {
-                $subquery->whereHas('empleado', function ($q) use ($request) {
-                    $q->where('nombre_completo', 'LIKE', '%' . $request->q . '%')
-                      ->orWhere('numero_empleado', 'LIKE', '%' . $request->q . '%');
-                })->orWhereHas('equipo', function ($q) use ($request) {
-                    $q->where('marca', 'like', '%' . $request->q . '%')
-                      ->orWhere('modelo', 'like', '%' . $request->q . '%')
-                      ->orWhere('codigo_interno', 'like', '%' . $request->q . '%');
-                });
+            $term = $request->q;
+            $idsEmp = Empleado::buscar($term)->pluck('id_emp')->all();
+            $query->where(function ($subquery) use ($term, $idsEmp) {
+                $subquery->whereIn('empleado_id', empty($idsEmp) ? [-1] : $idsEmp)
+                    ->orWhereHas('equipo', function ($q) use ($term) {
+                        $q->where('marca', 'like', '%' . $term . '%')
+                          ->orWhere('modelo', 'like', '%' . $term . '%')
+                          ->orWhere('codigo_interno', 'like', '%' . $term . '%');
+                    });
             });
         }
 

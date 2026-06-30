@@ -25,18 +25,19 @@ class AsignacionMovilController extends Controller
         $query = AsignacionMovil::with(['dispositivo', 'empleado'])
             ->whereIn('estado_asignacion', ['pendiente', 'aceptada']);
 
-        // Buscador
+        // Buscador. El empleado vive en `tickets` (otra conexión): no se puede usar
+        // whereHas('empleado'). Se resuelven los id_emp que coinciden y se filtra.
         if ($request->q) {
-            $query->where(function ($sub) use ($request) {
-                $sub->whereHas('empleado', function ($q) use ($request) {
-                    $q->where('nombre_completo', 'LIKE', '%' . $request->q . '%')
-                      ->orWhere('numero_empleado', 'LIKE', '%' . $request->q . '%');
-                })->orWhereHas('dispositivo', function ($q) use ($request) {
-                    $q->where('marca', 'like', '%' . $request->q . '%')
-                      ->orWhere('modelo', 'like', '%' . $request->q . '%')
-                      ->orWhere('imei', 'like', '%' . $request->q . '%')
-                      ->orWhere('codigo_interno', 'like', '%' . $request->q . '%');
-                });
+            $term = $request->q;
+            $idsEmp = Empleado::buscar($term)->pluck('id_emp')->all();
+            $query->where(function ($sub) use ($term, $idsEmp) {
+                $sub->whereIn('empleado_id', empty($idsEmp) ? [-1] : $idsEmp)
+                    ->orWhereHas('dispositivo', function ($q) use ($term) {
+                        $q->where('marca', 'like', '%' . $term . '%')
+                          ->orWhere('modelo', 'like', '%' . $term . '%')
+                          ->orWhere('imei', 'like', '%' . $term . '%')
+                          ->orWhere('codigo_interno', 'like', '%' . $term . '%');
+                    });
             });
         }
 
