@@ -29,12 +29,6 @@ class EmpleadoController extends Controller
             $query->buscar($request->q);
         }
 
-        if ($request->estado === 'activos') {
-            $query->activos();
-        } elseif ($request->estado === 'inactivos') {
-            $query->whereNotIn('activo', [1, '1', 'S', 's']);
-        }
-
         $empleados = $query->orderBy('id_emp', 'asc')->get();
 
         // Vincular la cuenta de usuario (si existe) SIN eager-load cruzado de conexión:

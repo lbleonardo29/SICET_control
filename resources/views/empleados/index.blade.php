@@ -14,12 +14,8 @@
             </h2>
             <div class="d-flex gap-3 text-muted">
                 <span>
-                    <i class="bi bi-person-check me-1"></i>
-                    Activos: <strong class="text-success">{{ $empleados->where('es_activo', true)->count() }}</strong>
-                </span>
-                <span>
-                    <i class="bi bi-person-x me-1"></i>
-                    Inactivos: <strong class="text-danger">{{ $empleados->where('es_activo', false)->count() }}</strong>
+                    <i class="bi bi-people me-1"></i>
+                    Total: <strong>{{ $empleados->count() }}</strong>
                 </span>
                 <span>
                     <i class="bi bi-shield me-1"></i>
@@ -27,7 +23,7 @@
                 </span>
                 <span>
                     <i class="bi bi-person me-1"></i>
-                    Usuarios: <strong>{{ $empleados->filter(fn($e) => optional($e->user)->role === 'user')->count() }}</strong>
+                    Con cuenta: <strong>{{ $empleados->filter(fn($e) => $e->user)->count() }}</strong>
                 </span>
             </div>
         </div>
@@ -52,25 +48,18 @@
     <div class="card shadow-sm mb-4 border-0">
         <div class="card-body bg-light py-3">
             <div class="row g-3 align-items-center">
-                <div class="col-md-5">
+                <div class="col-md-7">
                     <div class="input-group">
                         <span class="input-group-text bg-white border-end-0">
                             <i class="bi bi-search text-muted"></i>
                         </span>
-                        <input type="text" 
-                               class="form-control border-start-0" 
+                        <input type="text"
+                               class="form-control border-start-0"
                                id="searchInput"
                                placeholder="Buscar por nombre, correo o núm. de empleado...">
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <select class="form-select" id="estadoFilter">
-                        <option value="">Todos los estados</option>
-                        <option value="1">Activos</option>
-                        <option value="0">Inactivos</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <select class="form-select" id="rolFilter">
                         <option value="">Todos los roles</option>
                         <option value="admin">Administradores</option>
@@ -108,7 +97,6 @@
                             <th>Empleado</th>
                             <th>Contacto</th>
                             <th>Rol</th>
-                            <th>Estado</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -158,20 +146,13 @@
                                     @endif
                                 </td>
 
-                                {{-- Estado --}}
-                                <td>
-                                    <span class="badge {{ $empleado->es_activo ? 'bg-success' : 'bg-secondary' }} px-3 py-2">
-                                        <i class="bi {{ $empleado->es_activo ? 'bi-check-circle' : 'bi-x-circle' }} me-1"></i>
-                                        {{ $empleado->es_activo ? 'Activo' : 'Inactivo' }}
-                                    </span>
-                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="text-center py-5">
+                                <td colspan="4" class="text-center py-5">
                                     <i class="bi bi-people display-1 text-muted d-block mb-3"></i>
                                     <h4 class="text-muted">No se encontraron empleados</h4>
-                                    <p class="text-muted mb-0">Ajusta la búsqueda o el filtro de estado.</p>
+                                    <p class="text-muted mb-0">Ajusta la búsqueda o el filtro de rol.</p>
                                 </td>
                             </tr>
                         @endforelse
@@ -229,67 +210,42 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Tooltips
-        const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-        tooltips.forEach(t => new bootstrap.Tooltip(t));
-
-        // Búsqueda en tiempo real
         const searchInput = document.getElementById('searchInput');
-        const estadoFilter = document.getElementById('estadoFilter');
-        const rolFilter = document.getElementById('rolFilter');
-        const table = document.getElementById('empleadosTable');
-        const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+        const rolFilter   = document.getElementById('rolFilter');
+        const table       = document.getElementById('empleadosTable');
+        const rows        = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
 
         function filtrarTabla() {
             const searchTerm = searchInput.value.toLowerCase();
-            const estadoValue = estadoFilter.value;
-            const rolValue = rolFilter.value;
+            const rolValue   = rolFilter.value;
 
             Array.from(rows).forEach(row => {
                 if (row.cells.length === 1) return; // Fila vacía
 
-                const numEmp  = row.cells[0]?.textContent.toLowerCase() || '';
-                const nombre  = row.cells[1]?.textContent.toLowerCase() || '';
-                const email   = row.cells[2]?.textContent.toLowerCase() || '';
-
-                // Estado (columna 4)
-                const estadoCell = row.cells[4]?.textContent.toLowerCase() || '';
-                const esActivo = estadoCell.includes('activo');
-
-                // Rol (columna 3)
+                const numEmp = row.cells[0]?.textContent.toLowerCase() || '';
+                const nombre = row.cells[1]?.textContent.toLowerCase() || '';
+                const email  = row.cells[2]?.textContent.toLowerCase() || '';
                 const rolCell = row.cells[3]?.textContent.toLowerCase() || '';
-                const esAdmin = rolCell.includes('admin');
-                const esUser  = rolCell.includes('user');
-                const sinUsuario = rolCell.includes('sin usuario');
 
-                // Filtro de búsqueda
+                const esAdmin    = rolCell.includes('admin');
+                const sinUsuario = rolCell.includes('sin usuario');
+                const esUser     = rolCell.includes('user') && !sinUsuario;
+
                 const matchesSearch = searchTerm === '' ||
                     numEmp.includes(searchTerm) ||
                     nombre.includes(searchTerm) ||
                     email.includes(searchTerm);
 
-                // Filtro de estado
-                let matchesEstado = true;
-                if (estadoValue !== '') {
-                    matchesEstado = (estadoValue === '1' && esActivo) || 
-                                   (estadoValue === '0' && !esActivo);
-                }
-
-                // Filtro de rol
                 let matchesRol = true;
-                if (rolValue !== '') {
-                    if (rolValue === 'admin') matchesRol = esAdmin;
-                    else if (rolValue === 'user') matchesRol = esUser;
-                    else if (rolValue === 'sin') matchesRol = sinUsuario;
-                }
+                if (rolValue === 'admin') matchesRol = esAdmin;
+                else if (rolValue === 'user') matchesRol = esUser;
+                else if (rolValue === 'sin') matchesRol = sinUsuario;
 
-                row.style.display = matchesSearch && matchesEstado && matchesRol ? '' : 'none';
+                row.style.display = matchesSearch && matchesRol ? '' : 'none';
             });
 
-            // Mostrar contador de resultados
             const visibleRows = Array.from(rows).filter(r => r.style.display !== 'none').length;
             const totalRows = rows.length;
-            
             let mensaje = document.getElementById('resultadosBusqueda');
             if (!mensaje) {
                 mensaje = document.createElement('div');
@@ -301,46 +257,13 @@
         }
 
         searchInput.addEventListener('keyup', filtrarTabla);
-        estadoFilter.addEventListener('change', filtrarTabla);
         rolFilter.addEventListener('change', filtrarTabla);
-
-        // Confirmación para activar/desactivar con SweetAlert
-        document.querySelectorAll('.btn-toggle').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                const form = this.closest('form');
-                const activo = this.dataset.activo === '1';
-                const action = activo ? 'desactivar' : 'activar';
-                
-                Swal.fire({
-                    title: `¿${action} empleado?`,
-                    text: `Esta acción ${activo ? 'inhabilitará' : 'habilitará'} el acceso del empleado`,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: activo ? '#dc3545' : '#28a745',
-                    cancelButtonColor: '#6c757d',
-                    confirmButtonText: `Sí, ${action}`,
-                    cancelButtonText: 'Cancelar'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        form.submit();
-                    }
-                });
-            });
-        });
     });
 
     function limpiarFiltros() {
         document.getElementById('searchInput').value = '';
-        document.getElementById('estadoFilter').value = '';
         document.getElementById('rolFilter').value = '';
-        
-        // Disparar evento de búsqueda
-        const event = new Event('keyup');
-        document.getElementById('searchInput').dispatchEvent(event);
+        document.getElementById('searchInput').dispatchEvent(new Event('keyup'));
     }
 </script>
-
-{{-- SweetAlert2 --}}
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @endpush
