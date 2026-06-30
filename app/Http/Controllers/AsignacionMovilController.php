@@ -242,7 +242,7 @@ class AsignacionMovilController extends Controller
         
         // Verificar que el usuario autenticado es el empleado asignado
         $user = Auth::user();
-        if ($user->empleado_id != $asignacion->empleado_id) {
+        if ($user->numero_empleado != $asignacion->empleado_id) {
             return back()->with('error', 'No tienes permiso para aceptar esta asignación.');
         }
         
@@ -294,7 +294,7 @@ class AsignacionMovilController extends Controller
         }
 
         $user = Auth::user();
-        if ($user->empleado_id != $asignacion->empleado_id) {
+        if ($user->numero_empleado != $asignacion->empleado_id) {
             return back()->with('error', 'No tienes permiso para firmar esta asignación.');
         }
 
@@ -358,7 +358,7 @@ class AsignacionMovilController extends Controller
         
         // Verificar que el usuario autenticado es el empleado asignado
         $user = Auth::user();
-        if ($user->empleado_id != $asignacion->empleado_id) {
+        if ($user->numero_empleado != $asignacion->empleado_id) {
             return back()->with('error', 'No tienes permiso para rechazar esta asignación.');
         }
         
@@ -445,7 +445,7 @@ class AsignacionMovilController extends Controller
 
         // Solo admin o el empleado dueño de la asignación
         $user = Auth::user();
-        if ($user->role !== 'admin' && $user->empleado_id != $asignacion->empleado_id) {
+        if ($user->role !== 'admin' && $user->numero_empleado != $asignacion->empleado_id) {
             abort(403, 'No tienes permiso para descargar esta carta.');
         }
 
