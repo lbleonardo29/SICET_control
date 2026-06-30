@@ -83,6 +83,6 @@ class ProfileController extends Controller
         $user->save();
     }
     
-    return redirect()->route('perfil.index')->with('success', ' Foto eliminada correctamente');
+    return redirect()->route('perfil.index')->with('success', 'Foto eliminada correctamente');
 }
 }
