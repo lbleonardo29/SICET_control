@@ -46,13 +46,13 @@ class Asignacion extends Model
         return $this->belongsTo(Equipo::class, 'equipo_id', 'id');
     }
 
-    // Empleado (PK = id en tabla empleados)
+    // Empleado corporativo (empleado_id guarda el id_emp de tickets.tbl_empleados)
     public function empleado()
     {
         return $this->belongsTo(
             Empleado::class,
             'empleado_id',
-            'id'
+            'id_emp'
         );
     }
 

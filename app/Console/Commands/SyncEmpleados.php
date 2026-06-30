@@ -35,16 +35,15 @@ class SyncEmpleados extends Command
         }
 
         try {
+            // Los empleados ahora se leen EN VIVO desde tickets.tbl_empleados (solo lectura):
+            // ya no existe tabla local `empleados` que replicar. Este comando solo mantiene
+            // el catálogo de plantas. La sincronización de empleados quedó obsoleta.
             if ($this->option('solo-empleados')) {
-                // Reusar el mapa de plantas ya enlazadas localmente.
-                $mapaPlantas = Planta::whereNotNull('id_planta_corp')->pluck('id', 'id_planta_corp')->all();
-            } else {
-                $mapaPlantas = $this->syncPlantas($dry);
+                $this->warn('La sincronización de empleados ya no aplica: se leen directo de tickets.');
+                return self::SUCCESS;
             }
 
-            if (!$this->option('solo-plantas')) {
-                $this->syncEmpleados($dry, $mapaPlantas);
-            }
+            $this->syncPlantas($dry);
         } catch (\Throwable $e) {
             $this->error('Error de sincronización: ' . $e->getMessage());
             return self::FAILURE;

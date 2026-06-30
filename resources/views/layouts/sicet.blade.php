@@ -132,10 +132,6 @@
                class="s-sub-link {{ Route::is('empleados.index') ? 'active' : '' }}">
                 <span class="s-sub-dot"></span> Todos los empleados
             </a>
-            <a href="{{ route('empleados.create') }}"
-               class="s-sub-link {{ Route::is('empleados.create') ? 'active' : '' }}">
-                <span class="s-sub-dot"></span> Registrar empleado
-            </a>
         </div>
 
         <div class="s-nav-label">Sistema</div>

@@ -65,7 +65,7 @@ class AsignacionMovilController extends Controller
             ->withQueryString();
 
         // Datos para los filtros
-        $empleadosFiltro = Empleado::where('activo', 1)->get();
+        $empleadosFiltro = Empleado::activos()->orderBy('nombre')->get();
         $dispositivosFiltro = DispositivoMovil::all();
 
         return view('asignaciones_moviles.dashboard', compact('asignaciones', 'empleadosFiltro', 'dispositivosFiltro'));
@@ -99,12 +99,9 @@ class AsignacionMovilController extends Controller
                 ->with('error', 'Este dispositivo ya tiene una asignación pendiente de respuesta.');
         }
         
-        // SOLO EMPLEADOS ACTIVOS QUE TENGAN USUARIO (CON ROL)
-$empleados = Empleado::where('activo', 1)
-    ->whereHas('user', function($q) {
-        $q->whereIn('role', ['admin', 'user', 'rh']);
-    })
-    ->get();
+        // Empleados activos del corporativo (tickets). Se puede asignar a cualquiera;
+        // si aún no tiene cuenta, verá la asignación al iniciar sesión por primera vez.
+        $empleados = Empleado::activos()->orderBy('nombre')->get();
 
         return view('asignaciones_moviles.create', compact('movil', 'empleados'));
     }
@@ -116,7 +113,7 @@ $empleados = Empleado::where('activo', 1)
     {
         $request->validate([
             'dispositivo_movil_id' => 'required|exists:dispositivos_moviles,id',
-            'empleado_id' => 'required|exists:empleados,id',
+            'empleado_id' => 'required|exists:tickets.tbl_empleados,id_emp',
             'fecha_asignacion' => 'required|date|before_or_equal:today',
         ]);
 
@@ -157,7 +154,7 @@ $empleados = Empleado::where('activo', 1)
         }
 
         $empleado = Empleado::findOrFail($request->empleado_id);
-        $user = User::where('empleado_id', $request->empleado_id)->first();
+        $user = User::where('numero_empleado', (string) $request->empleado_id)->first();
 
         // Crear asignación con estado_asignacion = 'pendiente'
         $asignacion = AsignacionMovil::create([

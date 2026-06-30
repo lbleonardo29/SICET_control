@@ -26,11 +26,15 @@ class AsignacionController extends Controller
     {
         $asignaciones = Asignacion::whereNull('fecha_devolucion')
             ->where('estado_asignacion', 'aceptada')
-            ->with(['empleado.planta', 'equipo'])
+            ->with(['empleado', 'equipo'])
             ->orderBy('fecha_asignacion', 'desc')
             ->get();
 
-        $empleados = Empleado::where('activo', 1)->get();
+        // La planta vive en la BD local; se vincula manualmente para no heredar la
+        // conexión `tickets` del empleado (ver nota en el modelo Empleado).
+        $this->vincularPlantas($asignaciones->pluck('empleado')->filter());
+
+        $empleados = Empleado::activos()->orderBy('nombre')->get();
         $equiposDisponibles = Equipo::where('estado', 'Disponible')->get();
 
         return view('asignaciones.index', compact('asignaciones', 'empleados', 'equiposDisponibles'));
@@ -84,7 +88,7 @@ class AsignacionController extends Controller
             ->withQueryString();
 
         // Datos para los filtros de la vista
-        $empleadosFiltro = Empleado::where('activo', 1)->get();
+        $empleadosFiltro = Empleado::activos()->orderBy('nombre')->get();
         $equiposFiltro = Equipo::all();
 
         return view('asignaciones.dashboard', compact('asignaciones', 'empleadosFiltro', 'equiposFiltro'));
@@ -103,12 +107,9 @@ class AsignacionController extends Controller
                 ->with('error', 'Esta computadora no está disponible para asignación.');
         }
 
-        // EMPLEADOS ACTIVOS QUE TENGAN USUARIO
-        $empleados = Empleado::where('activo', 1)
-            ->whereHas('user', function($q) {
-                $q->whereIn('role', ['admin', 'user', 'rh']);
-            })
-            ->get();
+        // Empleados activos del corporativo (tickets). Se puede asignar a cualquiera;
+        // si aún no tiene cuenta, verá la asignación al iniciar sesión por primera vez.
+        $empleados = Empleado::activos()->orderBy('nombre')->get();
 
         return view('asignaciones.create', compact('equipo', 'empleados'));
     }
@@ -122,7 +123,7 @@ class AsignacionController extends Controller
     {
         $request->validate([
             'equipo_id' => 'required|exists:equipos,id',
-            'empleado_id' => 'required|exists:empleados,id',
+            'empleado_id' => 'required|exists:tickets.tbl_empleados,id_emp',
             'fecha_asignacion' => 'required|date|before_or_equal:today',
         ]);
 
@@ -161,8 +162,8 @@ class AsignacionController extends Controller
             return back()->with('error', 'La computadora no está disponible.');
         }
 
-        // Buscar el usuario asociado al empleado
-        $user = User::where('empleado_id', $request->empleado_id)->first();
+        // Buscar el usuario asociado (por número de empleado = id_emp)
+        $user = User::where('numero_empleado', (string) $request->empleado_id)->first();
 
         // Crear asignación con estado_asignacion = 'pendiente'
         $asignacion = Asignacion::create([
@@ -176,8 +177,8 @@ class AsignacionController extends Controller
         // Cambiar estado del equipo a "Pendiente"
         $equipo->update(['estado' => 'Pendiente']);
 
-        // Buscar empleado
-        $empleado = Empleado::where('id', $request->empleado_id)->first();
+        // Buscar empleado (PK = id_emp)
+        $empleado = Empleado::find($request->empleado_id);
 
         // =====================================================
         // GENERAR PDF
@@ -206,9 +207,10 @@ class AsignacionController extends Controller
         // =====================================================
         // ENVIAR CORREO DE NOTIFICACIÓN (sin enlaces)
         // =====================================================
-        if ($empleado && $empleado->correo) {
+        $emailDestino = ($empleado && $empleado->correo) ? $empleado->correo : ($user ? $user->email : null);
+        if ($emailDestino) {
             try {
-                Mail::to($empleado->correo)->send(new AsignacionPendiente($asignacion, 'equipo'));
+                Mail::to($emailDestino)->send(new AsignacionPendiente($asignacion, 'equipo'));
             } catch (\Exception $e) {
                 \Log::error('Error al enviar correo: ' . $e->getMessage());
             }
@@ -491,19 +493,34 @@ class AsignacionController extends Controller
 
     public function buscarEmpleados(Request $request)
     {
-        $term = $request->get('term');
-        
-        $empleados = Empleado::where('activo', 1)
-            ->whereHas('user', function($q) {
-                $q->whereIn('role', ['admin', 'user', 'rh']);
-            })
-            ->where(function ($q) use ($term) {
-                $q->where('nombre_completo', 'LIKE', "%{$term}%")
-                  ->orWhere('numero_empleado', 'LIKE', "%{$term}%");
-            })
+        $empleados = Empleado::activos()
+            ->buscar($request->get('term'))
             ->limit(10)
-            ->get(['id', 'nombre_completo', 'numero_empleado']);
+            ->get()
+            ->map(fn ($e) => [
+                'id'              => $e->id_emp,
+                'nombre_completo' => $e->nombre_completo,
+                'numero_empleado' => $e->numero_empleado,
+            ]);
 
         return response()->json($empleados);
+    }
+
+    /**
+     * Asigna a cada empleado (modelo de tickets) su planta desde la BD local,
+     * evitando que la relación herede la conexión `tickets`.
+     */
+    private function vincularPlantas($empleados): void
+    {
+        $idsPlanta = $empleados->pluck('id_planta')->filter()->unique()->all();
+        if (empty($idsPlanta)) {
+            return;
+        }
+
+        $plantas = \App\Models\Planta::whereIn('id_planta_corp', $idsPlanta)
+            ->get()
+            ->keyBy('id_planta_corp');
+
+        $empleados->each(fn ($e) => $e->setRelation('planta', $plantas->get($e->id_planta)));
     }
 }

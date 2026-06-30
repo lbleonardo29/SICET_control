@@ -53,8 +53,8 @@ class AdminController extends Controller
             ])->withInput();
         }
 
-        // Datos espejo locales (pueden no existir aún en el primer inicio)
-        $empleadoLocal = Empleado::where('numero_empleado', (string) $empleado->id_emp)->first();
+        // Usuario local espejo (puede no existir aún en el primer inicio).
+        // El empleado es maestro del corporativo (tickets); aquí solo guardamos la cuenta.
         $user = User::where('numero_empleado', (string) $empleado->id_emp)->first();
 
         // Autenticación HÍBRIDA: se acepta la contraseña corporativa O la contraseña
@@ -90,15 +90,11 @@ class AdminController extends Controller
                 'password'        => $empleado->contrasenia, // espejo inicial del corporativo
                 'role'            => 'user',
                 'primer_inicio'   => 1,
-                'empleado_id'     => $empleadoLocal?->id,
             ]);
         } else {
             // En cada login solo se sincronizan datos NO sensibles.
             // La contraseña local NO se sobrescribe: si no, se perdería la que fijó el usuario.
             $user->name = $nombreCompleto;
-            if ($empleadoLocal && !$user->empleado_id) {
-                $user->empleado_id = $empleadoLocal->id;
-            }
             // Mantener el correo actualizado (para la recuperación), si no lo ocupa otro usuario.
             if ($emailLocal && $user->email !== $emailLocal) {
                 $ocupado = User::where('email', $emailLocal)->where('id', '!=', $user->id)->exists();
@@ -175,8 +171,11 @@ class AdminController extends Controller
         // =========================
         // COMPUTADORAS ACTIVAS DEL USUARIO (ACEPTADAS Y SIN DEVOLUCIÓN)
         // =========================
+        // El vínculo con asignaciones es por número de empleado (= id_emp corporativo).
+        $numEmp = $user->numero_empleado;
+
         $maquinas = Asignacion::with('equipo')
-            ->where('empleado_id', $user->empleado_id)
+            ->where('empleado_id', $numEmp)
             ->where('estado_asignacion', 'aceptada')
             ->whereNull('fecha_devolucion')
             ->get();
@@ -185,7 +184,7 @@ class AdminController extends Controller
         // MÓVIL ACTIVO DEL USUARIO (ACEPTADO Y SIN DEVOLUCIÓN)
         // =========================
         $movil = AsignacionMovil::with('dispositivo')
-            ->where('empleado_id', $user->empleado_id)
+            ->where('empleado_id', $numEmp)
             ->where('estado_asignacion', 'aceptada')
             ->whereNull('fecha_devolucion')
             ->first();
@@ -197,16 +196,16 @@ class AdminController extends Controller
         $asignacionesPendientes = collect();
         $movilesPendientes = collect();
 
-        if ($user->empleado_id) {
+        if ($numEmp) {
             // Computadoras pendientes
             $asignacionesPendientes = Asignacion::with('equipo')
-                ->where('empleado_id', $user->empleado_id)
+                ->where('empleado_id', $numEmp)
                 ->where('estado_asignacion', 'pendiente')
                 ->get();
 
             // Móviles pendientes
             $movilesPendientes = AsignacionMovil::with('dispositivo')
-                ->where('empleado_id', $user->empleado_id)
+                ->where('empleado_id', $numEmp)
                 ->where('estado_asignacion', 'pendiente')
                 ->get();
         }
@@ -227,7 +226,7 @@ class AdminController extends Controller
                 ->whereNull('fecha_devolucion')
                 ->count();
 
-            $totalEmpleados = Empleado::count();
+            $totalEmpleados = Empleado::activos()->count();
 
             // CORREGIDO: usa 'admin.dashboard' con 'maquinas' (plural)
             return view('admin.dashboard', compact(

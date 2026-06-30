@@ -18,11 +18,9 @@ class ReporteController extends Controller
             ->orderBy('codigo_interno')
             ->get();
 
-        // Cargar empleados concatenando nombre y apellidos
-        $empleados = Empleado::select('numero_empleado', 'nombre_completo')
-            ->where('activo', 1)
-            ->orderBy('nombre_completo')
-            ->get();
+        // Empleados activos del corporativo (tickets). numero_empleado/nombre_completo
+        // son accesores del modelo, por eso se cargan filas completas (sin select()).
+        $empleados = Empleado::activos()->orderBy('nombre')->get();
 
         return view('reportes.create', compact('equipos', 'empleados'));
     }
@@ -31,7 +29,7 @@ class ReporteController extends Controller
     {
         $request->validate([
             'matricula' => 'required|string|exists:equipos,codigo_interno',
-            'numero_empleado' => 'required|exists:empleados,numero_empleado',
+            'numero_empleado' => 'required|exists:tickets.tbl_empleados,id_emp',
             'inconsistencias' => 'nullable|string|max:500',
             'tipo' => 'required|in:entrada,salida',
         ]);

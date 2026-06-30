@@ -34,10 +34,10 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    // Relación con empleado
+    // Relación con empleado corporativo (por número de empleado = id_emp de tickets)
     public function empleado()
     {
-        return $this->belongsTo(Empleado::class, 'empleado_id', 'id');
+        return $this->belongsTo(Empleado::class, 'numero_empleado', 'id_emp');
     }
 
     // Relación con asignaciones de equipos

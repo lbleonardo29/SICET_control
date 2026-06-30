@@ -100,14 +100,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/equipos/{equipo}/carta-responsiva', [AsignacionController::class, 'cartaResponsiva'])->name('equipos.carta');
     Route::put('/equipos/{id}/baja', [EquipoController::class, 'darDeBaja'])->name('equipos.baja');
 
-    // Empleados
+    // Empleados — DIRECTORIO DE SOLO LECTURA (los datos viven en tickets.tbl_empleados)
     Route::get('/empleados', [EmpleadoController::class, 'index'])->name('empleados.index');
-    Route::get('/empleados/create', [EmpleadoController::class, 'create'])->name('empleados.create');
-    Route::post('/empleados', [EmpleadoController::class, 'store'])->name('empleados.store');
-    Route::get('/empleados/{empleado}/edit', [EmpleadoController::class, 'edit'])->name('empleados.edit');
-    Route::put('/empleados/{empleado}', [EmpleadoController::class, 'update'])->name('empleados.update');
-    Route::put('/empleados/{id}/toggle', [EmpleadoController::class, 'toggle'])->name('empleados.toggle');
-    Route::delete('/empleados/{empleado}', [EmpleadoController::class, 'destroy'])->name('empleados.destroy');
 
     // Dispositivos móviles
     Route::get('/moviles', [DispositivoMovilController::class, 'index'])->name('moviles.index');
@@ -160,15 +154,16 @@ Route::middleware('auth')->group(function () {
             if (strlen($q) < 2) {
                 return response()->json([]);
             }
-            $empleados = DB::table('empleados')
-                ->where('activo', 1)
-                ->where(function ($query) use ($q) {
-                    $query->where('nombre_completo', 'like', "%{$q}%")
-                          ->orWhere('correo', 'like', "%{$q}%")
-                          ->orWhere('numero_empleado', 'like', "%{$q}%");
-                })
+            $empleados = App\Models\Empleado::activos()
+                ->buscar($q)
                 ->limit(20)
-                ->get(['id', 'nombre_completo', 'numero_empleado', 'correo']);
+                ->get()
+                ->map(fn ($e) => [
+                    'id'              => $e->id_emp,
+                    'nombre_completo' => $e->nombre_completo,
+                    'numero_empleado' => $e->numero_empleado,
+                    'correo'          => $e->correo,
+                ]);
             return response()->json($empleados);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);

@@ -15,11 +15,11 @@
             <div class="d-flex gap-3 text-muted">
                 <span>
                     <i class="bi bi-person-check me-1"></i>
-                    Activos: <strong class="text-success">{{ $empleados->where('activo', true)->count() }}</strong>
+                    Activos: <strong class="text-success">{{ $empleados->where('es_activo', true)->count() }}</strong>
                 </span>
                 <span>
                     <i class="bi bi-person-x me-1"></i>
-                    Inactivos: <strong class="text-danger">{{ $empleados->where('activo', false)->count() }}</strong>
+                    Inactivos: <strong class="text-danger">{{ $empleados->where('es_activo', false)->count() }}</strong>
                 </span>
                 <span>
                     <i class="bi bi-shield me-1"></i>
@@ -32,12 +32,10 @@
             </div>
         </div>
         <div class="col-md-4 text-md-end">
-            @if(auth()->user()->role === 'admin')
-                <a href="{{ route('empleados.create') }}" class="btn btn-primary">
-                    <i class="bi bi-plus-circle me-2"></i>
-                    Registrar Empleado
-                </a>
-            @endif
+            <span class="badge bg-info bg-opacity-25 text-info-emphasis px-3 py-2">
+                <i class="bi bi-cloud-arrow-down me-1"></i>
+                Directorio sincronizado desde el corporativo (solo lectura)
+            </span>
         </div>
     </div>
 
@@ -111,9 +109,6 @@
                             <th>Contacto</th>
                             <th>Rol</th>
                             <th>Estado</th>
-                            @if(auth()->user()->role === 'admin')
-                                <th class="text-center">Acciones</th>
-                            @endif
                         </tr>
                     </thead>
                     <tbody>
@@ -165,54 +160,18 @@
 
                                 {{-- Estado --}}
                                 <td>
-                                    <span class="badge {{ $empleado->activo ? 'bg-success' : 'bg-secondary' }} px-3 py-2">
-                                        <i class="bi {{ $empleado->activo ? 'bi-check-circle' : 'bi-x-circle' }} me-1"></i>
-                                        {{ $empleado->activo ? 'Activo' : 'Inactivo' }}
+                                    <span class="badge {{ $empleado->es_activo ? 'bg-success' : 'bg-secondary' }} px-3 py-2">
+                                        <i class="bi {{ $empleado->es_activo ? 'bi-check-circle' : 'bi-x-circle' }} me-1"></i>
+                                        {{ $empleado->es_activo ? 'Activo' : 'Inactivo' }}
                                     </span>
                                 </td>
-
-                                {{-- Acciones admin --}}
-                                @if(auth()->user()->role === 'admin')
-                                    <td class="text-center">
-                                        <div class="d-flex justify-content-center gap-2">
-                                            {{-- Botón editar --}}
-                                            <a href="{{ route('empleados.edit', $empleado->id) }}"
-                                               class="btn btn-sm btn-outline-primary"
-                                               title="Editar empleado"
-                                               data-bs-toggle="tooltip">
-                                                <i class="bi bi-pencil"></i>
-                                            </a>
-
-                                            {{-- Botón activar/desactivar --}}
-                                            <form action="{{ route('empleados.toggle', $empleado->id) }}"
-                                                  method="POST"
-                                                  class="d-inline toggle-form">
-                                                @csrf
-                                                @method('PUT')
-                                                <button type="button"
-                                                        class="btn btn-sm {{ $empleado->activo ? 'btn-outline-danger' : 'btn-outline-success' }} btn-toggle"
-                                                        title="{{ $empleado->activo ? 'Desactivar' : 'Activar' }} empleado"
-                                                        data-bs-toggle="tooltip"
-                                                        data-activo="{{ $empleado->activo }}">
-                                                    <i class="bi {{ $empleado->activo ? 'bi-person-x' : 'bi-person-check' }}"></i>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                @endif
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="{{ auth()->user()->role === 'admin' ? 6 : 5 }}" class="text-center py-5">
+                                <td colspan="5" class="text-center py-5">
                                     <i class="bi bi-people display-1 text-muted d-block mb-3"></i>
-                                    <h4 class="text-muted">No hay empleados registrados</h4>
-                                    @if(auth()->user()->role === 'admin')
-                                        <p class="text-muted mb-4">Comienza registrando el primer empleado</p>
-                                        <a href="{{ route('empleados.create') }}" class="btn btn-primary">
-                                            <i class="bi bi-plus-circle me-2"></i>
-                                            Registrar Empleado
-                                        </a>
-                                    @endif
+                                    <h4 class="text-muted">No se encontraron empleados</h4>
+                                    <p class="text-muted mb-0">Ajusta la búsqueda o el filtro de estado.</p>
                                 </td>
                             </tr>
                         @endforelse

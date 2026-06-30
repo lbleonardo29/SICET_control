@@ -89,10 +89,10 @@ class DispositivoMovilController extends Controller
     public function createAsignacion($id)
     {
         $movil = DispositivoMovil::findOrFail($id);
-        
-        // Traer TODOS los empleados sin ningún filtro
-        $empleados = Empleado::all();
-        
+
+        // Empleados activos del corporativo (tickets); se puede asignar a cualquiera.
+        $empleados = Empleado::activos()->orderBy('nombre')->get();
+
         return view('asignaciones_moviles.create', compact('movil', 'empleados'));
     }
 

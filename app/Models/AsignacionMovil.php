@@ -42,12 +42,13 @@ class AsignacionMovil extends Model
         );
     }
 
+    // Empleado corporativo (empleado_id guarda el id_emp de tickets.tbl_empleados)
     public function empleado()
     {
         return $this->belongsTo(
             Empleado::class,
             'empleado_id',
-            'id'
+            'id_emp'
         );
     }
 

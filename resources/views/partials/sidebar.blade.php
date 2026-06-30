@@ -98,10 +98,6 @@
                 <i class="bi bi-list-ul me-2"></i>
                 <span class="text">Todos los Empleados</span>
             </a>
-            <a href="{{ route('empleados.create') }}" class="sidebar-sublink {{ request()->routeIs('empleados.create') ? 'active' : '' }}">
-                <i class="bi bi-person-plus me-2"></i>
-                <span class="text">Registrar Empleado</span>
-            </a>
         </div>
 
         {{-- ===== REPORTES (solo admin) ===== --}}
