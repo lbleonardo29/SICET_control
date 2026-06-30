@@ -328,12 +328,53 @@
                                 <i class="bi bi-x-circle me-2"></i>
                                 Cancelar
                             </a>
-                            <button type="submit" class="btn btn-success px-4 py-2" id="submitBtn">
-                                <i class="bi bi-save me-2"></i>
-                                Guardar Computadora
+                            <button type="button" class="btn btn-success px-4 py-2" id="resumenBtn" onclick="abrirResumenEquipo()">
+                                <i class="bi bi-clipboard-check me-2"></i>
+                                Resumen y guardar
                             </button>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ===== MODAL RESUMEN DE REGISTRO ===== --}}
+    <div class="modal fade" id="modalResumenEquipo" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content shadow-lg border-0">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-clipboard-check me-2"></i>
+                        Confirmar registro de computadora
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-muted mb-3">Revisa los datos antes de guardar. El código interno se generará automáticamente.</p>
+                    <div class="row g-2">
+                        <div class="col-md-6"><small class="text-muted d-block">Nombre del equipo</small><span class="fw-bold" id="res-nombre">—</span></div>
+                        <div class="col-md-3"><small class="text-muted d-block">Marca</small><span class="fw-bold" id="res-marca">—</span></div>
+                        <div class="col-md-3"><small class="text-muted d-block">Modelo</small><span class="fw-bold" id="res-modelo">—</span></div>
+                        <div class="col-md-3"><small class="text-muted d-block">Número de serie</small><span class="fw-bold" id="res-serie">—</span></div>
+                        <div class="col-md-3"><small class="text-muted d-block">Dirección MAC</small><span class="fw-bold" id="res-mac">—</span></div>
+                        <div class="col-md-3"><small class="text-muted d-block">Color</small><span class="fw-bold" id="res-color">—</span></div>
+                        <div class="col-md-3"><small class="text-muted d-block">Procesador</small><span class="fw-bold" id="res-procesador">—</span></div>
+                        <div class="col-md-3"><small class="text-muted d-block">RAM</small><span class="fw-bold" id="res-ram">—</span></div>
+                        <div class="col-md-3"><small class="text-muted d-block">Almacenamiento</small><span class="fw-bold" id="res-almacen">—</span></div>
+                        <div class="col-md-3"><small class="text-muted d-block">Cargador</small><span class="fw-bold" id="res-cargador">—</span></div>
+                        <div class="col-md-3"><small class="text-muted d-block">Fecha adquisición</small><span class="fw-bold" id="res-fecha">—</span></div>
+                        <div class="col-md-6"><small class="text-muted d-block">Planta</small><span class="fw-bold" id="res-planta">—</span></div>
+                        <div class="col-12"><small class="text-muted d-block">Observaciones</small><span class="fw-bold" id="res-obs">—</span></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-arrow-left me-1"></i> Regresar y editar
+                    </button>
+                    <button type="button" class="btn btn-success px-4" id="btnConfirmarEquipo">
+                        <i class="bi bi-save me-2"></i> Confirmar y guardar
+                    </button>
                 </div>
             </div>
         </div>
@@ -376,6 +417,39 @@
 
 @push('scripts')
 <script>
+    // Abre el modal de resumen tras validar los campos obligatorios del formulario.
+    function abrirResumenEquipo() {
+        const form = document.getElementById('computadoraForm');
+        if (!form.checkValidity()) { form.reportValidity(); return; }
+
+        const val = n => {
+            const el = form.querySelector('[name="' + n + '"]');
+            return el && el.value ? el.value : '—';
+        };
+        const txtSel = n => {
+            const el = form.querySelector('[name="' + n + '"]');
+            return (el && el.selectedIndex >= 0) ? el.options[el.selectedIndex].text : '—';
+        };
+        const set = (id, v) => { document.getElementById(id).textContent = v; };
+
+        set('res-nombre', val('nombre_equipo'));
+        set('res-marca', val('marca'));
+        set('res-modelo', val('modelo'));
+        set('res-serie', val('numero_serie'));
+        set('res-mac', val('direccion_mac'));
+        set('res-color', val('color'));
+        set('res-procesador', val('procesador'));
+        set('res-ram', val('ram'));
+        set('res-almacen', (val('tipo_almacenamiento') + ' ' + val('capacidad_almacenamiento')).trim());
+        const carg = form.querySelector('[name="cargador"]').value;
+        set('res-cargador', carg === '1' ? 'Sí' : (carg === '0' ? 'No' : '—'));
+        set('res-fecha', val('fecha_adquisicion'));
+        set('res-planta', txtSel('planta_id'));
+        set('res-obs', val('observaciones'));
+
+        new bootstrap.Modal(document.getElementById('modalResumenEquipo')).show();
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         // =====================================================
         // CONVERTIR A MAYÚSCULAS MIENTRAS EL USUARIO ESCRIBE
@@ -402,10 +476,22 @@
         // SPINNER AL ENVIAR
         // =====================================================
         document.getElementById('computadoraForm').addEventListener('submit', function(e) {
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Guardando...';
+            const btn = document.getElementById('btnConfirmarEquipo');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Guardando...';
+            }
         });
+
+        // =====================================================
+        // CONFIRMAR DESDE EL MODAL DE RESUMEN
+        // =====================================================
+        const btnConfirmar = document.getElementById('btnConfirmarEquipo');
+        if (btnConfirmar) {
+            btnConfirmar.addEventListener('click', function () {
+                document.getElementById('computadoraForm').submit();
+            });
+        }
 
         // =====================================================
         // VALIDAR QUE LA FECHA NO SEA FUTURA

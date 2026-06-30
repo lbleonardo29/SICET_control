@@ -183,7 +183,7 @@ class EquipoController extends Controller
             'marca'                      => 'required|string|max:100',
             'modelo'                     => 'required|string|max:100',
             'numero_serie'               => 'required|string|max:100|unique:equipos,numero_serie',
-            'direccion_mac'              => ['nullable', 'regex:/^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/'],
+            'direccion_mac'              => ['nullable', 'regex:/^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/', 'unique:equipos,direccion_mac'],
             'color'                      => 'nullable|string|max:50',
             'procesador'                 => 'required|string|max:100',
             'ram'                        => 'required|string|max:50',
@@ -194,7 +194,10 @@ class EquipoController extends Controller
             'planta_id'                  => 'required|exists:plantas,id',
             'observaciones'              => 'required|string|max:1000',
         ], [
-            'direccion_mac.regex' => 'La dirección MAC debe tener el formato XX:XX:XX:XX:XX:XX (6 pares hexadecimales).',
+            'direccion_mac.regex'  => 'La dirección MAC debe tener el formato XX:XX:XX:XX:XX:XX (6 pares hexadecimales).',
+            'direccion_mac.unique' => 'Ya existe un equipo registrado con esa dirección MAC.',
+            'numero_serie.unique'  => 'Ya existe un equipo con ese número de serie.',
+            'nombre_equipo.unique' => 'Ya existe un equipo con ese nombre.',
         ]);
 
         // Generar código interno automático
@@ -294,7 +297,7 @@ class EquipoController extends Controller
             'marca'                      => 'required|string|max:100',
             'modelo'                     => 'required|string|max:100',
             'numero_serie'               => 'required|string|max:100|unique:equipos,numero_serie,' . $equipo->id,
-            'direccion_mac'              => ['nullable', 'regex:/^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/'],
+            'direccion_mac'              => ['nullable', 'regex:/^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/', 'unique:equipos,direccion_mac,' . $equipo->id],
             'color'                      => 'nullable|string|max:50',
             'procesador'                 => 'required|string|max:100',
             'ram'                        => 'required|string|max:50',
@@ -305,7 +308,10 @@ class EquipoController extends Controller
             'planta_id'                  => 'required|exists:plantas,id',
             'observaciones'              => 'required|string|max:1000',
         ], [
-            'direccion_mac.regex' => 'La dirección MAC debe tener el formato XX:XX:XX:XX:XX:XX (6 pares hexadecimales).',
+            'direccion_mac.regex'  => 'La dirección MAC debe tener el formato XX:XX:XX:XX:XX:XX (6 pares hexadecimales).',
+            'direccion_mac.unique' => 'Ya existe un equipo registrado con esa dirección MAC.',
+            'numero_serie.unique'  => 'Ya existe un equipo con ese número de serie.',
+            'nombre_equipo.unique' => 'Ya existe un equipo con ese nombre.',
         ]);
 
         // Combinar tipo y capacidad para el campo ssd
