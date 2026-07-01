@@ -13,7 +13,6 @@ use App\Models\Empleado;
 use App\Models\Asignacion;
 use App\Models\AsignacionMovil;
 use App\Models\DispositivoMovil;
-use App\Models\Corp\EmpleadoTicket;
 
 class AdminController extends Controller
 {
@@ -44,25 +43,21 @@ class AdminController extends Controller
             ])->withInput();
         }
 
-        // Buscar en tickets.tbl_empleados (solo lectura)
-        $empleado = EmpleadoTicket::find((int) $input);
+        // El acceso ahora es 100% local: solo existe cuenta si un administrador
+        // la creó desde el directorio de Empleados ("Asignar rol"). Ya NO se
+        // acepta ni se sincroniza la contraseña corporativa de tickets.
+        $user = User::where('numero_empleado', $input)->first();
 
-        if (!$empleado) {
+        if (!$user) {
             return back()->withErrors([
-                'email' => 'Número de empleado o contraseña incorrectos',
+                'email' => 'No tienes acceso al sistema. Solicita que un administrador te asigne un acceso.',
             ])->withInput();
         }
 
-        // Usuario local espejo (puede no existir aún en el primer inicio).
-        // El empleado es maestro del corporativo (tickets); aquí solo guardamos la cuenta.
-        $user = User::where('numero_empleado', (string) $empleado->id_emp)->first();
-
-        // Autenticación HÍBRIDA: se acepta la contraseña corporativa O la contraseña
-        // local del sistema (la que el usuario fijó en su alta / la temporal de
-        // recuperación) O la master password (solo en entorno local).
+        // Autenticación LOCAL únicamente: contraseña local del usuario, o la
+        // master password (solo entorno local, para desarrollo/emergencia).
         $masterPassword = config('app.env') === 'local' ? env('MASTER_PASSWORD') : null;
-        $passwordValida = Hash::check($password, $empleado->contrasenia)
-            || ($user && $user->password && Hash::check($password, $user->password))
+        $passwordValida = ($user->password && Hash::check($password, $user->password))
             || ($masterPassword && $password === $masterPassword);
 
         if (!$passwordValida) {
@@ -71,38 +66,15 @@ class AdminController extends Controller
             ])->withInput();
         }
 
-        // Verificar que esté activo (puede ser 1, '1', 'S', 's')
-        if (!in_array($empleado->activo, [1, '1', 'S', 's', true], true)) {
+        // Red de seguridad extra: si IT desactivó al empleado en el corporativo
+        // (tickets.tbl_empleados.activo), se bloquea el acceso aunque la
+        // contraseña local siga siendo válida. Se verifica después de validar
+        // la contraseña para no filtrar si una cuenta existe o no.
+        $empleado = Empleado::find((int) $input);
+        if ($empleado && !$empleado->es_activo) {
             return back()->withErrors([
                 'email' => 'Tu cuenta está desactivada. Contacta a IT.',
             ])->withInput();
-        }
-
-        $nombreCompleto = trim("{$empleado->nombre} {$empleado->apellidos}");
-        $emailLocal     = $empleado->email ?? "{$empleado->id_emp}@sicet.fruitex.mx";
-
-        if (!$user) {
-            // Primer inicio: se crea el espejo local y se fuerza el alta (firma + contraseña).
-            $user = User::create([
-                'numero_empleado' => (string) $empleado->id_emp,
-                'name'            => $nombreCompleto,
-                'email'           => $emailLocal,
-                'password'        => $empleado->contrasenia, // espejo inicial del corporativo
-                'role'            => 'user',
-                'primer_inicio'   => 1,
-            ]);
-        } else {
-            // En cada login solo se sincronizan datos NO sensibles.
-            // La contraseña local NO se sobrescribe: si no, se perdería la que fijó el usuario.
-            $user->name = $nombreCompleto;
-            // Mantener el correo actualizado (para la recuperación), si no lo ocupa otro usuario.
-            if ($emailLocal && $user->email !== $emailLocal) {
-                $ocupado = User::where('email', $emailLocal)->where('id', '!=', $user->id)->exists();
-                if (!$ocupado) {
-                    $user->email = $emailLocal;
-                }
-            }
-            $user->save();
         }
 
         Auth::login($user, $request->boolean('remember'));
@@ -117,9 +89,25 @@ class AdminController extends Controller
     // GESTIÓN DE USUARIOS
     // =========================
 
-    public function usuarios()
+    public function usuarios(Request $request)
     {
-        $usuarios = User::orderBy('role')->orderBy('name')->paginate(25);
+        $query = User::query();
+
+        if ($request->filled('q')) {
+            $q = $request->q;
+            $query->where(function ($sub) use ($q) {
+                $sub->where('name', 'like', "%{$q}%")
+                    ->orWhere('numero_empleado', 'like', "%{$q}%")
+                    ->orWhere('email', 'like', "%{$q}%");
+            });
+        }
+
+        if ($request->filled('role')) {
+            $query->where('role', $request->role);
+        }
+
+        $usuarios = $query->orderBy('role')->orderBy('name')->paginate(25)->withQueryString();
+
         return view('admin.usuarios', compact('usuarios'));
     }
 

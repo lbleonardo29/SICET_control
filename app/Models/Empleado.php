@@ -4,9 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Models\User;
-use App\Models\Asignacion;
-use App\Models\AsignacionMovil;
 
 /**
  * Empleado = proxy de SOLO LECTURA sobre la tabla corporativa `tbl_empleados`
@@ -88,27 +85,18 @@ class Empleado extends Model
         });
     }
 
-    /* =========================
-       RELACIONES (clave: id_emp)
-    ========================== */
-    public function user()
-    {
-        return $this->hasOne(User::class, 'numero_empleado', 'id_emp');
-    }
-
-    public function asignaciones()
-    {
-        return $this->hasMany(Asignacion::class, 'empleado_id', 'id_emp');
-    }
-
-    public function asignacionesMoviles()
-    {
-        return $this->hasMany(AsignacionMovil::class, 'empleado_id', 'id_emp');
-    }
-
-    // NOTA: no se define relación hacia tablas locales (users, plantas) porque
-    // Eloquent propaga la conexión `tickets` del padre a la consulta hija, y el
-    // usuario de `tickets` no tiene acceso a la BD local. Esos vínculos se
-    // resuelven manualmente en los controladores (ver EmpleadoController/
-    // AsignacionController) con setRelation usando la conexión por defecto.
+    // NOTA IMPORTANTE: a propósito NO se definen relaciones (user, asignaciones,
+    // asignacionesMoviles, planta...) hacia tablas de la BD local. Eloquent
+    // propaga la conexión `tickets` del padre a la consulta hija, y el usuario
+    // de `tickets` no tiene permiso sobre la BD local -> cualquier relación así
+    // truena con "SELECT command denied" en cuanto se ejecuta como query real
+    // (no basta con que "se vea bien" en un `with()`; cualquier ->metodo() la
+    // dispara). La forma correcta de obtener estos datos:
+    //   - Vínculo con User: consultar User::where('numero_empleado', ...) aparte
+    //     y usar setRelation() para adjuntarlo (ver EmpleadoController::index()).
+    //   - Asignaciones/asignacionesMoviles: consultar Asignacion/AsignacionMovil
+    //     directamente con where('empleado_id', $empleado->id_emp) (ver
+    //     AsignacionController::historialEmpleado(), AdminController::dashboard()).
+    //   - Planta: consultar Planta::where('id_planta_corp', ...) aparte (ver
+    //     EmpleadoController::index() y AsignacionController::vincularPlantas()).
 }

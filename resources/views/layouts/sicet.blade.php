@@ -22,6 +22,21 @@
         .s-notif-menu { width: 340px; max-height: 460px; overflow: hidden; border-radius: 12px; }
         .s-notif-list { max-height: 330px; overflow-y: auto; }
         .s-notif-item:hover { background: #f6f7f5; }
+        .s-notif-item {
+            max-height: 200px;
+            transition: opacity .22s ease, max-height .22s ease, padding .22s ease, margin .22s ease;
+        }
+        .s-notif-item.s-notif-leaving {
+            opacity: 0;
+            max-height: 0;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            margin: 0 !important;
+            border-bottom-width: 0 !important;
+            overflow: hidden;
+        }
+        .s-notif-count { transition: opacity .18s ease, transform .18s ease; }
+        .s-notif-count.s-notif-count-leaving { opacity: 0; transform: scale(.4); }
         .s-notif-ico {
             width: 30px; height: 30px; flex-shrink: 0; border-radius: 8px;
             display: flex; align-items: center; justify-content: center; font-size: 14px;
@@ -225,7 +240,8 @@
                         @if($notiNoLeidas->count() > 0)
                         <form method="POST" action="{{ route('notificaciones.leerTodas') }}" class="m-0">
                             @csrf
-                            <button class="btn btn-link p-0 text-decoration-none" style="font-size:12px;">Marcar todas</button>
+                            <button type="button" class="btn btn-link p-0 text-decoration-none" style="font-size:12px;"
+                                    onclick="marcarTodasLeidas(this)">Marcar todas</button>
                         </form>
                         @endif
                     </div>
@@ -336,6 +352,57 @@ setTimeout(function () {
         if (el) el.remove();
     });
 }, 5000);
+
+function marcarTodasLeidas(btn) {
+    var form  = btn.closest('form');
+    var token = document.querySelector('meta[name="csrf-token"]').content;
+
+    btn.disabled = true;
+
+    fetch(form.action, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': token,
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+    })
+    .then(function (res) {
+        if (!res.ok) throw new Error('network');
+        return res.json();
+    })
+    .then(function () {
+        var lista = document.querySelector('.s-notif-list');
+        var items = lista ? lista.querySelectorAll('.s-notif-item') : [];
+        var badge = document.querySelector('.s-notif-count');
+
+        if (badge) {
+            badge.classList.add('s-notif-count-leaving');
+            setTimeout(function () { badge.remove(); }, 180);
+        }
+
+        items.forEach(function (item, i) {
+            setTimeout(function () {
+                item.classList.add('s-notif-leaving');
+            }, i * 60);
+        });
+
+        setTimeout(function () {
+            if (lista) {
+                lista.innerHTML =
+                    '<div class="text-center text-muted py-4" style="font-size:13px;">' +
+                        '<i class="bi bi-bell-slash d-block mb-2" style="font-size:22px;"></i>' +
+                        'Sin notificaciones nuevas' +
+                    '</div>';
+            }
+            form.remove(); // ya no queda nada por marcar
+        }, items.length * 60 + 260);
+    })
+    .catch(function () {
+        // Si algo falla (red, etc.), respaldo: enviar el formulario de verdad.
+        form.submit();
+    });
+}
 </script>
 
 {{-- Bootstrap JS --}}

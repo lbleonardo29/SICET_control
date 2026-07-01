@@ -102,6 +102,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     // Empleados — DIRECTORIO DE SOLO LECTURA (los datos viven en tickets.tbl_empleados)
     Route::get('/empleados', [EmpleadoController::class, 'index'])->name('empleados.index');
+    Route::post('/empleados/{id_emp}/asignar-rol', [EmpleadoController::class, 'asignarRol'])->name('empleados.asignarRol');
 
     // Dispositivos móviles
     Route::get('/moviles', [DispositivoMovilController::class, 'index'])->name('moviles.index');

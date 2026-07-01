@@ -134,15 +134,39 @@
                                 {{-- Rol --}}
                                 <td>
                                     @if($empleado->user)
-                                        <span class="badge {{ $empleado->user->role === 'admin' ? 'bg-danger' : 'bg-primary' }} px-3 py-2">
-                                            <i class="bi bi-shield-{{ $empleado->user->role === 'admin' ? 'lock' : 'person' }} me-1"></i>
-                                            {{ ucfirst($empleado->user->role) }}
-                                        </span>
+                                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                                            <span class="badge {{ $empleado->user->role === 'admin' ? 'bg-danger' : 'bg-primary' }} px-3 py-2 d-inline-flex align-items-center justify-content-center"
+                                                  style="min-width:110px">
+                                                <i class="bi bi-shield-{{ $empleado->user->role === 'admin' ? 'lock' : 'person' }} me-1"></i>
+                                                {{ ucfirst($empleado->user->role) }}
+                                            </span>
+                                            <a href="{{ route('asignaciones.historial.empleado', $empleado->numero_empleado) }}"
+                                               class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center justify-content-center"
+                                               style="min-width:110px"
+                                               title="Ver historial de equipos"
+                                               data-bs-toggle="tooltip">
+                                                <i class="bi bi-clock-history me-1"></i>
+                                                Historial
+                                            </a>
+                                        </div>
                                     @else
-                                        <span class="badge bg-warning text-dark px-3 py-2">
-                                            <i class="bi bi-exclamation-triangle me-1"></i>
-                                            Sin usuario
-                                        </span>
+                                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                                            <span class="badge bg-warning text-dark px-3 py-2 d-inline-flex align-items-center justify-content-center"
+                                                  style="min-width:110px">
+                                                <i class="bi bi-exclamation-triangle me-1"></i>
+                                                Sin usuario
+                                            </span>
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-primary d-inline-flex align-items-center justify-content-center"
+                                                    style="min-width:110px"
+                                                    data-id-emp="{{ $empleado->numero_empleado }}"
+                                                    data-nombre="{{ $empleado->nombre_completo }}"
+                                                    data-correo="{{ $empleado->correo ?? '' }}"
+                                                    onclick="abrirModalAsignarRol(this)">
+                                                <i class="bi bi-person-plus me-1"></i>
+                                                Asignar rol
+                                            </button>
+                                        </div>
                                     @endif
                                 </td>
 
@@ -174,6 +198,73 @@
                 </div>
             </div>
         @endif
+    </div>
+
+    {{-- ===== MODAL: ASIGNAR ROL A EMPLEADO ===== --}}
+    <div class="modal fade" id="modalAsignarRol" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0">
+          <form id="formAsignarRol" method="POST" action="">
+            @csrf
+            <div class="modal-header bg-primary text-white">
+              <h5 class="modal-title">
+                <i class="bi bi-person-plus me-2"></i>
+                Asignar acceso al sistema
+              </h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+
+              {{-- Resumen del empleado --}}
+              <div class="d-flex align-items-center p-3 rounded-3 bg-light mb-3">
+                <i class="bi bi-person-circle fs-2 text-primary me-3 flex-shrink-0"></i>
+                <div>
+                  <div class="text-muted small mb-1">Empleado</div>
+                  <div class="fw-bold" id="ar-nombre">—</div>
+                  <div class="text-muted small" id="ar-numero">—</div>
+                  <div class="text-muted small" id="ar-correo">—</div>
+                </div>
+              </div>
+
+              {{-- Selección de rol --}}
+              <label class="form-label fw-semibold">
+                <i class="bi bi-shield me-1 text-primary"></i>
+                Rol a asignar <span class="text-danger">*</span>
+              </label>
+              <select name="role" id="ar-role" class="form-select form-select-lg mb-3" required>
+                <option value="">Selecciona un rol</option>
+                <option value="user">Usuario</option>
+                <option value="rh">RH</option>
+                <option value="admin">Administrador</option>
+              </select>
+
+              <div class="alert alert-warning d-flex align-items-center gap-2 py-2 mb-0" id="ar-sin-correo" hidden>
+                <i class="bi bi-envelope-exclamation fs-5 flex-shrink-0"></i>
+                <span class="small">Este empleado no tiene correo registrado en el corporativo. Las credenciales se enviarán a una dirección temporal (<span id="ar-correo-fallback"></span>) que probablemente nadie revisa.</span>
+              </div>
+
+              {{-- Paso de confirmación (oculto hasta elegir rol) --}}
+              <div id="ar-confirmacion" class="alert alert-info d-flex align-items-center gap-2 mt-3 py-2 mb-0" hidden>
+                <i class="bi bi-question-circle fs-5 flex-shrink-0"></i>
+                <span class="small">
+                  ¿Estás seguro de asignar el rol <strong id="ar-role-confirm">—</strong> a
+                  <strong id="ar-nombre-confirm">—</strong>? Se generará una contraseña temporal
+                  y se le enviará por correo.
+                </span>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                <i class="bi bi-arrow-left me-1"></i> Cancelar
+              </button>
+              <button type="submit" class="btn btn-primary px-4" id="btnConfirmarAsignarRol" disabled>
+                <i class="bi bi-check-circle me-2"></i>
+                Confirmar y crear cuenta
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
 </div>
 @endsection
@@ -258,7 +349,60 @@
 
         searchInput.addEventListener('keyup', filtrarTabla);
         rolFilter.addEventListener('change', filtrarTabla);
+
+        // ===== Modal: asignar rol =====
+        const roleSelect  = document.getElementById('ar-role');
+        const confirmBox  = document.getElementById('ar-confirmacion');
+        const roleConfirm = document.getElementById('ar-role-confirm');
+        const confirmBtn  = document.getElementById('btnConfirmarAsignarRol');
+
+        const etiquetas = { admin: 'Administrador', rh: 'RH', user: 'Usuario' };
+
+        roleSelect.addEventListener('change', function () {
+            if (this.value) {
+                roleConfirm.textContent = etiquetas[this.value] || this.value;
+                confirmBox.hidden = false;
+                confirmBtn.disabled = false;
+            } else {
+                confirmBox.hidden = true;
+                confirmBtn.disabled = true;
+            }
+        });
+
+        document.getElementById('formAsignarRol').addEventListener('submit', function () {
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creando cuenta...';
+        });
     });
+
+    function abrirModalAsignarRol(btn) {
+        const idEmp  = btn.dataset.idEmp;
+        const nombre = btn.dataset.nombre;
+        const correo = btn.dataset.correo;
+
+        const form = document.getElementById('formAsignarRol');
+        form.action = `/empleados/${idEmp}/asignar-rol`;
+
+        document.getElementById('ar-nombre').textContent = nombre;
+        document.getElementById('ar-numero').textContent = 'Núm. empleado: ' + idEmp;
+        document.getElementById('ar-correo').textContent = correo || 'Sin correo registrado';
+
+        const sinCorreo = document.getElementById('ar-sin-correo');
+        if (!correo) {
+            document.getElementById('ar-correo-fallback').textContent = `${idEmp}@sicet.fruitex.mx`;
+            sinCorreo.hidden = false;
+        } else {
+            sinCorreo.hidden = true;
+        }
+
+        // Reset de selección/confirmación en cada apertura
+        document.getElementById('ar-role').value = '';
+        document.getElementById('ar-confirmacion').hidden = true;
+        document.getElementById('btnConfirmarAsignarRol').disabled = true;
+        document.getElementById('ar-nombre-confirm').textContent = nombre;
+
+        new bootstrap.Modal(document.getElementById('modalAsignarRol')).show();
+    }
 
     function limpiarFiltros() {
         document.getElementById('searchInput').value = '';

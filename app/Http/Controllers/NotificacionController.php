@@ -25,9 +25,15 @@ class NotificacionController extends Controller
     }
 
     /** Marca todas las notificaciones como leídas. */
-    public function leerTodas()
+    public function leerTodas(Request $request)
     {
         Auth::user()->unreadNotifications->markAsRead();
+
+        // Petición AJAX (campana del header): responde JSON para animar sin recargar.
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true]);
+        }
+
         return back()->with('success', 'Todas las notificaciones fueron marcadas como leídas.');
     }
 }

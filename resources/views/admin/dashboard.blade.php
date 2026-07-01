@@ -10,7 +10,7 @@
 @php $sinFirma = empty(auth()->user()->firma); @endphp
 <div class="modal fade firma-modal" id="modalAlta" tabindex="-1"
      data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-dialog modal-dialog-scrollable" style="max-width:480px;margin:1.75rem auto">
         <div class="modal-content border-0 shadow-lg">
             <div class="modal-header" style="background:rgb(21,64,31);color:#BFE06A">
                 <h5 class="modal-title">
@@ -28,7 +28,7 @@
                     <input type="hidden" name="firma" class="firma-input">
                 @endif
 
-                <div class="modal-body p-4">
+                <div class="modal-body p-4" style="max-height:65vh;overflow-y:auto">
 
                     @if($errors->any())
                         <div class="alert alert-danger py-2">
@@ -88,9 +88,10 @@
                     </div>
                 </div>
 
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-success px-4">
-                        <i class="bi bi-check-circle me-2"></i> Guardar y continuar
+                <div class="modal-footer" style="flex-direction:column;align-items:stretch;gap:8px;padding:16px 24px 20px">
+                    <button type="submit" class="btn btn-success btn-lg w-100 fw-semibold"
+                            style="padding:14px;font-size:17px;letter-spacing:.3px">
+                        <i class="bi bi-check-circle-fill me-2"></i> Confirmar y continuar
                     </button>
                 </div>
             </form>
@@ -335,7 +336,7 @@
                         <h5 class="modal-title">Carta responsiva — Confirmación de equipo</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body" style="max-height:65vh;overflow-y:auto">
                         <div class="alert alert-warning py-2" style="font-size:12px">
                             <strong>Plantilla provisional.</strong> Revisa los datos y firma en el recuadro para aceptar el equipo.
                         </div>
@@ -420,7 +421,7 @@
                         <h5 class="modal-title">Carta responsiva — Confirmación de dispositivo</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body" style="max-height:65vh;overflow-y:auto">
                         <div class="alert alert-warning py-2" style="font-size:12px">
                             <strong>Plantilla provisional.</strong> Revisa los datos y firma en el recuadro para aceptar el dispositivo.
                         </div>
@@ -611,7 +612,7 @@
                         <h5 class="modal-title">Carta responsiva — Confirmación de equipo</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body" style="max-height:65vh;overflow-y:auto">
                         <div class="alert alert-warning py-2" style="font-size:12px">
                             <strong>Plantilla provisional.</strong> Revisa los datos y firma en el recuadro para aceptar el equipo.
                         </div>
@@ -698,7 +699,7 @@
                         <h5 class="modal-title">Carta responsiva — Confirmación de dispositivo</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body" style="max-height:65vh;overflow-y:auto">
                         <div class="alert alert-warning py-2" style="font-size:12px">
                             <strong>Plantilla provisional.</strong> Revisa los datos y firma en el recuadro para aceptar el dispositivo.
                         </div>

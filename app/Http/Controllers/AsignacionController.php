@@ -41,6 +41,28 @@ class AsignacionController extends Controller
     }
 
     /* =====================================================
+        HISTORIAL DE UN EMPLEADO (qué computadoras ha tenido)
+    ===================================================== */
+    public function historialEmpleado($empleado_id)
+    {
+        $empleado = Empleado::find((int) $empleado_id);
+
+        if (!$empleado) {
+            abort(404, 'Empleado no encontrado en el directorio corporativo.');
+        }
+
+        // No se usa $empleado->asignaciones() (relación): Empleado vive en la
+        // conexión `tickets` y Eloquent la propagaría a esta consulta, que debe
+        // correr en la BD local. Se consulta Asignacion directamente.
+        $asignaciones = Asignacion::where('empleado_id', $empleado->id_emp)
+            ->with('equipo')
+            ->orderByDesc('fecha_asignacion')
+            ->paginate(15);
+
+        return view('asignaciones.historial-empleado', compact('empleado', 'asignaciones'));
+    }
+
+    /* =====================================================
         DASHBOARD - SOLO ASIGNACIONES ACEPTADAS
     ===================================================== */
 

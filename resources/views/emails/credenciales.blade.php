@@ -11,114 +11,120 @@
             box-sizing: border-box;
         }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #e9ecef;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f1f2f4;
             margin: 0;
             padding: 20px;
-            line-height: 1.5;
+            line-height: 1.6;
+            color: #333333;
         }
         .email-container {
-            max-width: 500px;
+            max-width: 480px;
             margin: 0 auto;
             background-color: #ffffff;
-            border-radius: 20px;
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            border: 1px solid #e5e7eb;
         }
         .email-header {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            padding: 35px 20px;
+            background-color: #155029;
+            padding: 28px 24px;
             text-align: center;
-            color: white;
+            color: #ffffff;
         }
         .email-header h1 {
-            font-size: 32px;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
             margin: 0;
         }
-        .logo-icon {
-            font-size: 48px;
-            margin-bottom: 10px;
-        }
         .email-body {
-            padding: 35px;
+            padding: 32px;
         }
         .greeting {
-            font-size: 18px;
-            margin-bottom: 15px;
-            color: #2c3e50;
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: #1f2937;
         }
         .greeting strong {
-            color: #2a5298;
+            color: #155029;
         }
         .message {
-            color: #4a5568;
-            margin-bottom: 25px;
+            font-size: 14px;
+            color: #4b5563;
+            margin-bottom: 20px;
         }
         .password-box {
-            background: #f8fafc;
-            border-radius: 16px;
-            padding: 25px;
-            margin: 20px 0;
-            border: 1px solid #e2e8f0;
+            background: #f9fafb;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 16px 0;
+            border: 1px solid #e5e7eb;
             text-align: center;
         }
         .password-label {
             font-weight: 600;
-            color: #4a5568;
-            font-size: 12px;
+            color: #6b7280;
+            font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-bottom: 10px;
             display: block;
         }
         .password-value {
-            font-family: 'Courier New', monospace;
+            font-family: 'Courier New', Courier, monospace;
             font-weight: 700;
             font-size: 22px;
-            color: #10b981;
-            letter-spacing: 1px;
-            background: #ecfdf5;
-            padding: 12px 20px;
-            border-radius: 10px;
+            color: #155029;
+            letter-spacing: 2px;
+            background: #eef6ee;
+            padding: 12px 16px;
+            border-radius: 8px;
             display: inline-block;
+            word-break: break-all;
+        }
+        .password-hint {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 10px;
         }
         .warning-box {
             background-color: #fffbeb;
             border-left: 4px solid #f59e0b;
-            padding: 15px 20px;
-            margin: 20px 0;
-            border-radius: 12px;
+            padding: 14px 16px;
+            margin: 18px 0;
+            border-radius: 8px;
             font-size: 13px;
             color: #92400e;
         }
         .btn-container {
             text-align: center;
-            margin: 30px 0 20px;
+            margin: 26px 0 8px;
         }
-        .btn {
+        .btn-link {
             display: inline-block;
-            padding: 12px 32px;
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            text-decoration: none;
-            border-radius: 50px;
+            font-size: 15px;
             font-weight: 600;
+            color: #2563eb;
+            text-decoration: underline;
+        }
+        a {
+            color: #2563eb;
         }
         .email-footer {
-            background-color: #f8fafc;
-            padding: 25px;
+            background-color: #f9fafb;
+            padding: 20px;
             text-align: center;
             font-size: 12px;
-            color: #64748b;
-            border-top: 1px solid #e2e8f0;
+            color: #9ca3af;
+            border-top: 1px solid #e5e7eb;
         }
         @media (max-width: 480px) {
             .email-body {
-                padding: 25px;
+                padding: 22px;
             }
             .password-value {
                 font-size: 18px;
-                word-break: break-all;
             }
         }
     </style>
@@ -126,7 +132,6 @@
 <body>
     <div class="email-container">
         <div class="email-header">
-            <div class="logo-icon"></div>
             <h1>SICET</h1>
         </div>
 
@@ -136,27 +141,29 @@
             </div>
 
             <div class="message">
-                Bienvenido al sistema <strong>SICET</strong>. Ingresa al sistema con tu número de empleado y la siguiente contraseña temporal:
+                Bienvenido al sistema <strong>SICET</strong>. Ingresa con tu número de empleado
+                y la siguiente contraseña temporal:
             </div>
 
             <div class="password-box">
-                <span class="password-label"> CONTRASEÑA TEMPORAL</span>
+                <span class="password-label">Contraseña temporal</span>
                 <div class="password-value">{{ $password }}</div>
+                <div class="password-hint">Tócala y mantén presionado para copiarla, o selecciónala con doble clic.</div>
             </div>
 
             <div class="warning-box">
-                 Esta es una contraseña <strong>temporal</strong>. Deberás cambiarla la primera vez que inicies sesión.
+                Esta es una contraseña <strong>temporal</strong>. Deberás cambiarla la primera vez que inicies sesión.
             </div>
 
             <div class="btn-container">
-                <a href="{{ route('login') }}" class="btn">
-                     Iniciar sesión en SICET
+                <a href="{{ route('login') }}" class="btn-link">
+                    Iniciar sesión en SICET →
                 </a>
             </div>
         </div>
 
         <div class="email-footer">
-            <p> {{ date('Y') }} SICET - Sistema de Control de Computadoras</p>
+            <p>&copy; {{ date('Y') }} SICET · Sistema de Control de Equipos</p>
             <p>Este es un correo automático, por favor no responder.</p>
         </div>
     </div>

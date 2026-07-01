@@ -66,14 +66,20 @@
                         <div class="col-md-6 text-center">
                             {{-- Foto de perfil --}}
                             <div class="position-relative d-inline-block">
-                                <img src="{{ auth()->user()->profile_photo
-                                    ? asset('storage/'.auth()->user()->profile_photo)
-                                    : asset('img/default-user.png') }}"
-                                    class="rounded-circle border border-3 border-primary shadow-sm"
-                                    id="fotoPerfil"
-                                    width="150"
-                                    height="150"
-                                    style="object-fit: cover;">
+                                @if(auth()->user()->profile_photo)
+                                    <img src="{{ asset('storage/'.auth()->user()->profile_photo) }}"
+                                        class="rounded-circle border border-3 border-primary shadow-sm"
+                                        id="fotoPerfil"
+                                        width="150"
+                                        height="150"
+                                        style="object-fit: cover;">
+                                @else
+                                    <div class="rounded-circle border border-3 border-primary shadow-sm d-flex align-items-center justify-content-center"
+                                         id="fotoPerfil"
+                                         style="width:150px;height:150px;background:rgb(21,64,31);">
+                                        <i class="bi bi-person-fill text-white" style="font-size:76px;"></i>
+                                    </div>
+                                @endif
                                 <div class="position-absolute bottom-0 end-0 bg-success rounded-circle p-2 border border-2 border-white">
                                     <i class="bi bi-camera-fill text-white small"></i>
                                 </div>

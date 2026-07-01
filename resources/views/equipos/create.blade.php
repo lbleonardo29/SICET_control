@@ -350,7 +350,7 @@
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body p-4">
+                <div class="modal-body p-4" style="max-height:65vh;overflow-y:auto">
                     <p class="text-muted mb-3">Revisa los datos antes de guardar. El código interno se generará automáticamente.</p>
                     <div class="row g-2">
                         <div class="col-md-6"><small class="text-muted d-block">Nombre del equipo</small><span class="fw-bold" id="res-nombre">—</span></div>
