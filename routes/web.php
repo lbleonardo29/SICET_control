@@ -78,7 +78,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     // Asignaciones computadoras — gestión (dashboard solo-lectura está en grupo admin+rh)
     Route::get('/asignaciones', [AsignacionController::class, 'index'])->name('asignaciones.index');
     Route::get('/asignaciones/historial/empleado/{empleado_id}', [AsignacionController::class, 'historialEmpleado'])->name('asignaciones.historial.empleado');
-    Route::get('/asignaciones/historial/equipo/{equipo_id}', [AsignacionController::class, 'historialEquipo'])->name('asignaciones.historial.equipo');
+    // (No existe "asignaciones.historial.equipo": sería redundante con
+    // equipos.historial, que ya cubre "ver qué empleados ha tenido un equipo".)
     Route::get('/asignaciones/create/{equipo}', [AsignacionController::class, 'create'])->name('asignaciones.create');
     Route::post('/asignaciones', [AsignacionController::class, 'store'])->name('asignaciones.store');
     Route::put('/asignaciones/devolver/{id}', [AsignacionController::class, 'devolver'])->name('asignaciones.devolver');

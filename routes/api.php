@@ -25,6 +25,5 @@ Route::post('/asignaciones', [AsignacionController::class, 'store']);
 Route::put('/asignaciones/devolver/{id}', [AsignacionController::class, 'devolver']);
 Route::middleware('auth')->group(function () {
     Route::get('/asignaciones/historial/empleado/{empleado_id}', [AsignacionController::class, 'historialEmpleado']);
-    Route::get('/asignaciones/historial/equipo/{equipo_id}', [AsignacionController::class, 'historialEquipo']);
 });
 
