@@ -352,25 +352,22 @@
                             Me comprometo a cuidarlo y utilizarlo exclusivamente para fines laborales. En caso de
                             extravío, daño o uso inadecuado, me responsabilizo del costo de reparación o reposición.
                         </p>
-                        <label class="fw-semibold mt-2" style="font-size:13px">Firma de aceptación:</label>
-                        <div class="firma-wrap">
-                            <canvas class="firma-canvas" id="canvasEqAdm{{ $asig->id }}"></canvas>
+                        <div class="alert alert-light border d-flex align-items-center gap-2 mt-2 py-2" style="font-size:12px">
+                            <i class="bi bi-patch-check-fill text-success fs-5 flex-shrink-0"></i>
+                            <span>Se firmará con la firma que registraste al darte de alta en la plataforma.</span>
                         </div>
-                        <button type="button" class="btn btn-sm btn-outline-secondary mt-2" onclick="limpiarFirma('canvasEqAdm{{ $asig->id }}')">
-                            <i class="bi bi-eraser me-1"></i> Limpiar
-                        </button>
                     </div>
-                    <div class="modal-footer">
+                    <div class="modal-footer flex-column align-items-stretch gap-2">
+                        <button type="button" class="btn-hold-confirm w-100" data-form-id="firmaFormEqAdm{{ $asig->id }}">
+                            <span class="btn-hold-progress"></span>
+                            <span class="btn-hold-label"><i class="bi bi-hand-index-thumb me-2"></i>Mantén presionado para aceptar</span>
+                        </button>
+                        <form method="POST" action="{{ route('asignaciones.firmar', $asig->id) }}" id="firmaFormEqAdm{{ $asig->id }}" class="d-none">
+                            @csrf @method('PUT')
+                        </form>
                         <form method="POST" action="{{ route('asignaciones.rechazar', $asig->id) }}" class="m-0">
                             @csrf @method('PUT')
-                            <button type="submit" class="btn btn-outline-danger">Rechazar</button>
-                        </form>
-                        <form method="POST" action="{{ route('asignaciones.firmar', $asig->id) }}" class="m-0 firma-form" data-canvas="canvasEqAdm{{ $asig->id }}">
-                            @csrf @method('PUT')
-                            <input type="hidden" name="firma" class="firma-input">
-                            <button type="submit" class="btn btn-success">
-                                <i class="bi bi-pen me-1"></i> Firmar y aceptar
-                            </button>
+                            <button type="submit" class="btn btn-outline-danger btn-sm w-100">Rechazar</button>
                         </form>
                     </div>
                 </div>
@@ -437,25 +434,22 @@
                             Me comprometo a cuidarlo y utilizarlo exclusivamente para fines laborales. En caso de
                             extravío, daño o uso inadecuado, me responsabilizo del costo de reparación o reposición.
                         </p>
-                        <label class="fw-semibold mt-2" style="font-size:13px">Firma de aceptación:</label>
-                        <div class="firma-wrap">
-                            <canvas class="firma-canvas" id="canvasMovAdm{{ $asig->id }}"></canvas>
+                        <div class="alert alert-light border d-flex align-items-center gap-2 mt-2 py-2" style="font-size:12px">
+                            <i class="bi bi-patch-check-fill text-success fs-5 flex-shrink-0"></i>
+                            <span>Se firmará con la firma que registraste al darte de alta en la plataforma.</span>
                         </div>
-                        <button type="button" class="btn btn-sm btn-outline-secondary mt-2" onclick="limpiarFirma('canvasMovAdm{{ $asig->id }}')">
-                            <i class="bi bi-eraser me-1"></i> Limpiar
-                        </button>
                     </div>
-                    <div class="modal-footer">
+                    <div class="modal-footer flex-column align-items-stretch gap-2">
+                        <button type="button" class="btn-hold-confirm w-100" data-form-id="firmaFormMovAdm{{ $asig->id }}">
+                            <span class="btn-hold-progress"></span>
+                            <span class="btn-hold-label"><i class="bi bi-hand-index-thumb me-2"></i>Mantén presionado para aceptar</span>
+                        </button>
+                        <form method="POST" action="{{ route('asignaciones.moviles.firmar', $asig->id) }}" id="firmaFormMovAdm{{ $asig->id }}" class="d-none">
+                            @csrf @method('PUT')
+                        </form>
                         <form method="POST" action="{{ route('asignaciones.moviles.rechazar', $asig->id) }}" class="m-0">
                             @csrf @method('PUT')
-                            <button type="submit" class="btn btn-outline-danger">Rechazar</button>
-                        </form>
-                        <form method="POST" action="{{ route('asignaciones.moviles.firmar', $asig->id) }}" class="m-0 firma-form" data-canvas="canvasMovAdm{{ $asig->id }}">
-                            @csrf @method('PUT')
-                            <input type="hidden" name="firma" class="firma-input">
-                            <button type="submit" class="btn btn-success">
-                                <i class="bi bi-pen me-1"></i> Firmar y aceptar
-                            </button>
+                            <button type="submit" class="btn btn-outline-danger btn-sm w-100">Rechazar</button>
                         </form>
                     </div>
                 </div>
@@ -465,6 +459,94 @@
     </div>
 </div>
 @endif
+
+{{-- Mi propio equipo y móvil (el admin también puede tener equipo asignado) --}}
+<div class="s-grid-2 s-mb-24">
+
+    <div class="s-card">
+        <div class="s-card-header">
+            <div class="s-card-header-left">
+                <span class="s-card-title">Mis equipos</span>
+                <span class="s-card-subtitle">Equipos de cómputo activos</span>
+            </div>
+        </div>
+        @if($maquinas->isEmpty())
+            <div class="s-empty">
+                <div class="s-empty-icon"></div>
+                <div class="s-empty-title">Sin equipos asignados</div>
+                <div class="s-empty-text">No tienes computadoras asignadas actualmente.</div>
+            </div>
+        @else
+            <div class="s-card-body" style="display:flex;flex-direction:column;gap:12px">
+                @foreach($maquinas as $asig)
+                <div class="s-device-card">
+                    <div class="s-device-card-header">
+                        <div class="s-device-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="3" width="20" height="14" rx="2"/>
+                                <line x1="8" y1="21" x2="16" y2="21"/>
+                                <line x1="12" y1="17" x2="12" y2="21"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="s-device-model">{{ $asig->equipo->marca }} {{ $asig->equipo->modelo }}</div>
+                            <div class="s-device-code">{{ $asig->equipo->codigo_interno }}</div>
+                        </div>
+                    </div>
+                    <div class="s-device-detail">Serie: <span>{{ $asig->equipo->numero_serie }}</span></div>
+                    <div class="s-device-detail">Asignado el: <span>{{ \Carbon\Carbon::parse($asig->fecha_asignacion)->format('d/m/Y') }}</span></div>
+                    @if($asig->carta_pdf)
+                    <a href="{{ route('asignaciones.descargar', $asig->id) }}" class="s-pdf-btn">
+                        <i class="bi bi-file-earmark-pdf me-1"></i> Descargar carta (PDF)
+                    </a>
+                    @endif
+                </div>
+                @endforeach
+            </div>
+        @endif
+    </div>
+
+    <div class="s-card">
+        <div class="s-card-header">
+            <div class="s-card-header-left">
+                <span class="s-card-title">Mi dispositivo móvil</span>
+                <span class="s-card-subtitle">Dispositivo activo asignado</span>
+            </div>
+        </div>
+        @if(!$movil)
+            <div class="s-empty">
+                <div class="s-empty-icon"></div>
+                <div class="s-empty-title">Sin dispositivo asignado</div>
+                <div class="s-empty-text">No tienes un dispositivo móvil actualmente.</div>
+            </div>
+        @else
+            <div class="s-card-body">
+                <div class="s-device-card">
+                    <div class="s-device-card-header">
+                        <div class="s-device-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+                                <line x1="12" y1="18" x2="12.01" y2="18"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="s-device-model">{{ $movil->dispositivo->marca }} {{ $movil->dispositivo->modelo }}</div>
+                            <div class="s-device-code">{{ $movil->dispositivo->codigo_interno ?? 'S/C' }}</div>
+                        </div>
+                    </div>
+                    <div class="s-device-detail">IMEI: <span>{{ $movil->dispositivo->imei }}</span></div>
+                    <div class="s-device-detail">Asignado el: <span>{{ \Carbon\Carbon::parse($movil->fecha_asignacion)->format('d/m/Y') }}</span></div>
+                    @if($movil->carta_pdf)
+                    <a href="{{ route('asignaciones.moviles.descargar', $movil->id) }}" class="s-pdf-btn">
+                        <i class="bi bi-file-earmark-pdf me-1"></i> Descargar carta (PDF)
+                    </a>
+                    @endif
+                </div>
+            </div>
+        @endif
+    </div>
+
+</div>
 
 {{-- ======================== USER / SEGURIDAD VIEW ======================== --}}
 @else
@@ -628,25 +710,22 @@
                             Me comprometo a cuidarlo y utilizarlo exclusivamente para fines laborales. En caso de
                             extravío, daño o uso inadecuado, me responsabilizo del costo de reparación o reposición.
                         </p>
-                        <label class="fw-semibold mt-2" style="font-size:13px">Firma de aceptación:</label>
-                        <div class="firma-wrap">
-                            <canvas class="firma-canvas" id="canvasEq{{ $asig->id }}"></canvas>
+                        <div class="alert alert-light border d-flex align-items-center gap-2 mt-2 py-2" style="font-size:12px">
+                            <i class="bi bi-patch-check-fill text-success fs-5 flex-shrink-0"></i>
+                            <span>Se firmará con la firma que registraste al darte de alta en la plataforma.</span>
                         </div>
-                        <button type="button" class="btn btn-sm btn-outline-secondary mt-2" onclick="limpiarFirma('canvasEq{{ $asig->id }}')">
-                            <i class="bi bi-eraser me-1"></i> Limpiar
-                        </button>
                     </div>
-                    <div class="modal-footer">
+                    <div class="modal-footer flex-column align-items-stretch gap-2">
+                        <button type="button" class="btn-hold-confirm w-100" data-form-id="firmaFormEq{{ $asig->id }}">
+                            <span class="btn-hold-progress"></span>
+                            <span class="btn-hold-label"><i class="bi bi-hand-index-thumb me-2"></i>Mantén presionado para aceptar</span>
+                        </button>
+                        <form method="POST" action="{{ route('asignaciones.firmar', $asig->id) }}" id="firmaFormEq{{ $asig->id }}" class="d-none">
+                            @csrf @method('PUT')
+                        </form>
                         <form method="POST" action="{{ route('asignaciones.rechazar', $asig->id) }}" class="m-0">
                             @csrf @method('PUT')
-                            <button type="submit" class="btn btn-outline-danger">Rechazar</button>
-                        </form>
-                        <form method="POST" action="{{ route('asignaciones.firmar', $asig->id) }}" class="m-0 firma-form" data-canvas="canvasEq{{ $asig->id }}">
-                            @csrf @method('PUT')
-                            <input type="hidden" name="firma" class="firma-input">
-                            <button type="submit" class="btn btn-success">
-                                <i class="bi bi-pen me-1"></i> Firmar y aceptar
-                            </button>
+                            <button type="submit" class="btn btn-outline-danger btn-sm w-100">Rechazar</button>
                         </form>
                     </div>
                 </div>
@@ -715,25 +794,22 @@
                             Me comprometo a cuidarlo y utilizarlo exclusivamente para fines laborales. En caso de
                             extravío, daño o uso inadecuado, me responsabilizo del costo de reparación o reposición.
                         </p>
-                        <label class="fw-semibold mt-2" style="font-size:13px">Firma de aceptación:</label>
-                        <div class="firma-wrap">
-                            <canvas class="firma-canvas" id="canvasMov{{ $asig->id }}"></canvas>
+                        <div class="alert alert-light border d-flex align-items-center gap-2 mt-2 py-2" style="font-size:12px">
+                            <i class="bi bi-patch-check-fill text-success fs-5 flex-shrink-0"></i>
+                            <span>Se firmará con la firma que registraste al darte de alta en la plataforma.</span>
                         </div>
-                        <button type="button" class="btn btn-sm btn-outline-secondary mt-2" onclick="limpiarFirma('canvasMov{{ $asig->id }}')">
-                            <i class="bi bi-eraser me-1"></i> Limpiar
-                        </button>
                     </div>
-                    <div class="modal-footer">
+                    <div class="modal-footer flex-column align-items-stretch gap-2">
+                        <button type="button" class="btn-hold-confirm w-100" data-form-id="firmaFormMov{{ $asig->id }}">
+                            <span class="btn-hold-progress"></span>
+                            <span class="btn-hold-label"><i class="bi bi-hand-index-thumb me-2"></i>Mantén presionado para aceptar</span>
+                        </button>
+                        <form method="POST" action="{{ route('asignaciones.moviles.firmar', $asig->id) }}" id="firmaFormMov{{ $asig->id }}" class="d-none">
+                            @csrf @method('PUT')
+                        </form>
                         <form method="POST" action="{{ route('asignaciones.moviles.rechazar', $asig->id) }}" class="m-0">
                             @csrf @method('PUT')
-                            <button type="submit" class="btn btn-outline-danger">Rechazar</button>
-                        </form>
-                        <form method="POST" action="{{ route('asignaciones.moviles.firmar', $asig->id) }}" class="m-0 firma-form" data-canvas="canvasMov{{ $asig->id }}">
-                            @csrf @method('PUT')
-                            <input type="hidden" name="firma" class="firma-input">
-                            <button type="submit" class="btn btn-success">
-                                <i class="bi bi-pen me-1"></i> Firmar y aceptar
-                            </button>
+                            <button type="submit" class="btn btn-outline-danger btn-sm w-100">Rechazar</button>
                         </form>
                     </div>
                 </div>
@@ -763,6 +839,37 @@
         touch-action: none;
         cursor: crosshair;
         border-radius: 10px;
+    }
+    .btn-hold-confirm {
+        position: relative;
+        overflow: hidden;
+        padding: 14px;
+        border: none;
+        border-radius: 10px;
+        background: rgb(21,64,31);
+        color: #BFE06A;
+        font-weight: 600;
+        font-size: 15px;
+        cursor: pointer;
+        -webkit-user-select: none;
+        user-select: none;
+        touch-action: none;
+    }
+    .btn-hold-confirm .btn-hold-progress {
+        position: absolute;
+        top: 0; left: 0; bottom: 0;
+        width: 0%;
+        background: rgba(191,224,106,0.38);
+    }
+    .btn-hold-confirm .btn-hold-label {
+        position: relative;
+        z-index: 1;
+        display: inline-flex;
+        align-items: center;
+    }
+    .btn-hold-confirm:disabled {
+        opacity: 0.85;
+        cursor: default;
     }
     .s-pdf-btn {
         display: inline-flex;
@@ -839,6 +946,51 @@
             new bootstrap.Modal(firstModal).show();
         }
     }
+})();
+
+// Botón "mantener presionado" para aceptar una asignación reutilizando la
+// firma de alta (ya no se dibuja una firma nueva por cada asignación).
+(function () {
+    var DURATION = 1000;
+
+    function initHoldToConfirm(btn) {
+        var progress  = btn.querySelector('.btn-hold-progress');
+        var label     = btn.querySelector('.btn-hold-label');
+        var labelHtml = label.innerHTML;
+        var form      = document.getElementById(btn.getAttribute('data-form-id'));
+        var holdTimeout = null;
+        var completed = false;
+
+        function empezar(e) {
+            if (completed) return;
+            e.preventDefault();
+            progress.style.transition = 'width ' + DURATION + 'ms linear';
+            progress.style.width = '100%';
+            holdTimeout = setTimeout(function () {
+                completed = true;
+                btn.disabled = true;
+                label.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Firmando...';
+                setTimeout(function () { form.submit(); }, 300);
+            }, DURATION);
+        }
+
+        function cancelar() {
+            if (completed) return;
+            clearTimeout(holdTimeout);
+            progress.style.transition = 'width 0.2s ease';
+            progress.style.width = '0%';
+            label.innerHTML = labelHtml;
+        }
+
+        btn.addEventListener('mousedown', empezar);
+        btn.addEventListener('touchstart', empezar, { passive: false });
+        btn.addEventListener('mouseup', cancelar);
+        btn.addEventListener('mouseleave', cancelar);
+        btn.addEventListener('touchend', cancelar);
+        btn.addEventListener('touchcancel', cancelar);
+    }
+
+    document.querySelectorAll('.btn-hold-confirm').forEach(initHoldToConfirm);
 })();
 
 // El modal de alta debe abrirse y bloquear SIEMPRE (aun si falla la librería de firma).

@@ -100,11 +100,8 @@ class AsignacionMovilController extends Controller
                 ->with('error', 'Este dispositivo ya tiene una asignación pendiente de respuesta.');
         }
         
-        // Empleados activos del corporativo (tickets). Se puede asignar a cualquiera;
-        // si aún no tiene cuenta, verá la asignación al iniciar sesión por primera vez.
-        $empleados = Empleado::activos()->orderBy('nombre')->get();
-
-        return view('asignaciones_moviles.create', compact('movil', 'empleados'));
+        // El empleado ya no se precarga: se busca vía AJAX (/api/empleados/search).
+        return view('asignaciones_moviles.create', compact('movil'));
     }
 
     /* =====================================================
@@ -281,13 +278,6 @@ class AsignacionMovilController extends Controller
 
     public function firmar(Request $request, $id)
     {
-        $request->validate([
-            'firma' => ['required', 'string', 'regex:/^data:image\/png;base64,/'],
-        ], [
-            'firma.required' => 'Debes firmar antes de aceptar.',
-            'firma.regex'    => 'La firma recibida no es válida.',
-        ]);
-
         $asignacion = AsignacionMovil::with(['dispositivo', 'empleado'])->findOrFail($id);
 
         if ($asignacion->estado_asignacion !== 'pendiente') {
@@ -299,11 +289,17 @@ class AsignacionMovilController extends Controller
             return back()->with('error', 'No tienes permiso para firmar esta asignación.');
         }
 
-        // Guardar firma + aceptar
+        // Ya no se dibuja una firma nueva por cada asignación: se reutiliza la
+        // firma de alta capturada una sola vez al darse de alta en la plataforma.
+        if (empty($user->firma)) {
+            return back()->with('error', 'No se encontró tu firma de alta. Contacta a un administrador.');
+        }
+
+        // Guardar firma reutilizada + aceptar
         $asignacion->update([
             'estado_asignacion' => 'aceptada',
             'fecha_respuesta'   => now(),
-            'firma'             => $request->firma,
+            'firma'             => $user->firma,
             'fecha_firma'       => now(),
         ]);
 

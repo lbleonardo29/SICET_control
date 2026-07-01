@@ -165,6 +165,7 @@ Route::middleware('auth')->group(function () {
                     'nombre_completo' => $e->nombre_completo,
                     'numero_empleado' => $e->numero_empleado,
                     'correo'          => $e->correo,
+                    'area'            => $e->area,
                 ]);
             return response()->json($empleados);
         } catch (\Exception $e) {

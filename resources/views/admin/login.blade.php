@@ -59,6 +59,9 @@
             ['cls' => 'fruit-mango-1', 'id' => 'mg1'],
             ['cls' => 'fruit-mango-2', 'id' => 'mg2'],
             ['cls' => 'fruit-mango-3', 'id' => 'mg3'],
+             ['cls' => 'fruit-mango-1', 'id' => 'mg4'],
+            ['cls' => 'fruit-mango-2', 'id' => 'mg5'],
+            ['cls' => 'fruit-mango-3', 'id' => 'mg6'],
         ];
     @endphp
     @foreach($mangos as $m)

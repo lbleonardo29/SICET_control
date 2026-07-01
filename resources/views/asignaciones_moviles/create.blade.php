@@ -77,52 +77,47 @@
                                 <i class="bi bi-calendar me-1 text-primary"></i>
                                 Fecha de Asignación
                             </label>
-                            <input type="date" 
-                                   name="fecha_asignacion" 
-                                   class="form-control form-control-lg" 
-                                   value="{{ old('fecha_asignacion', date('Y-m-d')) }}" 
+                            <input type="date"
+                                   name="fecha_asignacion"
+                                   class="form-control form-control-lg"
+                                   value="{{ old('fecha_asignacion', date('Y-m-d')) }}"
                                    max="{{ date('Y-m-d') }}"
                                    required>
                         </div>
 
-                        {{-- Barra de búsqueda --}}
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">
-                                <i class="bi bi-search me-1 text-primary"></i>
-                                Buscar Empleado
-                            </label>
-                            <input type="text" 
-                                   id="buscarEmpleado" 
-                                   class="form-control form-control-lg" 
-                                   placeholder="Escribe nombre o número de empleado...">
-                        </div>
-
-                        {{-- Select de empleados --}}
+                        {{-- BUSCADOR DE EMPLEADOS --}}
                         <div class="mb-4">
                             <label class="form-label fw-semibold">
-                                <i class="bi bi-person me-1 text-primary"></i>
-                                Empleado
+                                <i class="bi bi-search me-1 text-primary"></i>
+                                Buscar Empleado <span class="text-danger">*</span>
                             </label>
-                            <select name="empleado_id" 
-                                    id="empleado_id" 
-                                    class="form-select form-select-lg" 
-                                    size="5"
-                                    required>
-                                <option value="">-- Seleccione un empleado --</option>
-                                @foreach($empleados as $emp)
-                                    <option value="{{ $emp->id_emp }}"
-                                            data-email="{{ $emp->correo }}"
-                                            data-numero="{{ $emp->numero_empleado }}">
-                                        {{ $emp->nombre_completo }} - {{ $emp->numero_empleado }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0">
+                                    <i class="bi bi-search text-muted"></i>
+                                </span>
+                                <input type="text"
+                                       id="buscadorEmpleado"
+                                       class="form-control form-control-lg border-start-0"
+                                       placeholder="Buscar por nombre, apellido, correo o número de empleado..."
+                                       autocomplete="off">
+                            </div>
+                            <small class="text-muted">Escribe para buscar empleados (mínimo 2 caracteres)</small>
                         </div>
 
-                        {{-- Info del empleado --}}
-                        <div id="infoEmpleado" class="alert alert-info d-none">
-                            <i class="bi bi-envelope me-2"></i> <span id="empEmail"></span><br>
-                            <i class="bi bi-person-badge me-2"></i> Número: <span id="empNumero"></span>
+                        {{-- Lista de resultados / Selección --}}
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="bi bi-person-badge me-1 text-primary"></i>
+                                Empleado Seleccionado
+                            </label>
+                            <div id="resultadosEmpleados" class="border rounded-3" style="min-height: 200px; max-height: 300px; overflow-y: auto;">
+                                <div class="text-center text-muted py-5" id="mensajeInicial">
+                                    <i class="bi bi-search display-6 d-block mb-2"></i>
+                                    <p>Escribe en el buscador para encontrar empleados</p>
+                                </div>
+                            </div>
+                            <input type="hidden" id="empleado_id" name="empleado_id" required>
+                            <div id="empleadoError" class="invalid-feedback d-none">Debes seleccionar un empleado</div>
                         </div>
 
                         {{-- Botones --}}
@@ -131,7 +126,7 @@
                                 <i class="bi bi-x-circle me-2"></i>
                                 Cancelar
                             </a>
-                            <button type="button" class="btn btn-primary px-4 py-2" onclick="abrirModalMovil()">
+                            <button type="button" class="btn btn-primary px-4 py-2" id="submitBtn" disabled onclick="abrirModalMovil()">
                                 <i class="bi bi-clipboard-check me-2"></i>
                                 Resumen y confirmar
                             </button>
@@ -203,70 +198,184 @@
 
 @endsection
 
+@push('styles')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<style>
+    .empleado-card {
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-left: 4px solid transparent;
+    }
+    .empleado-card:hover {
+        background-color: #f8f9fa;
+        transform: translateX(5px);
+    }
+    .empleado-card.selected {
+        background-color: #cfe2ff;
+        border-left-color: #0d6efd;
+    }
+    .resultado-item {
+        border-bottom: 1px solid #e9ecef;
+        margin-bottom: 0;
+    }
+    .resultado-item:last-child {
+        border-bottom: none;
+    }
+    .spinner-busqueda {
+        display: inline-block;
+        width: 1rem;
+        height: 1rem;
+        border: 2px solid #e9ecef;
+        border-top-color: #0d6efd;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
+@endpush
+
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const inputBuscar = document.getElementById('buscarEmpleado');
-        const selectEmpleado = document.getElementById('empleado_id');
-        const opciones = selectEmpleado.querySelectorAll('option');
-        const infoDiv = document.getElementById('infoEmpleado');
-        const empEmail = document.getElementById('empEmail');
-        const empNumero = document.getElementById('empNumero');
+        const buscador = document.getElementById('buscadorEmpleado');
+        const resultadosDiv = document.getElementById('resultadosEmpleados');
+        const empleadoIdInput = document.getElementById('empleado_id');
+        const empleadoError = document.getElementById('empleadoError');
+        const submitBtn = document.getElementById('submitBtn');
+        let timeoutId = null;
 
-        function filtrar() {
-            const termino = inputBuscar.value.toLowerCase();
-            let visibles = 0;
-            
-            opciones.forEach(opcion => {
-                if (opcion.value === '') return;
-                const texto = opcion.textContent.toLowerCase();
-                if (texto.includes(termino)) {
-                    opcion.style.display = '';
-                    visibles++;
-                } else {
-                    opcion.style.display = 'none';
-                }
-            });
-            
-            if (visibles === 1) {
-                opciones.forEach(opcion => {
-                    if (opcion.value !== '' && opcion.style.display !== 'none') {
-                        opcion.selected = true;
-                        const event = new Event('change');
-                        selectEmpleado.dispatchEvent(event);
-                    }
-                });
+        function buscarEmpleados(termino) {
+            if (termino.length < 2) {
+                resultadosDiv.innerHTML = `
+                    <div class="text-center text-muted py-5">
+                        <i class="bi bi-search display-6 d-block mb-2"></i>
+                        <p>Escribe al menos 2 caracteres para buscar</p>
+                    </div>
+                `;
+                return;
             }
+
+            resultadosDiv.innerHTML = `
+                <div class="text-center py-5">
+                    <div class="spinner-busqueda mx-auto mb-3" style="width: 2rem; height: 2rem;"></div>
+                    <p class="text-muted">Buscando empleados...</p>
+                </div>
+            `;
+
+            fetch(`/api/empleados/search?q=${encodeURIComponent(termino)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length === 0) {
+                        resultadosDiv.innerHTML = `
+                            <div class="text-center text-muted py-5">
+                                <i class="bi bi-person-x display-6 d-block mb-2"></i>
+                                <p>No se encontraron empleados con "${termino}"</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    resultadosDiv.innerHTML = data.map(empleado => `
+                        <div class="resultado-item p-3 empleado-card"
+                             data-id="${empleado.id}"
+                             data-nombre="${empleado.nombre_completo}"
+                             data-numero="${empleado.numero_empleado || 'N/A'}">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-bold">
+                                        <i class="bi bi-person-circle me-2 text-primary"></i>
+                                        ${empleado.nombre_completo}
+                                    </div>
+                                    <div class="small text-muted mt-1">
+                                        <span class="me-3">
+                                            <i class="bi bi-badge-number me-1"></i>
+                                            Núm: ${empleado.numero_empleado || 'N/A'}
+                                        </span>
+                                        <span class="me-3">
+                                            <i class="bi bi-envelope me-1"></i>
+                                            ${empleado.correo || 'Sin correo'}
+                                        </span>
+                                        <span>
+                                            <i class="bi bi-building me-1"></i>
+                                            ${empleado.area || 'Sin área'}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <i class="bi bi-check-circle-fill text-success" style="display: none;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+
+                    document.querySelectorAll('.empleado-card').forEach(card => {
+                        card.addEventListener('click', function() {
+                            const id = this.dataset.id;
+                            const nombre = this.querySelector('.fw-bold').innerText;
+
+                            document.querySelectorAll('.empleado-card').forEach(c => {
+                                c.classList.remove('selected');
+                                c.style.borderLeftColor = 'transparent';
+                            });
+
+                            this.classList.add('selected');
+                            this.style.borderLeftColor = '#0d6efd';
+
+                            empleadoIdInput.value = id;
+                            document.getElementById('dispMovilNombre').value = this.dataset.nombre || nombre;
+                            document.getElementById('dispMovilNumero').value = this.dataset.numero || '';
+
+                            empleadoError.classList.add('d-none');
+                            submitBtn.disabled = false;
+
+                            resultadosDiv.insertAdjacentHTML('beforeend', `
+                                <div class="alert alert-success m-2 p-2 small">
+                                    <i class="bi bi-check-circle-fill me-1"></i>
+                                    Seleccionado: ${nombre}
+                                </div>
+                            `);
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    resultadosDiv.innerHTML = `
+                        <div class="text-center text-danger py-5">
+                            <i class="bi bi-exclamation-triangle-fill display-6 d-block mb-2"></i>
+                            <p>Error al buscar empleados. Intenta de nuevo.</p>
+                        </div>
+                    `;
+                });
         }
 
-        selectEmpleado.addEventListener('change', function() {
-            const selected = this.options[this.selectedIndex];
-            if (selected.value) {
-                empEmail.textContent = selected.getAttribute('data-email') || 'No disponible';
-                empNumero.textContent = selected.getAttribute('data-numero') || 'No disponible';
-                infoDiv.classList.remove('d-none');
+        buscador.addEventListener('input', function() {
+            const termino = this.value.trim();
 
-                // Guardar para el modal
-                const nombre = selected.textContent.split(' - ')[0].trim();
-                document.getElementById('dispMovilNombre').value = nombre;
-                document.getElementById('dispMovilNumero').value = selected.getAttribute('data-numero') || 'N/A';
-            } else {
-                infoDiv.classList.add('d-none');
+            if (empleadoIdInput.value) {
+                empleadoIdInput.value = '';
+                submitBtn.disabled = true;
             }
+
+            if (timeoutId) clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => buscarEmpleados(termino), 300);
         });
 
-        inputBuscar.addEventListener('keyup', filtrar);
-        inputBuscar.addEventListener('input', filtrar);
-
-        if (selectEmpleado.value) {
-            selectEmpleado.dispatchEvent(new Event('change'));
-        }
+        document.getElementById('asignacionForm').addEventListener('submit', function(e) {
+            if (!empleadoIdInput.value) {
+                e.preventDefault();
+                empleadoError.classList.remove('d-none');
+                empleadoError.textContent = 'Debes seleccionar un empleado de la lista';
+            }
+        });
     });
 
     function abrirModalMovil() {
         const empId = document.getElementById('empleado_id').value;
         if (!empId) {
-            alert('Debes seleccionar un empleado.');
+            document.getElementById('empleadoError').classList.remove('d-none');
+            document.getElementById('empleadoError').textContent = 'Debes seleccionar un empleado de la lista';
             return;
         }
 

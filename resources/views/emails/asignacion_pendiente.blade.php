@@ -271,7 +271,6 @@
                 <strong> Información importante</strong>
                 • Al aceptar, quedas registrado como responsable del equipo.<br>
                 • Si rechazas, la asignación será cancelada.<br>
-                • Si no reconoces esta solicitud, ignora este mensaje.
             </div>
         </div>
 

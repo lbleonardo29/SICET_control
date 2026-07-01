@@ -171,7 +171,7 @@
 
                                 {{-- Acciones --}}
                                 <td class="text-center">
-                                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                                    <div class="d-flex justify-content-center gap-2 flex-nowrap">
                                         <a href="{{ $eq->show_url }}" class="btn btn-sm btn-outline-primary" title="Ver detalles">
                                             <i class="bi bi-eye"></i>
                                         </a>
@@ -191,6 +191,11 @@
                                                     <i class="bi bi-person-plus"></i>
                                                 </a>
                                             @endif
+                                        @else
+                                            {{-- Espacio reservado para que la fila quede alineada con las que sí tienen botón de asignar --}}
+                                            <span class="btn btn-sm invisible" aria-hidden="true">
+                                                <i class="bi bi-person-plus"></i>
+                                            </span>
                                         @endif
                                     </div>
                                 </td>

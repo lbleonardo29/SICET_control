@@ -238,11 +238,6 @@
                 <option value="admin">Administrador</option>
               </select>
 
-              <div class="alert alert-warning d-flex align-items-center gap-2 py-2 mb-0" id="ar-sin-correo" hidden>
-                <i class="bi bi-envelope-exclamation fs-5 flex-shrink-0"></i>
-                <span class="small">Este empleado no tiene correo registrado en el corporativo. Las credenciales se enviarán a una dirección temporal (<span id="ar-correo-fallback"></span>) que probablemente nadie revisa.</span>
-              </div>
-
               {{-- Paso de confirmación (oculto hasta elegir rol) --}}
               <div id="ar-confirmacion" class="alert alert-info d-flex align-items-center gap-2 mt-3 py-2 mb-0" hidden>
                 <i class="bi bi-question-circle fs-5 flex-shrink-0"></i>
@@ -386,14 +381,6 @@
         document.getElementById('ar-nombre').textContent = nombre;
         document.getElementById('ar-numero').textContent = 'Núm. empleado: ' + idEmp;
         document.getElementById('ar-correo').textContent = correo || 'Sin correo registrado';
-
-        const sinCorreo = document.getElementById('ar-sin-correo');
-        if (!correo) {
-            document.getElementById('ar-correo-fallback').textContent = `${idEmp}@sicet.fruitex.mx`;
-            sinCorreo.hidden = false;
-        } else {
-            sinCorreo.hidden = true;
-        }
 
         // Reset de selección/confirmación en cada apertura
         document.getElementById('ar-role').value = '';

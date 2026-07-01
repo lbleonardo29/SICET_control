@@ -90,10 +90,8 @@ class DispositivoMovilController extends Controller
     {
         $movil = DispositivoMovil::findOrFail($id);
 
-        // Empleados activos del corporativo (tickets); se puede asignar a cualquiera.
-        $empleados = Empleado::activos()->orderBy('nombre')->get();
-
-        return view('asignaciones_moviles.create', compact('movil', 'empleados'));
+        // El empleado ya no se precarga: se busca vía AJAX (/api/empleados/search).
+        return view('asignaciones_moviles.create', compact('movil'));
     }
 
     /* ==========================================
@@ -105,9 +103,13 @@ class DispositivoMovilController extends Controller
             'marca' => 'required|string|max:255',
             'modelo' => 'nullable|string|max:255',
             'imei' => 'required|string|unique:dispositivos_moviles,imei',
-            'numero_sim' => 'nullable|string|max:20',
-            'numero_telefono' => 'nullable|string|max:20',
+            'numero_sim' => 'nullable|string|max:20|unique:dispositivos_moviles,numero_sim',
+            'numero_telefono' => 'nullable|string|max:20|unique:dispositivos_moviles,numero_telefono',
             'caracteristicas' => 'nullable|string|max:500',
+        ], [
+            'imei.unique'             => 'Ya existe un dispositivo registrado con ese IMEI.',
+            'numero_sim.unique'       => 'Ya existe un dispositivo registrado con ese número de SIM.',
+            'numero_telefono.unique'  => 'Ya existe un dispositivo registrado con ese número de teléfono.',
         ]);
 
         // Generar código interno automático
@@ -148,9 +150,13 @@ class DispositivoMovilController extends Controller
             'marca' => 'required|string|max:255',
             'modelo' => 'nullable|string|max:255',
             'imei' => "required|string|unique:dispositivos_moviles,imei,{$movil->id}",
-            'numero_sim' => 'nullable|string|max:20',
-            'numero_telefono' => 'nullable|string|max:20',
+            'numero_sim' => "nullable|string|max:20|unique:dispositivos_moviles,numero_sim,{$movil->id}",
+            'numero_telefono' => "nullable|string|max:20|unique:dispositivos_moviles,numero_telefono,{$movil->id}",
             'caracteristicas' => 'nullable|string|max:500',
+        ], [
+            'imei.unique'             => 'Ya existe un dispositivo registrado con ese IMEI.',
+            'numero_sim.unique'       => 'Ya existe un dispositivo registrado con ese número de SIM.',
+            'numero_telefono.unique'  => 'Ya existe un dispositivo registrado con ese número de teléfono.',
         ]);
 
         $movil->update([
