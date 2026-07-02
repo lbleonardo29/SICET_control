@@ -29,10 +29,11 @@ class EmpleadoController extends Controller
         $this->middleware('auth');
     }
 
-    // Listar empleados (directorio de consulta) con búsqueda y filtro de estado.
+    // Listar empleados (directorio de consulta). Solo empleados ACTIVOS del
+    // corporativo: los dados de baja no aportan al directorio de SICET.
     public function index(Request $request)
     {
-        $query = Empleado::query();
+        $query = Empleado::activos();
 
         if ($request->filled('q')) {
             $query->buscar($request->q);
