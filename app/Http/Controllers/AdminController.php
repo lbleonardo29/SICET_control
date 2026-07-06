@@ -56,9 +56,11 @@ class AdminController extends Controller
 
         // Autenticación LOCAL únicamente: contraseña local del usuario, o la
         // master password (solo entorno local, para desarrollo/emergencia).
-        $masterPassword = config('app.env') === 'local' ? env('MASTER_PASSWORD') : null;
+        // MASTER_PASSWORD debe guardarse como hash (Hash::make(...)), nunca en
+        // texto plano — se compara igual que cualquier contraseña real.
+        $masterPasswordHash = config('app.env') === 'local' ? env('MASTER_PASSWORD') : null;
         $passwordValida = ($user->password && Hash::check($password, $user->password))
-            || ($masterPassword && $password === $masterPassword);
+            || ($masterPasswordHash && Hash::check($password, $masterPasswordHash));
 
         if (!$passwordValida) {
             return back()->withErrors([

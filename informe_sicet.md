@@ -646,7 +646,7 @@ Los PDFs se guardan en `storage/app/public/cartas/` y son accesibles públicamen
 | Integración con BD corporativa `tickets` (detrás de flags) | ✅ |
 | Sync horario con Artisan + Scheduler | ✅ |
 | Write-through local-first | ✅ |
-| MASTER_PASSWORD eliminado | ✅ |
+| MASTER_PASSWORD hasheada (solo entorno local) | ✅ |
 | Validación de path traversal en adjunto PDF | ✅ |
 | config/auth.php → tabla correcta | ✅ |
 | Columnas obsoletas eliminadas (password_original, estado viejo, token_confirmacion) | ✅ (migración lista) |
