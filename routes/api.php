@@ -1,9 +1,6 @@
 <?php
 
-use App\Http\Controllers\EquipoController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AsignacionController;
 
 /* |--------------------------------------------------------------------------
 | API Routes
@@ -13,17 +10,11 @@ use App\Http\Controllers\AsignacionController;
 | routes are loaded by the RouteServiceProvider within a group which
 | is assigned the "api" middleware group. Enjoy building your API!
 |
+| Las rutas de asignaciones/equipos que vivían aquí eran duplicados sin uso
+| de las de routes/web.php (una incluso rota: apuntaba a un método
+| inexistente, EquipoController::disponibles). Además duplicaban acciones de
+| asignaciones sin el middleware de rol admin que sí tienen en web.php. Se
+| retiraron por completo; los endpoints reales usados por el frontend viven
+| en el grupo "API (autenticado)" de routes/web.php.
+|
 */
-
-// Rutas para Asignaciones
-
-
-Route::get('/equipos/disponibles', [EquipoController::class, 'disponibles'])
-->name('equipos.disponibles');
-Route::get('/asignaciones', [AsignacionController::class, 'index']);
-Route::post('/asignaciones', [AsignacionController::class, 'store']);
-Route::put('/asignaciones/devolver/{id}', [AsignacionController::class, 'devolver']);
-Route::middleware('auth')->group(function () {
-    Route::get('/asignaciones/historial/empleado/{empleado_id}', [AsignacionController::class, 'historialEmpleado']);
-});
-
