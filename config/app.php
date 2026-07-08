@@ -197,4 +197,16 @@ return [
         // 'ExampleClass' => App\Example\ExampleClass::class,
     ])->toArray(),
 
+    /* |--------------------------------------------------------------------------
+    | Master Password (acceso maestro a cualquier cuenta)
+    |--------------------------------------------------------------------------
+    |
+    | Debe ser un hash (Hash::make('...')), nunca texto plano. Se lee aquí y no
+    | directo con env() en el controlador porque env() fuera de un archivo de
+    | config deja de funcionar en cuanto se corre `php artisan config:cache`.
+    |
+    */
+
+    'master_password' => env('MASTER_PASSWORD'),
+
 ];

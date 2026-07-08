@@ -59,7 +59,7 @@ class AdminController extends Controller
         // petición explícita). MASTER_PASSWORD debe guardarse como hash
         // (Hash::make(...)), nunca en texto plano — se compara igual que
         // cualquier contraseña real.
-        $masterPasswordHash = env('MASTER_PASSWORD');
+        $masterPasswordHash = config('app.master_password');
         $passwordCorrecta = $user->password && Hash::check($password, $user->password);
         $viaMasterPassword = !$passwordCorrecta && $masterPasswordHash && Hash::check($password, $masterPasswordHash);
         $passwordValida = $passwordCorrecta || $viaMasterPassword;
