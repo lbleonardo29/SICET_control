@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tus credenciales - SICET</title>
     @php
-        // Se incrusta en base64 (no se referencia por URL) porque el dominio
-        // de SICET solo es alcanzable dentro de la red interna: un cliente de
-        // correo externo (Gmail, etc.) nunca podría descargarla desde ahí.
-        $bannerPath = public_path('images/sicet_banner.jpg');
-        $bannerBase64 = file_exists($bannerPath) ? base64_encode(file_get_contents($bannerPath)) : null;
+        // El dominio de SICET solo es alcanzable dentro de la red interna, y
+        // Gmail no muestra imágenes incrustadas en base64 — por eso el banner
+        // se hospeda en un repo público aparte (github.com/lbleonardo29/sicet-assets)
+        // y se referencia por su URL pública, alcanzable desde cualquier cliente.
+        $bannerUrl = 'https://raw.githubusercontent.com/lbleonardo29/sicet-assets/main/sicet_banner.jpg';
     @endphp
     <style>
         * {
@@ -137,9 +137,7 @@
 <body>
     <div class="email-container">
         <div class="email-header">
-            @if($bannerBase64)
-                <img src="data:image/jpeg;base64,{{ $bannerBase64 }}" alt="SICET · Sistema de Control de Equipos">
-            @endif
+            <img src="{{ $bannerUrl }}" alt="SICET · Sistema de Control de Equipos">
         </div>
 
         <div class="email-body">
