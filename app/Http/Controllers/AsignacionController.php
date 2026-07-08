@@ -536,14 +536,15 @@ class AsignacionController extends Controller
     private function vincularPlantas($empleados): void
     {
         $idsPlanta = $empleados->pluck('id_planta')->filter()->unique()->all();
-        if (empty($idsPlanta)) {
-            return;
-        }
 
         $plantas = \App\Models\Planta::whereIn('id_planta_corp', $idsPlanta)
             ->get()
             ->keyBy('id_planta_corp');
 
-        $empleados->each(fn ($e) => $e->setRelation('planta', $plantas->get($e->id_planta)));
+        // Empleados sin planta capturada en el corporativo caen en "CORPORATIVO"
+        // en vez de quedar en blanco.
+        $corporativo = \App\Models\Planta::where('nombre', 'CORPORATIVO')->first();
+
+        $empleados->each(fn ($e) => $e->setRelation('planta', $plantas->get($e->id_planta) ?? $corporativo));
     }
 }

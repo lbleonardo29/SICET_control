@@ -192,11 +192,16 @@
                                 </label>
                                 <select name="ram" class="form-select form-select-lg @error('ram') is-invalid @enderror" required>
                                     <option value="">Seleccione</option>
+                                    <option value="2GB" {{ old('ram', $equipo->ram) == '2GB' ? 'selected' : '' }}>2GB</option>
                                     <option value="4GB" {{ old('ram', $equipo->ram) == '4GB' ? 'selected' : '' }}>4GB</option>
+                                    <option value="6GB" {{ old('ram', $equipo->ram) == '6GB' ? 'selected' : '' }}>6GB</option>
                                     <option value="8GB" {{ old('ram', $equipo->ram) == '8GB' ? 'selected' : '' }}>8GB</option>
+                                    <option value="12GB" {{ old('ram', $equipo->ram) == '12GB' ? 'selected' : '' }}>12GB</option>
                                     <option value="16GB" {{ old('ram', $equipo->ram) == '16GB' ? 'selected' : '' }}>16GB</option>
+                                    <option value="24GB" {{ old('ram', $equipo->ram) == '24GB' ? 'selected' : '' }}>24GB</option>
                                     <option value="32GB" {{ old('ram', $equipo->ram) == '32GB' ? 'selected' : '' }}>32GB</option>
                                     <option value="64GB" {{ old('ram', $equipo->ram) == '64GB' ? 'selected' : '' }}>64GB</option>
+                                    <option value="128GB" {{ old('ram', $equipo->ram) == '128GB' ? 'selected' : '' }}>128GB</option>
                                 </select>
                                 @error('ram')
                                     <div class="invalid-feedback">{{ $message }}</div>

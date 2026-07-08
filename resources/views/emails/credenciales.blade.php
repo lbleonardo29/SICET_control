@@ -103,10 +103,13 @@
         }
         .btn-link {
             display: inline-block;
+            background-color: #155029;
+            color: #ffffff;
             font-size: 15px;
             font-weight: 600;
-            color: #2563eb;
-            text-decoration: underline;
+            text-decoration: none;
+            padding: 12px 32px;
+            border-radius: 8px;
         }
         a {
             color: #2563eb;
@@ -156,7 +159,7 @@
             </div>
 
             <div class="btn-container">
-                <a href="{{ route('login') }}" class="btn-link">
+                <a href="{{ route('login') }}" class="btn-link" style="display:inline-block;background-color:#155029;color:#ffffff;text-decoration:none;padding:12px 32px;border-radius:8px;font-weight:600;">
                     Iniciar sesión en SICET →
                 </a>
             </div>

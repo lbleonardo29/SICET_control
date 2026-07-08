@@ -49,9 +49,12 @@ class EmpleadoController extends Controller
 
         // Igual para la planta (misma razón: Empleado no puede tener relaciones
         // hacia tablas locales; ver nota en app/Models/Empleado.php).
+        // Empleados sin planta capturada en el corporativo (id_planta vacío) caen
+        // en "CORPORATIVO" en vez de quedar en blanco.
         $idsPlanta = $empleados->pluck('id_planta')->filter()->unique()->all();
         $plantas = Planta::whereIn('id_planta_corp', $idsPlanta)->get()->keyBy('id_planta_corp');
-        $empleados->each(fn ($e) => $e->setRelation('planta', $plantas->get($e->id_planta)));
+        $corporativo = Planta::where('nombre', 'CORPORATIVO')->first();
+        $empleados->each(fn ($e) => $e->setRelation('planta', $plantas->get($e->id_planta) ?? $corporativo));
 
         return view('empleados.index', compact('empleados'));
     }
