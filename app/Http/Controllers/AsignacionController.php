@@ -204,29 +204,9 @@ class AsignacionController extends Controller
         // Buscar empleado (PK = id_emp)
         $empleado = Empleado::find($request->empleado_id);
 
-        // =====================================================
-        // GENERAR PDF
-        // =====================================================
-        try {
-            if (!Storage::disk('public')->exists('cartas')) {
-                Storage::disk('public')->makeDirectory('cartas');
-            }
-
-            $pdf = Pdf::loadView('pdf.carta_asignacion', [
-                'equipo' => $equipo,
-                'empleado' => $empleado,
-                'asignacion' => $asignacion
-            ]);
-
-            $nombre = 'carta_equipo_' . $asignacion->id . '.pdf';
-            $ruta = 'cartas/' . $nombre;
-
-            Storage::disk('public')->put($ruta, $pdf->output());
-            $asignacion->update(['carta_pdf' => $ruta]);
-
-        } catch (\Exception $e) {
-            \Log::error('Error al generar PDF: ' . $e->getMessage());
-        }
+        // La carta responsiva ya no se genera ni se guarda aquí: se genera al
+        // vuelo bajo demanda (ver descargar()), a partir de los datos de la
+        // asignación — no hace falta un PDF "borrador" antes de firmar.
 
         // =====================================================
         // ENVIAR CORREO DE NOTIFICACIÓN (sin enlaces)
@@ -340,22 +320,8 @@ class AsignacionController extends Controller
 
         $asignacion->equipo->update(['estado' => 'Asignado']);
 
-        // Regenerar la carta responsiva CON la firma incrustada
-        try {
-            if (!Storage::disk('public')->exists('cartas')) {
-                Storage::disk('public')->makeDirectory('cartas');
-            }
-            $pdf = Pdf::loadView('pdf.carta_asignacion', [
-                'equipo'     => $asignacion->equipo,
-                'empleado'   => $asignacion->empleado,
-                'asignacion' => $asignacion,
-            ]);
-            $ruta = 'cartas/carta_equipo_' . $asignacion->id . '.pdf';
-            Storage::disk('public')->put($ruta, $pdf->output());
-            $asignacion->update(['carta_pdf' => $ruta]);
-        } catch (\Exception $e) {
-            \Log::error('Error al generar PDF firmado: ' . $e->getMessage());
-        }
+        // La carta responsiva (ya con la firma incrustada) se genera al vuelo
+        // cuando se descarga (ver descargar()), no se guarda un archivo aquí.
 
         // Notificar a los administradores
         Notification::send(
@@ -470,7 +436,7 @@ class AsignacionController extends Controller
 
     public function descargar($id)
     {
-        $asignacion = Asignacion::findOrFail($id);
+        $asignacion = Asignacion::with(['empleado', 'equipo'])->findOrFail($id);
 
         // Solo admin o el empleado dueño de la asignación
         $user = Auth::user();
@@ -478,15 +444,18 @@ class AsignacionController extends Controller
             abort(403, 'No tienes permiso para descargar esta carta.');
         }
 
-        if (!$asignacion->carta_pdf) {
-            return back()->with('error', 'No hay PDF disponible. La carta se genera al firmar la asignación.');
+        if ($asignacion->estado_asignacion !== 'aceptada') {
+            return back()->with('error', 'La carta se genera al firmar la asignación.');
         }
 
-        if (!Storage::disk('public')->exists($asignacion->carta_pdf)) {
-            return back()->with('error', 'El archivo PDF no existe.');
-        }
+        // Se genera al vuelo con los datos actuales; no se guarda en disco.
+        $pdf = Pdf::loadView('pdf.carta_asignacion', [
+            'equipo' => $asignacion->equipo,
+            'empleado' => $asignacion->empleado,
+            'asignacion' => $asignacion,
+        ]);
 
-        return Storage::disk('public')->download($asignacion->carta_pdf);
+        return $pdf->download('carta_responsiva_equipo_' . $asignacion->id . '.pdf');
     }
 
     /* =====================================================
@@ -499,10 +468,6 @@ class AsignacionController extends Controller
 
         if (!$asignacion->fecha_devolucion && $asignacion->estado_asignacion === 'aceptada') {
             return back()->with('error', 'No se puede eliminar una asignación activa.');
-        }
-
-        if ($asignacion->carta_pdf && Storage::disk('public')->exists($asignacion->carta_pdf)) {
-            Storage::disk('public')->delete($asignacion->carta_pdf);
         }
 
         $asignacion->delete();

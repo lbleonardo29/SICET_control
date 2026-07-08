@@ -218,7 +218,7 @@
 
                                 {{-- PDF --}}
                                 <td class="text-center">
-                                    @if($a->carta_pdf && $a->estado_asignacion == 'aceptada')
+                                    @if($a->estado_asignacion == 'aceptada')
                                         <a href="{{ route('asignaciones.descargar', $a->id) }}"
                                            class="btn btn-sm btn-outline-primary"
                                            target="_blank"

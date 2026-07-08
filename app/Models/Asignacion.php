@@ -19,7 +19,6 @@ class Asignacion extends Model
         'empleado_id',
         'fecha_asignacion',
         'fecha_devolucion',
-        'carta_pdf',
         'firma',               // NUEVO: firma electrónica (PNG base64)
         'fecha_firma',         // NUEVO: cuándo firmó
         'user_id',

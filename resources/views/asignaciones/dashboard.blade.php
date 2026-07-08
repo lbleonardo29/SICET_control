@@ -241,7 +241,7 @@
                                     
                                     {{-- Indicador PDF --}}
                                     <div class="mt-2">
-                                        @if($asignacion->carta_pdf)
+                                        @if($asignacion->estado_asignacion == 'aceptada')
                                             <span class="badge bg-success bg-opacity-10 text-success px-2 py-1">
                                                 <i class="bi bi-file-pdf me-1"></i>
                                                 PDF
@@ -261,7 +261,7 @@
                                     <div class="d-flex justify-content-center gap-2 flex-wrap">
 
                                         {{-- Botones PDF --}}
-                                        @if($asignacion->carta_pdf)
+                                        @if($asignacion->estado_asignacion == 'aceptada')
                                             <button type="button"
                                                     class="btn btn-sm btn-info"
                                                     onclick="verPDF('{{ route('equipos.carta', $asignacion->equipo_id) }}', '{{ route('asignaciones.descargar', $asignacion->id) }}')"

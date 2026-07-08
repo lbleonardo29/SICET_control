@@ -14,7 +14,6 @@ class AsignacionMovil extends Model
         'user_id',
         'fecha_asignacion',
         'fecha_devolucion',
-        'carta_pdf',
         'firma',               // NUEVO: firma electrónica (PNG base64)
         'fecha_firma',         // NUEVO: cuándo firmó
         'estado_asignacion',   // NUEVO: pendiente, aceptada, rechazada

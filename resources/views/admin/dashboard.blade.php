@@ -495,7 +495,7 @@
                     </div>
                     <div class="s-device-detail">Serie: <span>{{ $asig->equipo->numero_serie }}</span></div>
                     <div class="s-device-detail">Asignado el: <span>{{ \Carbon\Carbon::parse($asig->fecha_asignacion)->format('d/m/Y') }}</span></div>
-                    @if($asig->carta_pdf)
+                    @if($asig->estado_asignacion == 'aceptada')
                     <a href="{{ route('asignaciones.descargar', $asig->id) }}" class="s-pdf-btn">
                         <i class="bi bi-file-earmark-pdf me-1"></i> Descargar carta (PDF)
                     </a>
@@ -536,7 +536,7 @@
                     </div>
                     <div class="s-device-detail">IMEI: <span>{{ $movil->dispositivo->imei }}</span></div>
                     <div class="s-device-detail">Asignado el: <span>{{ \Carbon\Carbon::parse($movil->fecha_asignacion)->format('d/m/Y') }}</span></div>
-                    @if($movil->carta_pdf)
+                    @if($movil->estado_asignacion == 'aceptada')
                     <a href="{{ route('asignaciones.moviles.descargar', $movil->id) }}" class="s-pdf-btn">
                         <i class="bi bi-file-earmark-pdf me-1"></i> Descargar carta (PDF)
                     </a>
@@ -597,7 +597,7 @@
                     </div>
                     <div class="s-device-detail">Serie: <span>{{ $asig->equipo->numero_serie }}</span></div>
                     <div class="s-device-detail">Asignado el: <span>{{ \Carbon\Carbon::parse($asig->fecha_asignacion)->format('d/m/Y') }}</span></div>
-                    @if($asig->carta_pdf)
+                    @if($asig->estado_asignacion == 'aceptada')
                     <a href="{{ route('asignaciones.descargar', $asig->id) }}" class="s-pdf-btn">
                         <i class="bi bi-file-earmark-pdf me-1"></i> Descargar carta (PDF)
                     </a>
@@ -639,7 +639,7 @@
                     </div>
                     <div class="s-device-detail">IMEI: <span>{{ $movil->dispositivo->imei }}</span></div>
                     <div class="s-device-detail">Asignado el: <span>{{ \Carbon\Carbon::parse($movil->fecha_asignacion)->format('d/m/Y') }}</span></div>
-                    @if($movil->carta_pdf)
+                    @if($movil->estado_asignacion == 'aceptada')
                     <a href="{{ route('asignaciones.moviles.descargar', $movil->id) }}" class="s-pdf-btn">
                         <i class="bi bi-file-earmark-pdf me-1"></i> Descargar carta (PDF)
                     </a>

@@ -146,7 +146,7 @@
 
                         @role('admin')
                         <div class="d-flex gap-2 mt-3">
-                            @if($asignacionActual->carta_pdf)
+                            @if($asignacionActual->estado_asignacion == 'aceptada')
                                 <a href="{{ route('asignaciones.moviles.descargar', $asignacionActual->id) }}"
                                    class="btn btn-sm btn-success">
                                     <i class="bi bi-download me-1"></i> Descargar carta
