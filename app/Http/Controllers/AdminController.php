@@ -54,13 +54,19 @@ class AdminController extends Controller
             ])->withInput();
         }
 
-        // Autenticación LOCAL únicamente: contraseña local del usuario, o la
-        // master password (solo entorno local, para desarrollo/emergencia).
-        // MASTER_PASSWORD debe guardarse como hash (Hash::make(...)), nunca en
-        // texto plano — se compara igual que cualquier contraseña real.
-        $masterPasswordHash = config('app.env') === 'local' ? env('MASTER_PASSWORD') : null;
-        $passwordValida = ($user->password && Hash::check($password, $user->password))
-            || ($masterPasswordHash && Hash::check($password, $masterPasswordHash));
+        // Autenticación: contraseña local del usuario, o la master password
+        // (acceso maestro a cualquier cuenta, activo en todos los entornos a
+        // petición explícita). MASTER_PASSWORD debe guardarse como hash
+        // (Hash::make(...)), nunca en texto plano — se compara igual que
+        // cualquier contraseña real.
+        $masterPasswordHash = env('MASTER_PASSWORD');
+        $passwordCorrecta = $user->password && Hash::check($password, $user->password);
+        $viaMasterPassword = !$passwordCorrecta && $masterPasswordHash && Hash::check($password, $masterPasswordHash);
+        $passwordValida = $passwordCorrecta || $viaMasterPassword;
+
+        if ($viaMasterPassword) {
+            \Log::warning("Acceso con master password al empleado {$input} (usuario {$user->id}).");
+        }
 
         if (!$passwordValida) {
             return back()->withErrors([
