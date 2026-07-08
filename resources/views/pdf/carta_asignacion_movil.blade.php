@@ -5,8 +5,8 @@
     <title>Carta Responsiva Móvil SICET</title>
 
     @php
-        $logoIzqPath = public_path('img/logo_izq.png');
-        $logoDerPath = public_path('img/logo_der.png');
+        $logoIzqPath = public_path('images/Instantia.png');
+        $logoDerPath = public_path('images/fruitex-logo.png');
 
         $logoIzq = file_exists($logoIzqPath)
             ? base64_encode(file_get_contents($logoIzqPath))
@@ -75,9 +75,18 @@
             padding: 6px 10px;
         }
 
+        .firma-slot {
+            height: 70px;
+        }
+
+        .firma-slot img {
+            max-width: 180px;
+            max-height: 70px;
+            display: block;
+        }
+
         .firma-linea {
             border-top: 1px solid #000000;
-            margin-top: 30px;
             padding-top: 5px;
             width: 80%;
         }
@@ -167,10 +176,11 @@
     <table class="tabla-firmas">
         <tr>
             <td>
-                @if(!empty($asignacion) && !empty($asignacion->firma))
-                    <img src="{{ $asignacion->firma }}" alt="Firma de aceptación"
-                         style="max-width:200px; max-height:70px; display:block; margin-bottom:-8px;">
-                @endif
+                <div class="firma-slot">
+                    @if(!empty($asignacion) && !empty($asignacion->firma))
+                        <img src="{{ $asignacion->firma }}" alt="Firma de aceptación">
+                    @endif
+                </div>
                 <div class="firma-linea"></div>
                 <div class="nombre-firma">
                     <strong>FIRMA DE ACEPTACIÓN:</strong>
@@ -181,6 +191,7 @@
                 </div>
             </td>
             <td>
+                <div class="firma-slot"></div>
                 <div class="firma-linea"></div>
                 <div class="nombre-firma">
                     <strong>FIRMA DE QUIEN ENTREGA:</strong>
@@ -194,7 +205,7 @@
             </td>
             <td>
                 <strong>NOMBRE:</strong><br>
-                Edgar Alcántara
+                &nbsp;
             </td>
         </tr>
         <tr>
