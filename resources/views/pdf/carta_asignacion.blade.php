@@ -247,7 +247,7 @@
             </td>
             <td>
                 <strong>NOMBRE:</strong><br>
-                &nbsp;
+                Edgar Alcántara Domínguez
             </td>
         </tr>
         <tr>

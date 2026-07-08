@@ -27,16 +27,11 @@
             border: 1px solid #e5e7eb;
         }
         .email-header {
-            background-color: #155029;
-            padding: 28px 24px;
-            text-align: center;
-            color: #ffffff;
+            line-height: 0;
         }
-        .email-header h1 {
-            font-size: 24px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            margin: 0;
+        .email-header img {
+            width: 100%;
+            display: block;
         }
         .email-body {
             padding: 32px;
@@ -135,7 +130,7 @@
 <body>
     <div class="email-container">
         <div class="email-header">
-            <h1>SICET</h1>
+            <img src="{{ asset('images/sicet_banner.jpg') }}" alt="SICET · Sistema de Control de Equipos">
         </div>
 
         <div class="email-body">
@@ -167,7 +162,6 @@
 
         <div class="email-footer">
             <p>&copy; {{ date('Y') }} SICET · Sistema de Control de Equipos</p>
-            <p>Este es un correo automático, por favor no responder.</p>
         </div>
     </div>
 </body>
