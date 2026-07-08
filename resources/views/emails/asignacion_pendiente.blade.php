@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nueva asignación pendiente - SICET</title>
+    @php
+        // Se incrusta en base64 (no se referencia por URL) porque el dominio
+        // de SICET solo es alcanzable dentro de la red interna: un cliente de
+        // correo externo (Gmail, etc.) nunca podría descargarla desde ahí.
+        $bannerPath = public_path('images/sicet_banner.jpg');
+        $bannerBase64 = file_exists($bannerPath) ? base64_encode(file_get_contents($bannerPath)) : null;
+    @endphp
     <style>
         * {
             margin: 0;
@@ -157,7 +164,9 @@
 <body>
     <div class="email-container">
         <div class="email-header">
-            <img src="{{ asset('images/sicet_banner.jpg') }}" alt="SICET · Sistema de Control de Equipos">
+            @if($bannerBase64)
+                <img src="data:image/jpeg;base64,{{ $bannerBase64 }}" alt="SICET · Sistema de Control de Equipos">
+            @endif
         </div>
 
         <div class="email-body">
