@@ -266,9 +266,9 @@
         font-size: 0.8rem;
         letter-spacing: 0.5px;
     }
-    .card.bg-primary { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
-    .card.bg-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
-    .card.bg-secondary { background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%); }
+    .card.bg-primary { background: linear-gradient(135deg, #1d6b3a 0%, #133d22 100%); }
+    .card.bg-success { background: linear-gradient(135deg, #2f9e52 0%, #1f7a3d 100%); }
+    .card.bg-secondary { background: linear-gradient(135deg, #8bb894 0%, #6b9c74 100%); }
     .card.bg-danger { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
     .text-white-50 { color: rgba(255,255,255,0.7); }
     .badge.bg-light {
