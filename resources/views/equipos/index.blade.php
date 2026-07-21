@@ -15,15 +15,15 @@
             <div class="d-flex gap-4 text-muted">
                 <span>
                     <i class="bi bi-check-circle-fill text-success me-1"></i>
-                    Disponibles: <strong>{{ $equipos->where('estado', 'Disponible')->count() }}</strong>
+                    Disponibles: <strong>{{ $conteoEstados['Disponible'] ?? 0 }}</strong>
                 </span>
                 <span>
                     <i class="bi bi-person-check-fill text-primary me-1"></i>
-                    Asignadas: <strong>{{ $equipos->where('estado', 'Asignado')->count() }}</strong>
+                    Asignadas: <strong>{{ $conteoEstados['Asignado'] ?? 0 }}</strong>
                 </span>
                 <span>
                     <i class="bi bi-tools text-warning me-1"></i>
-                    En reparación: <strong>{{ $equipos->where('estado', 'En reparación')->count() }}</strong>
+                    En reparación: <strong>{{ $conteoEstados['En reparación'] ?? 0 }}</strong>
                 </span>
                 <span>
                     <i class="bi bi-archive text-secondary me-1"></i>
@@ -184,7 +184,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($equipos as $computadora)
+                        @forelse($equipos as $index => $computadora)
                             @php
                                 $ultimaAsignacion = $computadora->ultimaAsignacion ?? null;
                                 $estadoAsignacion = $ultimaAsignacion ? $ultimaAsignacion->estado_asignacion : null;
@@ -192,7 +192,7 @@
                                 $tieneAceptada = ($estadoAsignacion == 'aceptada' && !$ultimaAsignacion->fecha_devolucion);
                             @endphp
                             <tr>
-                                <td class="px-3 fw-bold">{{ $computadora->id }}</td>
+                                <td class="px-3 fw-bold">{{ $equipos->firstItem() + $index }}</td>
 
                                 {{-- Nombre del Equipo (NUEVO) --}}
                                 <td>

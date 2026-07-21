@@ -103,11 +103,11 @@
         <div class="s-sub-nav {{ $eqActive ? 'open' : '' }}" id="nav-eq">
             <a href="{{ route('equipos.catalogo') }}"
                class="s-sub-link {{ Route::is('equipos.catalogo') ? 'active' : '' }}">
-                <span class="s-sub-dot"></span> Catálogo (todos)
+                <span class="s-sub-dot"></span> Catálogo
             </a>
-            <a href="{{ route('equipos.catalogo', ['estado' => 'Disponible']) }}"
-               class="s-sub-link">
-                <span class="s-sub-dot"></span> Disponibles
+            <a href="{{ route('equipos.index') }}"
+               class="s-sub-link {{ Route::is('equipos.index') ? 'active' : '' }}">
+                <span class="s-sub-dot"></span> Equipos
             </a>
             <a href="{{ route('equipos.create') }}"
                class="s-sub-link {{ Route::is('equipos.create') ? 'active' : '' }}">

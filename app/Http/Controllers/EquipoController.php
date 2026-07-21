@@ -153,6 +153,14 @@ class EquipoController extends Controller
                 $query->orderBy('created_at', 'desc');
         }
 
+        // Conteo real por estado (respeta los filtros activos), antes de paginar.
+        // reorder() quita el ORDER BY para no violar only_full_group_by en MySQL.
+        $conteoEstados = (clone $query)->reorder()
+            ->select('estado')
+            ->selectRaw('count(*) as total')
+            ->groupBy('estado')
+            ->pluck('total', 'estado');
+
         // Paginación
         $equipos = $query->paginate(15)->withQueryString();
 
@@ -161,7 +169,7 @@ class EquipoController extends Controller
         $plantas = Planta::all();
         $marcas  = Equipo::distinct()->pluck('marca')->filter()->values();
 
-        return view('equipos.index', compact('equipos', 'estados', 'plantas', 'marcas'));
+        return view('equipos.index', compact('equipos', 'estados', 'plantas', 'marcas', 'conteoEstados'));
     }
 
     /**

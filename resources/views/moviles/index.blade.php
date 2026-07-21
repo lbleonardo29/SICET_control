@@ -15,15 +15,15 @@
             <div class="d-flex gap-4 text-muted">
                 <span>
                     <i class="bi bi-check-circle-fill text-success me-1"></i>
-                    Disponibles: <strong>{{ $moviles->where('estado', 'Disponible')->count() }}</strong>
+                    Disponibles: <strong>{{ $conteoEstados['Disponible'] ?? 0 }}</strong>
                 </span>
                 <span>
                     <i class="bi bi-person-check-fill text-primary me-1"></i>
-                    Asignados: <strong>{{ $moviles->where('estado', 'Asignado')->count() }}</strong>
+                    Asignados: <strong>{{ $conteoEstados['Asignado'] ?? 0 }}</strong>
                 </span>
                 <span>
                     <i class="bi bi-tools text-warning me-1"></i>
-                    En reparación: <strong>{{ $moviles->where('estado', 'En reparación')->count() }}</strong>
+                    En reparación: <strong>{{ $conteoEstados['En reparación'] ?? 0 }}</strong>
                 </span>
                 <span>
                     <i class="bi bi-archive text-secondary me-1"></i>
@@ -153,7 +153,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($moviles as $movil)
+                        @forelse($moviles as $index => $movil)
                             @php
                                 $ultimaAsignacion = $movil->ultimaAsignacion ?? null;
                                 $estadoAsignacion = $ultimaAsignacion ? $ultimaAsignacion->estado_asignacion : null;
@@ -161,7 +161,7 @@
                                 $tieneAceptada = ($estadoAsignacion == 'aceptada' && !$ultimaAsignacion->fecha_devolucion);
                             @endphp
                             <tr>
-                                <td class="px-3 fw-bold">{{ $movil->id }}</td>
+                                <td class="px-3 fw-bold">{{ $moviles->firstItem() + $index }}</td>
 
                                 {{-- Código --}}
                                 <td>

@@ -54,12 +54,20 @@ class DispositivoMovilController extends Controller
                 $query->orderBy('created_at', 'desc');
         }
 
+        // Conteo real por estado (respeta los filtros activos), antes de paginar.
+        // reorder() quita el ORDER BY para no violar only_full_group_by en MySQL.
+        $conteoEstados = (clone $query)->reorder()
+            ->select('estado')
+            ->selectRaw('count(*) as total')
+            ->groupBy('estado')
+            ->pluck('total', 'estado');
+
         $moviles = $query->paginate(15)->withQueryString();
 
         // Obtener marcas para filtros
         $marcas = DispositivoMovil::distinct()->pluck('marca')->filter()->values();
 
-        return view('moviles.index', compact('moviles', 'marcas'));
+        return view('moviles.index', compact('moviles', 'marcas', 'conteoEstados'));
     }
 
     /* ==========================================
